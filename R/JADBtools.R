@@ -1,7 +1,6 @@
 getFilePath <- function(ID, format='.', processing='.', scale='.') {
 
-    mysql <- dbDriver("MySQL")
-    con <- dbConnect(mysql, user=cnf_user, password=cnf_password, dbname=cnf_dbname, host=cnf_host)
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
   
     exp_file <- unlist( dbGetQuery(
         con, paste(
@@ -16,17 +15,7 @@ getFilePath <- function(ID, format='.', processing='.', scale='.') {
 }
 
 makeFileUID <- function(string='', prefix='X') {
-    mysql <- dbDriver("MySQL")
-    con <- dbConnect(mysql, user=cnf_user, password=cnf_password, dbname=cnf_dbname, host=cnf_host)
-    md5 <- substr(digest::digest(string, algo='md5'), 1, 2)
-    num <- max(as.numeric(substr(unlist(dbGetQuery(con, "SELECT UID FROM labfiles")), 4, 8)))+1
-    dbDisconnect(con)
-    return(sprintf('%s%s%05d', prefix, md5, num))
-}
-
-makeFileUID <- function(string='', prefix='X') {
-    mysql <- dbDriver("MySQL")
-    con <- dbConnect(mysql, user=cnf_user, password=cnf_password, dbname=cnf_dbname, host=cnf_host)
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
     md5 <- substr(digest::digest(string, algo='md5'), 1, 2)
     num <- max(as.numeric(substr(unlist(dbGetQuery(con, "SELECT UID FROM labfiles")), 4, 8)))+1
     dbDisconnect(con)
@@ -49,8 +38,8 @@ addGenericFile <- function(
     parent3_uid=NA,
     uniq=NA
     ) {
-    mysql <- dbDriver("MySQL")
-    con <- dbConnect(mysql, user=cnf_user, password=cnf_password, dbname=cnf_dbname, host=cnf_host)
+    
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
     
     UID=makeFileUID(gsub('\\..+', '',  basename(path)), prefix)
     INSERT <- list(
@@ -89,8 +78,7 @@ formGenericPath <- function(
     ContactExpID, EXTABLE='labrnaseq', Processing=NA, Resolution=NA, Scale=NA
 ){
     
-    mysql <- dbDriver("MySQL")
-    con <- dbConnect(mysql, user=cnf_user, password=cnf_password, dbname=cnf_dbname, host=cnf_host)
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
 
     PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', EXTABLE) ))[['Column_name']]
     fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", EXTABLE))
