@@ -1,0 +1,17 @@
+Package: JADBtools
+Type: Package
+Title: R tools for JADB
+Version: 0.1.1
+Date: 2014-10-13
+Author: Przemyslaw Stempor
+Maintainer: Przemyslaw Stempor <ps562@cam.ac.uk>
+Description: R tools for feaching and removeing files from JADB
+Depends:
+    R (>= 3.1.0)
+Imports:
+    XML,
+    DBI,
+    RMySQL,
+    digest,
+    rtracklayer
+License: LGPL
