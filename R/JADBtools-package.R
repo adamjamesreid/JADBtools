@@ -1,5 +1,5 @@
-#' @docType JADBtools
-#' @name seqplots
+#' @docType package
+#' @name JADBtools
 #' 
 #' @title 
 #' JADB I/O tools
