@@ -7,7 +7,8 @@ Author: Przemyslaw Stempor
 Maintainer: Przemyslaw Stempor <ps562@cam.ac.uk>
 Description: R tools for feaching and removeing files from JADB
 Depends:
-    R (>= 3.1.0)
+    R (>= 3.1.0),
+    RMySQL
 Imports:
     XML,
     DBI,

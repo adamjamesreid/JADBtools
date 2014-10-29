@@ -1,3 +1,19 @@
+#' Get file URL
+#' 
+#' Accepts regular expressions.
+#' 
+#' @param ID ContactExperimetID 
+#' @param scale filter regex
+#' @param processing filter regex 
+#' @param format filter regex
+#'   
+#' @return URL string
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family dbtools
+#' @export
+#' 
 getFilePath <- function(ID, format='.', processing='.', scale='.') {
 
     con <- dbConnect(dbDriver("MySQL"), group = "jadb")
@@ -14,6 +30,18 @@ getFilePath <- function(ID, format='.', processing='.', scale='.') {
     return(addr)
 }
 
+#' Make UID
+#' 
+#' @param string file patch or other string for md5 
+#' @param prefix UID prefix letter, defaults to "X"
+#'   
+#' @return IUD string
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family dbtools
+#' @export
+#' 
 makeFileUID <- function(string='', prefix='X') {
     con <- dbConnect(dbDriver("MySQL"), group = "jadb")
     md5 <- substr(digest::digest(string, algo='md5'), 1, 2)
@@ -22,6 +50,19 @@ makeFileUID <- function(string='', prefix='X') {
     return(sprintf('%s%s%05d', prefix, md5, num))
 }
 
+
+#' Add file to database
+#' 
+#' @param ContactExpID ID string
+#' @param path prefix UID prefix letter, defaults to "X"
+#'   
+#' @return entry list
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family dbtools
+#' @export
+#' 
 addGenericFile <- function(
     ContactExpID,
     path,
@@ -74,6 +115,22 @@ addGenericFile <- function(
     return(INSERT)    
 }
 
+#' Make generic file name
+#' 
+#' @param ContactExpID experiment ID string
+#' @param EXTABLE experiment table in db schema
+#' @param scale file name parameter
+#' @param processing file name parameter
+#' @param format file name parameter
+#'   
+#'   
+#' @return name string
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family dbtools
+#' @export
+#' 
 formGenericPath <- function( 
     ContactExpID, EXTABLE='labrnaseq', Processing=NA, Resolution=NA, Scale=NA
 ){
