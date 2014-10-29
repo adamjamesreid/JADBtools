@@ -14,5 +14,6 @@ Imports:
     DBI,
     RMySQL,
     digest,
-    rtracklayer
+    rtracklayer,
+    RJSONIO
 License: LGPL

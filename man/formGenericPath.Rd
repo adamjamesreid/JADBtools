@@ -28,6 +28,7 @@ Przemyslaw Stempor
 }
 \seealso{
 Other dbtools: \code{\link{addGenericFile}};
-  \code{\link{getFilePath}}; \code{\link{makeFileUID}}
+  \code{\link{getFilePath}}; \code{\link{getFileUID}};
+  \code{\link{makeFileUID}}
 }
 

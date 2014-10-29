@@ -21,6 +21,7 @@ Przemyslaw Stempor
 }
 \seealso{
 Other dbtools: \code{\link{addGenericFile}};
-  \code{\link{formGenericPath}}; \code{\link{getFilePath}}
+  \code{\link{formGenericPath}}; \code{\link{getFilePath}};
+  \code{\link{getFileUID}}
 }
 
