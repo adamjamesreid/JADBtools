@@ -7,6 +7,7 @@
 #' @param processing filter regex 
 #' @param format filter regex
 #' @param url return url or just the path to the file
+#' @param eq t
 #'   
 #' @return URL string
 #' 
@@ -15,20 +16,55 @@
 #' @family dbtools
 #' @export
 #' 
-getFilePath <- function(ID, format='.', processing='.', scale='.', url=TRUE) {
-
+getFilePath <- function(ID, format='.', processing='.', scale='.', url=TRUE, eq=FALSE) {
+    
+    if (eq) { R <- '=' } else { R <- 'REGEXP' } 
     con <- dbConnect(dbDriver("MySQL"), group = "jadb")
   
     exp_file <- unlist( dbGetQuery(
         con, paste(
-            "SELECT path FROM labfiles WHERE ContactExpID REGEXP '", ID, 
-            "' AND Filetype_format REGEXP '",format,"' AND  Processing REGEXP '", processing,
-            "'", "AND Scale REGEXP '", scale, "'", collapse="", sep=""
+            "SELECT path FROM labfiles WHERE ContactExpID ",R," '", ID, 
+            "' AND Filetype_format ",R," '",format,"' AND  Processing ",R," '", processing,
+            "'", "AND Scale ",R," '", scale, "'", collapse="", sep=""
         ) 
     ))
     addr <- file.path("http://jadb.gurdon.private.cam.ac.uk/db4",  exp_file )
     dbDisconnect(con)
     if(url) return(addr) else return(exp_file) 
+}
+
+#' Get file UID
+#' 
+#' Accepts regular expressions.
+#' 
+#' @param ID ContactExperimetID 
+#' @param scale filter regex
+#' @param processing filter regex 
+#' @param format filter regex
+#' @param url return url or just the path to the file
+#' @param eq t
+#'   
+#' @return URL string
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family dbtools
+#' @export
+#'
+getFileUID <- function(ID, format='.', processing='.', scale='.', eq=FALSE) {
+    
+    if (eq) { R <- '=' } else { R <- 'REGEXP' } 
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
+    
+    uid <- unlist( dbGetQuery(
+        con, paste(
+            "SELECT UID FROM labfiles WHERE ContactExpID ",R," '", ID, 
+            "' AND Filetype_format ",R," '",format,"' AND  Processing ",R," '", processing,
+            "'", "AND Scale ",R," '", scale, "'", collapse="", sep=""
+        ) 
+    ))
+    dbDisconnect(con)
+    return(uid) 
 }
 
 #' Make UID
@@ -145,7 +181,7 @@ formGenericPath <- function(
     EXPERIMENT <-   dbGetQuery(
         con, sprintf('SELECT %s FROM %s WHERE %s = "%s"', paste(fld, collapse = ', '), EXTABLE, PK, ContactExpID)
     )
-    fileName=paste(c(EXPERIMENT, 'raw', 'NA', 'NA', ContactExpID), collapse = '_')
+    fileName=paste(c(EXPERIMENT, Processing, Resolution, Scale, ContactExpID), collapse = '_')
     
     dbDisconnect(con)
     return(fileName)
