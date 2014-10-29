@@ -6,6 +6,7 @@
 #' @param scale filter regex
 #' @param processing filter regex 
 #' @param format filter regex
+#' @param url return url or just the path to the file
 #'   
 #' @return URL string
 #' 
@@ -14,7 +15,7 @@
 #' @family dbtools
 #' @export
 #' 
-getFilePath <- function(ID, format='.', processing='.', scale='.') {
+getFilePath <- function(ID, format='.', processing='.', scale='.', url=TRUE) {
 
     con <- dbConnect(dbDriver("MySQL"), group = "jadb")
   
@@ -27,7 +28,7 @@ getFilePath <- function(ID, format='.', processing='.', scale='.') {
     ))
     addr <- file.path("http://jadb.gurdon.private.cam.ac.uk/db4",  exp_file )
     dbDisconnect(con)
-    return(addr)
+    if(url) return(addr) else return(exp_file) 
 }
 
 #' Make UID

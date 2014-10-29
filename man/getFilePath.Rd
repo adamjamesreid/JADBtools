@@ -3,7 +3,7 @@
 \alias{getFilePath}
 \title{Get file URL}
 \usage{
-getFilePath(ID, format = ".", processing = ".", scale = ".")
+getFilePath(ID, format = ".", processing = ".", scale = ".", url = TRUE)
 }
 \arguments{
 \item{ID}{ContactExperimetID}
@@ -13,6 +13,8 @@ getFilePath(ID, format = ".", processing = ".", scale = ".")
 \item{processing}{filter regex}
 
 \item{scale}{filter regex}
+
+\item{url}{return url or just the path to the file}
 }
 \value{
 URL string
