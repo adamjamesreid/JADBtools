@@ -9,5 +9,5 @@
 #' 
 #' @author Przemyslaw Stempor
 #' 
-#' @import XML DBI RMySQL digest rtracklayer RJSONIO
+#' @import XML DBI RMySQL digest IRanges GenomicRanges rtracklayer RJSONIO Rsamtools
 NULL
