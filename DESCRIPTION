@@ -1,7 +1,7 @@
 Package: JADBtools
 Type: Package
 Title: R tools for JADB
-Version: 0.1.1
+Version: 0.1.2
 Date: 2014-10-13
 Author: Przemyslaw Stempor
 Maintainer: Przemyslaw Stempor <ps562@cam.ac.uk>
@@ -18,5 +18,8 @@ Imports:
     GenomicRanges,
     rtracklayer,
     RJSONIO,
-    Rsamtools
+    Rsamtools,
+    GenomicAlignments,
+    GenomicFeatures,
+    DESeq2
 License: LGPL

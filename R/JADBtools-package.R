@@ -9,5 +9,5 @@
 #' 
 #' @author Przemyslaw Stempor
 #' 
-#' @import XML DBI RMySQL digest IRanges GenomicRanges rtracklayer RJSONIO Rsamtools
+#' @import XML DBI RMySQL digest IRanges GenomicRanges rtracklayer RJSONIO Rsamtools GenomicAlignments GenomicFeatures DESeq2
 NULL
