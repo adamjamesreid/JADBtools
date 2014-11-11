@@ -28,6 +28,7 @@ getFilePath <- function(ID, format='.', processing='.', scale='.', url=TRUE, eq=
             "'", "AND Scale ",R," '", scale, "'", collapse="", sep=""
         ) 
     ), use.names = FALSE)
+    names(exp_file) <- NULL
     addr <- file.path("http://jadb.gurdon.private.cam.ac.uk/db4",  exp_file )
     dbDisconnect(con)
     if(url) return(addr) else return(exp_file) 
