@@ -20,7 +20,9 @@ Run DEseq2 and output results
 Przemyslaw Stempor
 }
 \seealso{
-Other RNAseq: \code{\link{getStrain}};
-  \code{\link{ids2diffExpr}}; \code{\link{summarizeBAMs}}
+Other RNAseq: \code{\link{getDEreportForDESeqDataSet}};
+  \code{\link{getDEreport}}; \code{\link{getDEseq2res}};
+  \code{\link{getStrain}}; \code{\link{ids2diffExpr}};
+  \code{\link{summarizeBAMs}}
 }
 

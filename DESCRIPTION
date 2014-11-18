@@ -21,5 +21,9 @@ Imports:
     Rsamtools,
     GenomicAlignments,
     GenomicFeatures,
-    DESeq2
+    DESeq2,
+    ReportingTools,
+    GOstats,
+    org.Ce.eg.db,
+    edgeR
 License: LGPL

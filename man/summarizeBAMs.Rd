@@ -20,6 +20,8 @@ Przemyslaw Stempor
 }
 \seealso{
 Other RNAseq: \code{\link{doDiffExpr}};
+  \code{\link{getDEreportForDESeqDataSet}};
+  \code{\link{getDEreport}}; \code{\link{getDEseq2res}};
   \code{\link{getStrain}}; \code{\link{ids2diffExpr}}
 }
 

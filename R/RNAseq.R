@@ -23,7 +23,7 @@ ids2diffExpr <- function(ID, mnt_point=NULL) {
     message('Running DEseq2')
     res <- doDiffExpr(e, design = ~ strain)
     
-    return( res$outname )
+    return( res )
     
 }
 
@@ -116,3 +116,201 @@ doDiffExpr <- function(e, design = ~ strain) {
     return(list(dds=dds, out=out, outname=outname))
     
 }
+#' Get DEseq2 redult from DB
+#' 
+#' @param ID id
+#'   
+#' @return list
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family RNAseq
+#' @export
+#' 
+getDEseq2res <- function(ID) {
+    addr <- getFilePath(ID, format='Rdata', processing='DESeq2', scale='.', url=TRUE, eq=FALSE) 
+    return(get(load(url(addr))))
+}
+
+#' Get DEseq2 report as HTML
+#' 
+#' @param ID id
+#'   
+#' @return file colation
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family RNAseq
+#' @export
+#' 
+getDEreport <- function(ID, path=NULL, location='DEreport', show=TRUE) {
+    
+    message('Getting expression results')
+    dds <- getDEseq2res(ID)
+    getDEreportForDESeqDataSet(dds, location=location, show=show)
+}
+
+#' Get DEseq2 report as HTML
+#' 
+#' @param dds DESeqDataSet form DESeq2 package
+#' @param location sub-directory to create the report
+#' @param show should R open the report in the browser
+#'   
+#' @return file colation
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family RNAseq
+#' @export
+#' 
+getDEreportForDESeqDataSet <- function(dds, location='DEreport', show=TRUE) {
+    
+    final <- function(df, ...){
+        w <- rownames(df)
+        ID <- paste0(
+            '<a href="http://www.ensembl.org/Caenorhabditis_elegans/',
+            'Gene/Summary?db=core;g=', w, '">', w,"</a>"
+        )
+        data(gnmodel)
+        nam <-  elementMetadata(gnmodel[w,'geneName'])
+        df <- cbind(ID, nam, df[, 2:ncol(df)])
+        rownames(df) <- w
+        return(df)
+    }
+    
+    ## DESeq2 results
+    message('Generating DESeq2 results')
+    des2Report <- HTMLReport(
+        shortName = 'RNAseq_analysis_with_DESeq2',
+        title = 'RNA-seq analysis of differential expression using DESeq2',
+        reportDirectory = location
+    )
+    publish(
+        object=dds, 
+        des2Report,  pvalueCutoff=0.05,
+        factor = colData(dds)$strain,
+        .modifyDF = list(final, modifyReportDF),
+        make.plots = TRUE
+    )
+    finish(des2Report)
+    
+    ## DESeq2 GO results
+    message('Generating DESeq2 GO')
+    
+    res <-  as.data.frame(results(dds))
+    deseqCSV <- CSVFile('deseqCSV', 'Full DESeq set as CSV file.', reportDirectory = location)
+    publish(res[order(res$padj),], deseqCSV)
+    
+    res <- res[res$padj < 0.05 & !is.na(res$padj), ]
+    selectedIDs <- rownames(res)
+    selectedIDs <- mappedLkeys(org.Ce.egENSEMBL2EG[selectedIDs[selectedIDs %in% keys(org.Ce.egENSEMBL2EG)]])
+    universeIDs <- names(gnmodel)
+    universeIDs <- mappedLkeys(org.Ce.egENSEMBL2EG[universeIDs[universeIDs %in% keys(org.Ce.egENSEMBL2EG)]])
+    
+    goParams <- new("GOHyperGParams", 
+                    geneIds = selectedIDs, 
+                    universeGeneIds = universeIDs, 
+                    annotation ="org.Ce.eg.db" , 
+                    ontology = "MF", 
+                    pvalueCutoff = 0.01,
+                    conditional = TRUE, 
+                    testDirection = "over")
+    goResults <- hyperGTest(goParams)
+    
+    message('Generating DESeq2 GO report')
+    goReport <- HTMLReport(shortName = 'go_analysis_rnaseq',
+                           title = "GO analysis for DESeq2",
+                           reportDirectory = location)
+    publish(goResults, goReport, selectedIDs=selectedIDs, annotation.db="org.Ce.eg.db", 
+            pvalueCutoff= 0.05, make.plots=FALSE)
+    finish(goReport)
+    
+    ## edgeR
+    message('Generating edgeR report')
+    d <- DGEList(counts = counts(dds), group = colData(dds)$strain)
+    
+    d <- calcNormFactors(d)
+    design <- model.matrix(~colData(dds)$strain)
+    d <- estimateGLMCommonDisp(d, design)
+    d <- estimateGLMTrendedDisp(d, design)
+    d <- estimateGLMTagwiseDisp(d, design)
+    fit <- glmFit(d,design)
+    edgeR.lrt <- glmLRT(fit, coef=2)
+    
+    edgeReport <- HTMLReport(shortName = 'RNAseq_analysis_with_edgeR',
+                             title = 'RNA-seq analysis of differential expression using edgeR (LRT)',
+                             reportDirectory = location)
+    publish(
+        edgeR.lrt, edgeReport, countTable=counts(dds),
+        annotation.db = NULL,
+        conditions=colData(dds)$strain, 
+        .modifyDF = list(final, modifyReportDF), 
+        pvalueCutoff = .05, name="edgeR"
+    )
+    finish(edgeReport)
+    
+    ## edgeR GO results
+    
+    res <-  topTags(edgeR.lrt, n = Inf, adjust.method = 'BH', sort.by = 'p.value')$table
+    edgerCSV <- CSVFile('edgerCSV', 'Full edgeR set as CSV file.', reportDirectory = location)
+    publish(res, edgerCSV)
+    
+    res <- res[res$FDR < 0.05 & !is.na(res$FDR), ]
+    selectedIDs <- rownames(res)
+    selectedIDs <- mappedLkeys(org.Ce.egENSEMBL2EG[selectedIDs[selectedIDs %in% keys(org.Ce.egENSEMBL2EG)]])
+    
+    goParams <- new("GOHyperGParams", 
+                    geneIds = selectedIDs, 
+                    universeGeneIds = universeIDs, 
+                    annotation ="org.Ce.eg.db" , 
+                    ontology = "MF", 
+                    pvalueCutoff = 0.01,
+                    conditional = TRUE, 
+                    testDirection = "over")
+    goResults <- hyperGTest(goParams)
+    
+    message('Generating edgeR GO report')
+    goReportEdgeR <- HTMLReport(shortName = 'go_analysis_rnaseq_edgeR',
+                                title = "GO analysis for edgeR",
+                                reportDirectory = location)
+    publish(goResults, goReportEdgeR, selectedIDs=selectedIDs, annotation.db="org.Ce.eg.db", 
+            pvalueCutoff= 0.05, make.plots=FALSE)
+    finish(goReportEdgeR)
+    
+    #Plors
+    rld <- rlog(dds)
+    pca_plot <- plotPCA(rld, intgroup = 'strain')
+    pca_plot_report <- HTMLReport(
+        shortName = 'pca_plot',
+        title = 'RNA-seq analysis of differential expression using DESeq2: principal component analysis (PCA) plot',
+        reportDirectory = location
+    )
+    publish(pca_plot, pca_plot_report)
+    finish(pca_plot_report)
+    
+    #Index
+    
+    indexPage <- HTMLReport(shortName = "indexRNASeq",
+                            title = sprintf("Analysis of RNA-seq for %s experiment(s).", paste(colnames(dds), collapse=', ')),
+                            reportDirectory = location)
+    publish(Link(
+        list(des2Report, goReport, pca_plot_report, edgeReport, goReportEdgeR), 
+        report = indexPage), indexPage
+    )
+    
+    publish(Link(
+        c("", "CSV: Full DESeq diffreential expression results.", "CSV: Full edgeR diffreential expression results."), 
+        c("#", paste0(location, c("/deseqCSV.csv", "/edgerCSV.csv"))),
+        report = indexPage
+    ), indexPage)
+    
+    
+    
+    addr <- finish(indexPage) 
+        
+    if(show) browseURL(addr)
+    return(addr)
+}
+
+
+
