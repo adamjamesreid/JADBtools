@@ -119,6 +119,7 @@ doDiffExpr <- function(e, design = ~ strain) {
 #' Get DEseq2 redult from DB
 #' 
 #' @param ID id
+#' @param path mmt path, return URL if null
 #'   
 #' @return list
 #' 
@@ -127,9 +128,21 @@ doDiffExpr <- function(e, design = ~ strain) {
 #' @family RNAseq
 #' @export
 #' 
-getDEseq2res <- function(ID) {
-    addr <- getFilePath(ID, format='Rdata', processing='DESeq2', scale='.', url=TRUE, eq=FALSE) 
-    return(get(load(url(addr))))
+getDEseq2res <- function(ID, path=NULL) {
+    if(is.null(path)) {
+        addr <- getFilePath(
+            ID, format='Rdata', processing='DESeq2', 
+            scale='.', url=TRUE, eq=FALSE
+        ) 
+        return(get(load(url(addr))))
+    } else {
+        addr <- getFilePath(
+            ID, format='Rdata', processing='DESeq2', 
+            scale='.', url=FALSE, eq=FALSE
+        ) 
+        addr <- gsub('files', path, addr)
+        return(get(load(addr)))
+    }  
 }
 
 #' Get DEseq2 report as HTML

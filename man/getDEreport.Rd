@@ -3,7 +3,7 @@
 \alias{getDEreport}
 \title{Get DEseq2 report as HTML}
 \usage{
-getDEreport(ID, location = "DEreport", show = TRUE)
+getDEreport(ID, path = NULL, location = "DEreport", show = TRUE)
 }
 \arguments{
 \item{ID}{id}

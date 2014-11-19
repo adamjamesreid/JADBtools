@@ -260,13 +260,12 @@ finish(deReport)
 
 
 
-
-> rld <- rlog(dds)
-> z=plotPCA(rld, intgroup = 'strain')
-> plotPCA(rld, intgroup = 'strain')
-> z=plotPCA(rld, intgroup = 'strain')
-> plots <- HTMLReport(shortName = 'RNAseq_analysis_with_edgeR',
-                      +                          title = 'RNA-seq analysis of differential expression using edgeR (LRT) - plots',
-                      +                          reportDirectory = "./reports")
-> publish(z, plots)
-> browseURL(finish(plots))
+rld <- rlog(dds)
+pca_plot <- plotPCA(rld, intgroup = 'strain')
+pca_plot_report <- HTMLReport(
+    shortName = 'pca_plot',
+    title = 'RNA-seq analysis of differential expression using DESeq2: principal component analysis (PCA) plot',
+    reportDirectory = "./reports"
+)
+publish(pca_plot, pca_plot_report)
+finish(pca_plot_report)

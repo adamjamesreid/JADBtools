@@ -3,10 +3,12 @@
 \alias{getDEseq2res}
 \title{Get DEseq2 redult from DB}
 \usage{
-getDEseq2res(ID)
+getDEseq2res(ID, path = NULL)
 }
 \arguments{
 \item{ID}{id}
+
+\item{path}{mmt path, return URL if null}
 }
 \value{
 list
