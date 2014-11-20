@@ -136,6 +136,7 @@ getDEseq2res <- function(ID, path=NULL) {
         ) 
         return(get(load(url(addr))))
     } else {
+        message("Loading Rdata, using local path ", path)
         addr <- getFilePath(
             ID, format='Rdata', processing='DESeq2', 
             scale='.', url=FALSE, eq=FALSE
