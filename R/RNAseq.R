@@ -160,7 +160,7 @@ getDEseq2res <- function(ID, path=NULL) {
 getDEreport <- function(ID, path=NULL, location='DEreport', show=TRUE) {
     
     message('Getting expression results')
-    dds <- getDEseq2res(ID)
+    dds <- getDEseq2res(ID, path=path)
     getDEreportForDESeqDataSet(dds, location=location, show=show)
 }
 
@@ -196,7 +196,7 @@ getDEreportForDESeqDataSet <- function(dds, location='DEreport', show=TRUE) {
     message('Generating DESeq2 results')
     des2Report <- HTMLReport(
         shortName = 'RNAseq_analysis_with_DESeq2',
-        title = 'Differential expression using DESeq2, FDR<0.05',
+        title = 'Differential expression using DESeq2, FDR less 0.05',
         reportDirectory = location
     )
     publish(
@@ -233,7 +233,7 @@ getDEreportForDESeqDataSet <- function(dds, location='DEreport', show=TRUE) {
     
     message('Generating DESeq2 GO report')
     goReport <- HTMLReport(shortName = 'go_analysis_rnaseq',
-                           title = "GO analysis for DESeq2 (differential expression FDR<0.05, p-hyper<0.01)",
+                           title = "GO analysis for DESeq2 (differential expression FDR less 0.05, p-hyper less 0.01)",
                            reportDirectory = location)
     publish(goResults, goReport, selectedIDs=selectedIDs, annotation.db="org.Ce.eg.db", 
             pvalueCutoff= 0.01, make.plots=FALSE)
@@ -252,7 +252,7 @@ getDEreportForDESeqDataSet <- function(dds, location='DEreport', show=TRUE) {
     edgeR.lrt <- glmLRT(fit, coef=2)
     
     edgeReport <- HTMLReport(shortName = 'RNAseq_analysis_with_edgeR',
-                             title = 'Differential expression using edgeR likelihood ratio tests (LRT), FDR<0.05',
+                             title = 'Differential expression using edgeR likelihood ratio tests (LRT), FDR less 0.05',
                              reportDirectory = location)
     publish(
         edgeR.lrt, edgeReport, countTable=counts(dds),
@@ -285,7 +285,7 @@ getDEreportForDESeqDataSet <- function(dds, location='DEreport', show=TRUE) {
     
     message('Generating edgeR GO report')
     goReportEdgeR <- HTMLReport(shortName = 'go_analysis_rnaseq_edgeR',
-                                title = "GO analysis for edgeR (differential expression FDR<0.05, p-hyper<0.01)",
+                                title = "GO analysis for edgeR (differential expression FDR less 0.05, p-hyper less 0.01)",
                                 reportDirectory = location)
     publish(goResults, goReportEdgeR, selectedIDs=selectedIDs, annotation.db="org.Ce.eg.db", 
             pvalueCutoff= 0.01, make.plots=FALSE)
