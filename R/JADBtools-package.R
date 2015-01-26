@@ -11,5 +11,5 @@
 #' 
 #' @import XML DBI RMySQL digest IRanges GenomicRanges rtracklayer RJSONIO 
 #' @import Rsamtools GenomicAlignments GenomicFeatures DESeq2 ReportingTools
-#' @import  GOstats org.Ce.eg.db edgeR
+#' @import  GOstats org.Ce.eg.db edgeR ShortRead
 NULL

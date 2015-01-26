@@ -25,5 +25,6 @@ Imports:
     ReportingTools,
     GOstats,
     org.Ce.eg.db,
-    edgeR
+    edgeR,
+    ShortRead
 License: LGPL
