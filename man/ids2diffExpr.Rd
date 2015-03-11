@@ -25,6 +25,8 @@ Other RNAseq: \code{\link{bam2del}};
   \code{\link{doDiffExpr}};
   \code{\link{getDEreportForDESeqDataSet}};
   \code{\link{getDEreport}}; \code{\link{getDEseq2res}};
-  \code{\link{getStrain}}; \code{\link{summarizeBAMs}}
+  \code{\link{getStage}}; \code{\link{getStrain}};
+  \code{\link{getSummarizedEperiment}};
+  \code{\link{summarizeBAMs}}
 }
 

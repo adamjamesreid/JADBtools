@@ -24,7 +24,9 @@ Przemyslaw Stempor
 Other RNAseq: \code{\link{bam2del}};
   \code{\link{doDiffExpr}};
   \code{\link{getDEreportForDESeqDataSet}};
-  \code{\link{getDEreport}}; \code{\link{getStrain}};
+  \code{\link{getDEreport}}; \code{\link{getStage}};
+  \code{\link{getStrain}};
+  \code{\link{getSummarizedEperiment}};
   \code{\link{ids2diffExpr}}; \code{\link{summarizeBAMs}}
 }
 

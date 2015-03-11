@@ -2,7 +2,7 @@
 % Please edit documentation in R/RNAseq.R
 \name{getStrain}
 \alias{getStrain}
-\title{Get starnd from IDs}
+\title{Get strain from IDs}
 \usage{
 getStrain(ContactExpID, EXTABLE = "labrnaseq")
 }
@@ -13,7 +13,7 @@ getStrain(ContactExpID, EXTABLE = "labrnaseq")
 eset
 }
 \description{
-Get starnd from IDs
+Get strain from IDs
 }
 \author{
 Przemyslaw Stempor
@@ -23,6 +23,8 @@ Other RNAseq: \code{\link{bam2del}};
   \code{\link{doDiffExpr}};
   \code{\link{getDEreportForDESeqDataSet}};
   \code{\link{getDEreport}}; \code{\link{getDEseq2res}};
+  \code{\link{getStage}};
+  \code{\link{getSummarizedEperiment}};
   \code{\link{ids2diffExpr}}; \code{\link{summarizeBAMs}}
 }
 

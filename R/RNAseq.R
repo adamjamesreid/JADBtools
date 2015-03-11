@@ -50,7 +50,7 @@ summarizeBAMs <-function(fls) {
     
 }
 
-#' Get starnd from IDs
+#' Get strain from IDs
 #' 
 #' @param ContactExpID vector of IDs
 #'   
@@ -72,6 +72,45 @@ getStrain <- function( ContactExpID, EXTABLE='labrnaseq'){
     
     dbDisconnect(con)
     return(strain)
+}
+
+#' Get stage from IDs
+#' 
+#' @param ContactExpID vector of IDs
+#'   
+#' @return eset
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family RNAseq
+#' @export
+#' 
+getStage <- function( ContactExpID, EXTABLE='labrnaseq'){
+    
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
+    PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', EXTABLE) ))[['Column_name']]
+    
+    strain <- sapply(ContactExpID, function(x) dbGetQuery(
+        con, sprintf('SELECT %s FROM %s WHERE %s = "%s"', 'Stage', 'labrnaseq', PK, x)
+    ))
+    
+    dbDisconnect(con)
+    return(strain)
+}
+
+#' Get stage from IDs
+#' 
+#' @param ContactExpID vector of IDs
+#'   
+#' @return eset
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family RNAseq
+#' @export
+#' 
+getSummarizedEperiment <- function( ContactExpIDs ){
+    FLS <- getFilePath('rAM022',format='Rdata')[[1]]
 }
 
 #' Run DEseq2 and output results
