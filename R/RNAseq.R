@@ -98,6 +98,7 @@ getStage <- function( ContactExpID, EXTABLE='labrnaseq'){
     return(strain)
 }
 
+
 #' Get stage from IDs
 #' 
 #' @param ContactExpID vector of IDs
@@ -112,6 +113,7 @@ getStage <- function( ContactExpID, EXTABLE='labrnaseq'){
 getSummarizedEperiment <- function( ContactExpIDs ){
     FLS <- getFilePath('rAM022',format='Rdata')[[1]]
 }
+
 
 #' Run DEseq2 and output results
 #' 
