@@ -110,8 +110,12 @@ getStage <- function( ContactExpID, EXTABLE='labrnaseq'){
 #' @family RNAseq
 #' @export
 #' 
-getSummarizedEperiment <- function( ContactExpIDs ){
-    FLS <- getFilePath('rAM022',format='Rdata')[[1]]
+getSummarizedEperiment <- function( ContactExpIDs="rAM022" ){
+    out <- sapply(ContactExpIDs, function(x) {
+        message(x)
+        get(load(url(getFilePath(ID=x, processing='TagCounts'))))
+    })
+    return( do.call(cbind, out) )
 }
 
 
@@ -152,7 +156,7 @@ doDiffExpr <- function(e, design = ~ strain) {
     outname <- elementMetadata(res)$description[[2]]
     outname <- gsub(' ', '_', gsub('log2 fold change \\(MAP\\): ', '', outname))
     outname <- paste(paste(colnames(e), collapse='-'), outname, 'RPKM_and_DESeq2.csv', sep='_')
-    write.csv(out, outname)
+    write.csv(out, 'diff.csv')
     
     return(list(dds=dds, out=out, outname=outname))
     
