@@ -23,6 +23,16 @@ map <- data.frame(geneName=map$Associated.Gene.Name, desc=map$Description, row.n
 elementMetadata(gnmodel) <- map[names(gnmodel),]
 
 
+# map2 <- read.csv(system.file('anno/WBgene2geneNameAndSeqName.csv.txt', package='JADBtools'))
+# map2$Ensembl.Transcript.ID <- sub('(^.+\\.[0-9]+)(.+)', '\\1', map2$Ensembl.Transcript.ID); map2 <- unique(map2)
+# map2 <- data.frame(geneName=map2$Associated.Gene.Name, desc=map2$Description, row.names=map2$Ensembl.Gene.ID, seqID=) 
+# elementMetadata(gnmodel) <- map2[names(gnmodel),]
+
+
+map2 <- read.csv(system.file('anno/WBgene2geneSeqName.csv.gz', package='JADBtools'))
+map2 <- data.frame(seqID=map2$WormBase.Gene.Sequence.name.Accession, row.names=map2$Ensembl.Gene.ID) 
+elementMetadata(gnmodel)$seqID <- map2[names(gnmodel),]
+
 export.bed(asBED(gnmodel), 'inst/anno/gnmodel.bed')
 seqinfo(gnmodel) <- SeqinfoForBSGenome('ce10')[seqlevels(gnmodel)]
 

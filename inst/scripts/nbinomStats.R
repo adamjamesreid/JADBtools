@@ -127,14 +127,174 @@ resTC$symbol <- mcols(ddsTC)$geneName
 top10 <- head(resTC[order(resTC$pvalue),],10)
 
 
-gene <- rownames(top10[3,])
+gene <- rownames(top10[6,])
+
+
 data <- plotCounts(ddsTC, gene, 
                    intgroup=c("stage","strain"), returnData=TRUE)
-ggplot(data, aes(x=stage, y=count, color=strain, group=strain)) + 
+g <- ggplot(data, aes(x=stage, y=count, color=strain, group=strain)) + 
     geom_point() + stat_smooth(se=FALSE,method="loess") +  scale_y_log10() +
     ggtitle(gene)
 
 ggsave("length-hist.pdf")
+
+
+
+ddsTC0 <- DESeqDataSet(SE, design = ~ strain + stage )
+ddsTC0 <- DESeq(ddsTC0, test="LRT", reduced = ~ 1 )
+
+resTC0 <- results(ddsTC0)
+resTC0$symbol <- mcols(ddsTC0)$geneName
+top10 <- head(resTC0[order(resTC0$pvalue),],10)
+
+
+gene <- rownames(top10[1,])
+
+
+data <- plotCounts(ddsTC, gene, 
+                   intgroup=c("stage","strain"), returnData=TRUE)
+ggplot(data, aes(x=stage, y=count, color=strain, group=strain)) + 
+    geom_point() + stat_smooth(se=FALSE,method="loess", size = 1.2) +  scale_y_log10() +
+    ggtitle(gene)
+
+
+
+message('Generating DESeq2 results')
+des2Report <- HTMLReport(
+    shortName = 'RNAseq_analysis_with_DESeq2',
+    title = 'Differential expression using DESeq2, FDR less 0.05',
+    reportDirectory = location
+)
+publish(
+    object=top10, DataSet=ddsTC,
+    des2Report,  pvalueCutoff=.1,
+    .modifyDF = list(final, modifyReportDF),
+    make.plots = TRUE,
+    conditions=colData(dds)$stage
+)
+finish(des2Report)
+
+
+
+
+
+
+
+
+
+message('Generating DESeq2 results')
+des2Report <- HTMLReport(
+    shortName = 'RNAseq_TS',
+    title = "Time series analysis",
+    reportDirectory = location
+)
+publish("LRT p-value: '~ strain + stage + strain:stage' vs '~ strain + stage'", des2Report)
+publish(
+    object=resTC[order(resTC$pvalue),], DataSet=ddsTC,
+    des2Report,  pvalueCutoff=1,
+    .modifyDF = list(final),
+    make.plots = FALSE, n = Inf
+)
+
+deseqCSV <- CSVFile('RNAseq_TS', 'CSV', reportDirectory = location)
+publish(as.data.frame(resTC[order(resTC$pvalue),]), deseqCSV)
+
+publish(hwrite('Get as CSV', link = paste0(deseqCSV@shortName, '.csv')), des2Report) 
+finish(des2Report)
+
+
+
+
+res <- results(ddsTC, contrast=c('strain', 'N2', 'let418ts'), test="Wald")
+title <- 'Wald test, all samples - strain: N2 vs let418ts'
+location
+
+
+######### report ##########
+location='testReport2'
+
+
+
+
+makeNewImages<-function(object,...){
+    imagename <- c()
+    for (i in 1:nrow(object)){
+        imagename[i] <- paste0("plotNew", i, ".png")
+        png(filename = paste0("", imagename[i]))
+        plot(object$baseMean[i], ylab = "logfc", xlab = object$symbol[i],
+        main = "New logfc Plot", col = "red", pch = 15, cex=3)
+        dev.off()
+    }
+    object$Image <- hwriteImage(imagename, link = imagename, table = FALSE, height=150, width=150)
+    return(object)
+}
+## DESeq2 results
+message('Generating DESeq2 results')
+des2Report <- HTMLReport(
+    shortName = 'RNAseq_analysis_with_DESeq2',
+    title = 'Differential expression using DESeq2, FDR less 0.05',
+    reportDirectory = location
+)
+publish(
+    object=ddsTC, 
+    des2Report,  pvalueCutoff=0.000005,
+    .modifyDF = list(final, modifyReportDF),
+    make.plots = FALSE
+)
+finish(des2Report)
+
+
+## DESeq2 GO results
+message('Generating DESeq2 GO')
+
+res <-  as.data.frame(results(ddsTC))
+deseqCSV <- CSVFile('deseqCSV', 'Full DESeq set as CSV file.', reportDirectory = location)
+publish(res[order(res$padj),], deseqCSV)
+
+res <- res[res$padj < 0.05 & !is.na(res$padj), ]
+selectedIDs <- rownames(res)
+selectedIDs <- mappedLkeys(org.Ce.egENSEMBL2EG[selectedIDs[selectedIDs %in% keys(org.Ce.egENSEMBL2EG)]])
+universeIDs <- names(gnmodel)
+universeIDs <- mappedLkeys(org.Ce.egENSEMBL2EG[universeIDs[universeIDs %in% keys(org.Ce.egENSEMBL2EG)]])
+
+goParams <- new("GOHyperGParams", 
+                geneIds = selectedIDs, 
+                universeGeneIds = universeIDs, 
+                annotation ="org.Ce.eg.db" , 
+                ontology = "MF", 
+                pvalueCutoff = 0.01,
+                conditional = TRUE, 
+                testDirection = "over")
+goResults <- hyperGTest(goParams)
+
+message('Generating DESeq2 GO report')
+goReport <- HTMLReport(shortName = 'go_analysis_rnaseq',
+                       title = "GO analysis for DESeq2 (differential expression FDR less 0.05, p-hyper less 0.01)",
+                       reportDirectory = location)
+publish(goResults, goReport, selectedIDs=selectedIDs, annotation.db="org.Ce.eg.db", 
+        pvalueCutoff= 0.01, make.plots=FALSE)
+finish(goReport)
+
+
+#Index
+
+indexPage <- HTMLReport(shortName = "indexRNASeq",
+                        title = sprintf("Analysis of RNA-seq for %s experiment(s).", paste(colnames(dds), collapse=', ')),
+                        reportDirectory = location)
+publish(Link(
+    list(des2Report, goReport, pca_plot_report, edgeReport, goReportEdgeR), 
+    report = indexPage), indexPage
+)
+
+publish(Link(
+    c("", "CSV: Full DESeq diffreential expression results.", "CSV: Full edgeR diffreential expression results."), 
+    c("#", paste0(location, c("/deseqCSV.csv", "/edgerCSV.csv"))),
+    report = indexPage
+), indexPage)
+
+
+
+addr <- finish(indexPage) 
 
 
 
