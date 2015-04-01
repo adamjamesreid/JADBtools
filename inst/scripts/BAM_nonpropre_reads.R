@@ -11,18 +11,30 @@ ff <- fff[1]
 
 bf <- BamFile(ff, asMates=TRUE)
 param <- ScanBamParam(what = c('mapq', 'isize', 'flag'))
-gl <- readGAlignmentPairsFromBam(bf, use.names=FALSE, param=param)
+gl <- readGAlignmentsListFromBam(bf, use.names=FALSE, param=param)
 
-save(gl, file=paste0(ff, '.allPairs.Rdata'))
+save(gl, file=paste0(ff, '.allPairsList.Rdata'))
 
-flt <- lapply(seqlevels(gl), function(x) {
-    f <- all(seqnames(gl) == x)
-    message(x, ' -> ', f)
+pair <- elementLengths(gl)>1
+p <- gl[pair]
+
+#save(GApairs, file=paste0(ff, '.GApairs.Rdata'))
+
+flt <- lapply(seqlevels(p), function(x) {
+    message(x)
+    f <- all(seqnames(p) == x)
+    message(x, ' -> ', sum(f))
     return(f)
 })
+same.chr <- Reduce('|', flt)
 
-starts <- start(gl)
-st <- do.call(rbind, stars)
-flt_dup <- duplicated(st)
 
-flt <- all(seqnames())
+seq.pos <- all(strand(p) == '+')
+seq.neg <- all(strand(p) == '-')
+same.seq <- (seq.pos | seq.neg)
+
+
+starts <- start(p)
+st <- do.call(rbind, starts)
+dup <- duplicated(st)
+
