@@ -29,10 +29,13 @@ Przemyslaw Stempor
 }
 \seealso{
 Other RNAseq: \code{\link{doDiffExpr}};
+  \code{\link{downloadSummarizedEperiment}};
+  \code{\link{getAnno}};
   \code{\link{getDEreportForDESeqDataSet}};
   \code{\link{getDEreport}}; \code{\link{getDEseq2res}};
   \code{\link{getStage}}; \code{\link{getStrain}};
   \code{\link{getSummarizedEperiment}};
-  \code{\link{ids2diffExpr}}; \code{\link{summarizeBAMs}}
+  \code{\link{ids2SE}}; \code{\link{ids2diffExpr}};
+  \code{\link{summarizeBAMs}}; \code{\link{wigs2SE}}
 }
 

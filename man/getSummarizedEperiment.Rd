@@ -2,18 +2,18 @@
 % Please edit documentation in R/RNAseq.R
 \name{getSummarizedEperiment}
 \alias{getSummarizedEperiment}
-\title{Get stage from IDs}
+\title{Get SummarizedEperiments from IDs}
 \usage{
-getSummarizedEperiment(ContactExpIDs)
+getSummarizedEperiment(ContactExpIDs = "rAM022")
 }
 \arguments{
 \item{ContactExpID}{vector of IDs}
 }
 \value{
-eset
+SummarizedEperiment
 }
 \description{
-Get stage from IDs
+Get SummarizedEperiments from IDs
 }
 \author{
 Przemyslaw Stempor
@@ -21,9 +21,12 @@ Przemyslaw Stempor
 \seealso{
 Other RNAseq: \code{\link{bam2del}};
   \code{\link{doDiffExpr}};
+  \code{\link{downloadSummarizedEperiment}};
+  \code{\link{getAnno}};
   \code{\link{getDEreportForDESeqDataSet}};
   \code{\link{getDEreport}}; \code{\link{getDEseq2res}};
   \code{\link{getStage}}; \code{\link{getStrain}};
-  \code{\link{ids2diffExpr}}; \code{\link{summarizeBAMs}}
+  \code{\link{ids2SE}}; \code{\link{ids2diffExpr}};
+  \code{\link{summarizeBAMs}}; \code{\link{wigs2SE}}
 }
 

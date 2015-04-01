@@ -15,7 +15,7 @@ param <- ScanBamParam(what = what)
 filter <- FilterRules(list(
     size = function(x) { 
         #message(x$isize, ' ', '\n')
-        w <- abs(x$isize) >= 1000
+        w <- abs(x$isize) >= 700
         w[is.na(w)] <- FALSE
         return(w)
     },
@@ -29,7 +29,7 @@ filter <- FilterRules(list(
 flt <- function(f) {
     message('Started: ', f)
     filterBam(
-        f,  gsub('.bam$', '_mapq10_isize_more1kb.bam', f), 
+        f,  gsub('.bam$', '_mapq10_isize_more700bp.bam', f), 
         filter=filter, indexDestination=TRUE,
         param=param
     )
@@ -37,8 +37,10 @@ flt <- function(f) {
 }
 
 require(parallel)
-outfiles1 <- mclappy(dir(pattern='*.bam$'), flt, mc.cores = 8)
+outfiles1 <- mclapply(dir(pattern='*.bam$'), flt, mc.cores = 2)
 
+
+outfiles1 <- dir(pattern='mapq10_isize_more700bp.bam$')
 dir.create("longtags_mapq10")
 file.rename(outfiles1, file.path('longtags_mapq10', outfiles1))
 setwd("longtags_mapq10")
@@ -48,15 +50,36 @@ sapply(dir(pattern='*.bam$'), indexBam )
 
 require(GenomicAlignments)
 
-ex <- function(ff) {
+# ex <- function(ff) {
+#     message(ff)
+#     gr <- readGAlignmentPairsFromBam(ff, use.names=TRUE)
+#     message('Pairs: ', length(gr))
+#     export.bw(coverage(gr), gsub('.bam$', '_tagsCoverage.bw', ff) )
+#     export.bed(unlist(gr), gsub('.bam$', '_tags.bed', ff) )
+#     export.bed( as(gr, 'GRanges'), gsub('.bam$', '_junctions.bed', ff), trackLine=new("TrackLine", name='junctions'))
+# } 
+# sapply(outfiles1, ex)
+
+
+ex2 <- function(ff) {
     message(ff)
-    gr <- readGAlignmentPairsFromBam(ff, use.names=TRUE)
-    message('Pairs: ', length(gr))
-    export.bw(coverage(gr), gsub('.bam$', '_tagsCoverage.bw', ff) )
-    export.bed(unlist(gr), gsub('.bam$', '_tags.bed', ff) )
-    export.bed( as(gr, 'GRanges'), gsub('.bam$', '_junctions.bed', ff), trackLine=new("TrackLine", name='junctions'))
+    gl <- readGAlignmentsList(ff, use.names=FALSE)
+    gl <- gl[elementLengths(gl)>1]
+    
+    #inserts2 <- unique(unlist(range(grglist(gl, ignore.strand=TRUE)), use.names=FALSE))
+    inserts <- unique(granges(gl, ignore.strand=TRUE))
+    tags <- unique(granges(unlist(gl)))
+    
+    message('Pairs: ', length(inserts))
+    export.bw(coverage(tags), gsub('.bam$', '_tagsCoverage.bw', ff) )
+    export.bed(tags, gsub('.bam$', '_tags.bed', ff) )
+    export.bed( inserts, gsub('.bam$', '_inserts.bed', ff))
+    export.bed( inserts, gsub('.bam$', '_junctions.bed', ff), trackLine=new("TrackLine", name='junctions'))
+    
+    return(gl)
 } 
-sapply(outfiles1, ex)
+
+out <- sapply(dir(patt='WQS.*sorted.bam$'), ex2)
 
 
 for f in *sorted.bam; do 
