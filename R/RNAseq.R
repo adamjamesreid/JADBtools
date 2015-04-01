@@ -99,11 +99,11 @@ getStage <- function( ContactExpID, EXTABLE='labrnaseq'){
 }
 
 
-#' Get stage from IDs
+#' Get SummarizedEperiments from IDs
 #' 
 #' @param ContactExpID vector of IDs
 #'   
-#' @return eset
+#' @return SummarizedEperiment
 #' 
 #' @author Przemyslaw Stempor
 #' 
@@ -117,6 +117,27 @@ getSummarizedEperiment <- function( ContactExpIDs="rAM022" ){
     })
     return( do.call(cbind, out) )
 }
+
+#' Get SummarizedEperiments as Rdata from IDs
+#' 
+#' @param ContactExpID vector of IDs
+#'   
+#' @return SummarizedEperiment
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family RNAseq
+#' @export
+#' 
+downloadSummarizedEperiment <- function( ContactExpIDs="rAM022", dir='SE' ){
+    dir.create(SE)
+    out <- sapply(ContactExpIDs, function(x) {
+        message("Downloading: ", dir)
+        download.file(getFilePath(ID=x, processing='TagCounts'))
+    })
+    return( do.call(cbind, out) )
+}
+
 
 
 #' Run DEseq2 and output results
