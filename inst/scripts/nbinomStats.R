@@ -114,13 +114,19 @@ aod::anova(mod, rnd)
 wald.test(b = coef(mod), Sigma = vcov(mod), Terms=2)
 
 
+id <-c(paste0('rAM0', 11:30), paste0('rAM00', 1:4))
+SE2 <- getSummarizedEperiment(id)
+
 ### DEseq
 
 dds <- DESeqDataSet(SE, design = ~ strain + stage + strain:stage )
 dds0 <- DESeq(dds)
 
+colData(SE)$strain <- factor(gsub('-', '', colData(SE)$strain))
 ddsTC <- DESeqDataSet(SE, design = ~ strain + stage + strain:stage )
 ddsTC <- DESeq(ddsTC, test="LRT", reduced = ~ strain + stage )
+
+save(ddsTC, file='ddsTC.Rdata')
 
 resTC <- results(ddsTC)
 resTC$symbol <- mcols(ddsTC)$geneName
