@@ -65,6 +65,8 @@ informMe <- function() {
     info(mapq10) #both reads have mapping quality >=10
 }
 
+infoList <- list(pair, same.chr, same.seq, dup, mapq10)
+
 #How many pairs where each read maps to same chromosome and same strand?
 info(same.chr & same.seq & (!dup))
 
