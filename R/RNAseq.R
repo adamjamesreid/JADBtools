@@ -41,11 +41,9 @@ ids2diffExpr <- function(ID, mnt_point=NULL) {
 #' @family RNAseq
 #' @export
 #' 
-summarizeBAMs <-function(fls) {
+summarizeBAMs <-function(fls, model = 'gnmodel') {
     bfl <- BamFileList(fls)
-    
-    data(gnmodel)
-    expset_repeats <- summarizeOverlaps(gnmodel, bfl)
+    expset_repeats <- summarizeOverlaps( get(data(list = model)), bfl )
     return(expset_repeats)
     
 }
