@@ -17,7 +17,7 @@ Imports:
     IRanges,
     GenomicRanges,
     rtracklayer,
-    RJSONIO,
+    jsonlite,
     Rsamtools,
     GenomicAlignments,
     GenomicFeatures,
