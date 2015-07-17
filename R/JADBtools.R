@@ -188,9 +188,30 @@ formGenericPath <- function(
     return(fileName)
 }
 
-getTrackSummary <- function(ID, bin=10, processing='NORM', scale='linear') {
+getTrackSummary <- function(ID, bin=1000, processing='NORM', scale='linear', chr=NULL, numeric=TRUE) {
     
-    addr <- getFilePath(ID, processing=processing, scale=scale)
+    addr <- getFilePath(ID, processing=processing, scale=scale, format = 'bw')
+    bwf <- BigWigFile(addr)
+    if( is.null(chr) ) {
+        out <-  unlist(summary(bwf, size = seqlengths(bwf) / bin))
+    } else {
+        out <-  unlist(summary(bwf, which = as(seqinfo(bwf), 'GRanges')[chr], size = seqlengths(bwf)[chr] / bin))
+    }
+    seqlengths(out) <- seqlengths(bwf)
+    if(numeric) {
+        out <- as.numeric(unlist(out)$score)
+    }
+    return(out)
+}
+
+getTracksSummary <- function(IDs, bin=1000, processing='NORM', scale='linear', chr=NULL, numeric=TRUE) {
+    
+    out <- lapply(IDs, function(x) {
+        cat('.')
+        getTrackSummary(x, bin, processing, scale, chr, numeric)
+    })
+    names(out) <- IDs
+    return(out)
 }
 
 
