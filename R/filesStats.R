@@ -35,7 +35,7 @@ bamStats <- function(f) {
     
     out <- sprintf(
         'all=%.2fM, aligned=%.2fM[%.0f%%], mapq10=%.2fM[%.0f%%], unique10=%.2fM[%.0f%%]',
-        r/10^6, a, (a/r)*100, q/10^6, (q/r)*100, u/10^6, (u/r)*100
+        r/10^6, a/10^6, (a/r)*100, q/10^6, (q/r)*100, u/10^6, (u/r)*100
     )
     
     return(out)
