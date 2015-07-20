@@ -24,7 +24,7 @@ bamStats <- function(f) {
     
     grng <- GRanges(
         seqnames = a$rname, ranges = IRanges(a$pos, width = a$qwidth), 
-        strand = a$strand, seqinfo=SeqinfoForBSGenome('ce10')
+        strand = a$strand
     )
     
     all <- countBam(f)
@@ -34,8 +34,8 @@ bamStats <- function(f) {
     u <- length(unique(grng[lg]))
     
     out <- sprintf(
-        'all=%d, aligned=%d[%.2f%%], mapq10=%d[%.2f%%], unique10=%d[%.2f%%]',
-        r, a, (a/r)*100, q, (q/r)*100, u, (u/r)*100
+        'all=%.2fM, aligned=%.2fM[%.0f%%], mapq10=%.2fM[%.0f%%], unique10=%.2fM[%.0f%%]',
+        r/10^6, a, (a/r)*100, q/10^6, (q/r)*100, u/10^6, (u/r)*100
     )
     
     return(out)
