@@ -83,7 +83,7 @@ getStrain <- function( ContactExpID, EXTABLE='labrnaseq'){
 #' @family RNAseq
 #' @export
 #' 
-getStage <- function( ContactExpID, EXTABLE='labrnaseq'){
+getStage <- function(ContactExpID, EXTABLE='labrnaseq'){
     
     con <- dbConnect(dbDriver("MySQL"), group = "jadb")
     PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', EXTABLE) ))[['Column_name']]
@@ -94,6 +94,31 @@ getStage <- function( ContactExpID, EXTABLE='labrnaseq'){
     
     dbDisconnect(con)
     return(strain)
+}
+
+#' Get data filed from IDs
+#' 
+#' @param ContactExpID vector of IDs
+#' @param field name of the nannotation field
+#'   
+#' @return eset
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family RNAseq
+#' @export
+#' 
+getDBdataField <- function(ContactExpID, field='ContactExpID', EXTABLE='labrnaseq'){
+    
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
+    PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', EXTABLE) ))[['Column_name']]
+    
+    out <- sapply(ContactExpID, function(x) dbGetQuery(
+        con, sprintf('SELECT %s FROM %s WHERE %s = "%s"', field, EXTABLE, PK, x)
+    ))
+    
+    dbDisconnect(con)
+    return(out)
 }
 
 
@@ -114,6 +139,31 @@ getSummarizedEperiment <- function( ContactExpIDs="rAM022" ){
         get(load(url(getFilePath(ID=x, processing='TagCounts'))))
     })
     return( do.call(cbind, out) )
+}
+
+#' Get spikeIN summary from IDs
+#' 
+#' @param ContactExpID vector of IDs
+#'   
+#' @return SummarizedEperiment
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family RNAseq
+#' @export
+#' 
+spikeINsummary <- function( ContactExpIDs=paste0("rFB0", 26:32) ){
+    se <- getSummarizedEperiment(ContactExpIDs) 
+    rownames(se)[rownames(se) == ''] <- 
+        as.character(elementMetadata(se)$geneName[rownames(se) == ''])
+    colnames(se) <- sapply(strsplit(colnames(se), '_'), '[[', 10)
+    
+    
+    
+    
+    
+    
+    
 }
 
 #' Get SummarizedEperiments as Rdata from IDs
