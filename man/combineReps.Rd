@@ -27,4 +27,7 @@ Combine big wiggle files in the database into replicate track
 \author{
 Przemyslaw Stempor
 }
+\seealso{
+Other BW: \code{\link{addRepToJADB}}
+}
 

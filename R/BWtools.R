@@ -67,7 +67,7 @@ extarct_vector <- function(track, size, which = as(seqinfo(track), "GenomicRange
 combineReps <- function(IDs, processing='aligned', res=100L, outdir=tempdir()) {
     
     message('Getting files')
-    paths <- sapply(IDs, getFilePath, format = 'bw', processing='aligned') 
+    paths <- sapply(IDs, getFilePath, format = 'bw', processing='aligned', scale='linear') 
     if(length(IDs) != length(paths)) stop('Mant tracks per ID, cannot combine.')
     anno <- as.data.frame(t(sapply(basename(paths), rbeads:::ParseName)))
     
@@ -100,7 +100,59 @@ combineReps <- function(IDs, processing='aligned', res=100L, outdir=tempdir()) {
     message('Exporting: ', outname)
     export.bw(bw, outname)
     
-    return( list(out=outname, cor=C) )
+    return( list(out=outname, cor=C, anno=anno) )
+    
+}
+
+#' Adds replicates to database
+#' 
+#' @param IDs Vector of JADB ContactExpIDs
+#' @param res Resolution of tracks
+#' @param outdir Directory to output BW file
+#'   
+#' @return NULL 
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family BW
+#' @export
+#' 
+#' @examples
+#' #combineReps(IDs)
+addRepToJADB <- function(IDs, res=100L, outdir=tempdir()) {
+    
+    
+    out <- combineReps(IDs, processing = 'aligned', outdir = outdir, res = res)
+    outNorm <- combineReps(IDs, processing = 'NORM', outdir = outdir, res = res)
+    
+    attach(out)
+    
+    
+    
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
+   
+    T <- dbReadTable(con, "labchipseqrep")
+    
+    INSERT <- anno[1,-c(2,3,7,8,9,10,11,12)]
+    INSERT[['ContactExpID']]<- sprintf('REP%03i', max(as.numeric(gsub('REP', '', T$RepID)))+1)
+    INSERT[['dateCreated']] <- paste(Sys.Date())
+    INSERT[['dateUpdated']] <- paste(Sys.Date())
+    INSERT[['Comments']] <- paste0('corA=', round(cor, 3), '; corN=', round(outNorm$cor, 3))
+    INSERT[['ExtractID']] <- paste0(unlist(anno$ExtractID), collapse=' & ')
+    INSERT[['Experiments']] <- paste0(unlist(anno$ContactExpID), collapse=' & ')
+    
+    TABLE <- 'labchipseqrep'
+    fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", TABLE))
+    PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', TABLE) ))[['Column_name']]
+		
+    sql <- paste("INSERT INTO ", TABLE,"(", paste(colnames(INSERT), collapse=", "),") VALUES('", paste(as.character(unlist(INSERT)), collapse="', '"), "')", collapse=", ", sep="")
+    
+    rs <- dbSendQuery(con, sql )
+    info <- dbGetInfo(rs)
+    
+    addGenericFile(INSERT[['RepID']], path = basename(out$out), Processing = 'aligned',  Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'RR')
+    addGenericFile(INSERT[['RepID']], path = basename(outNorm$out), Processing = 'NORM', Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'RR')
+    
     
 }
     
