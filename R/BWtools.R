@@ -46,3 +46,61 @@ extarct_vector <- function(track, size, which = as(seqinfo(track), "GenomicRange
 #             as.character(strand(gr))=='-', ncol(M):1]
 #     return(M)
 }
+
+#' Combine big wiggle files in the database into replicate track
+#' 
+#' @param IDs Vector of JADB ContactExpIDs
+#' @param processing Processing level of tracks
+#' @param res Resolution of tracks
+#' @param outdir Directory to output BW file
+#'   
+#' @return List 
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family BW
+#' @export
+#' 
+#' @examples
+#' #combineReps(IDs)
+
+combineReps <- function(IDs, processing='aligned', res=100L, outdir=tempdir()) {
+    
+    message('Getting files')
+    paths <- sapply(IDs, getFilePath, format = 'bw', processing='aligned') 
+    if(length(IDs) != length(paths)) stop('Mant tracks per ID, cannot combine.')
+    anno <- as.data.frame(t(sapply(basename(paths), rbeads:::ParseName)))
+    
+    validRep <- sapply(c('Factor', 'Strain', 'Stage', 'Processing', 'Scale', 'Resolution'), function(x) length(unique(anno[x]))==1)
+    if(!all(validRep)) stop('Not a valid replicate')
+    
+    message('Calculating correlation')
+    require(rtracklayer)   
+    bwfl <- BigWigFileList(unlist(paths))
+    lst <- lapply(bwfl, function(bwf) {
+        extarct_vector(bwf, size = seqlengths(bwf)/res)
+    })
+    M <- do.call(cbind, lst)
+    C <- cor(M, use = 'na.or.complete')
+    C <- mean(C[upper.tri(C)])
+    
+    for(n in names(bwfl)) {
+        message('Summarizing ', n)
+        if(exists('bw')) {
+            bw <- bw + import.bw(bwfl[[n]], as='Rle')
+        } else {
+            bw <- import.bw(bwfl[[n]], as='Rle')
+        }
+    }
+    bw <- bw / length(bwfl)
+    
+    same <- anno[1,c('Factor', 'Strain', 'Stage', 'Processing', 'Scale', 'Resolution')]
+    outname <- paste0(paste0(unlist(same), collapse='_'), '_', paste(anno$ContactExpID, collapse = '^'), '_', paste(anno$UID, collapse = '^'), '.bw')
+    outname <- file.path(outdir, outname)
+    message('Exporting: ', outname)
+    export.bw(bw, outname)
+    
+    return( list(out=outname, cor=C) )
+    
+}
+    
