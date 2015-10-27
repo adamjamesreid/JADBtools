@@ -123,7 +123,7 @@ addRepToJADB <- function(IDs, res=100L) {
     
     con <- dbConnect(dbDriver("MySQL"), group = "jadb")
     T <- dbReadTable(con, "labchipseqrep")
-    CXID <- sprintf('REP%03i', max(as.numeric(gsub('REP', '', T$ContactExpID)))+1)
+    CXID <- sprintf('REP%03.0f', max(as.numeric(gsub('REP', '', T$ContactExpID)))+1)
     
     outdir <- file.path('REPLICATES', JADBtools:::getAnno(IDs[[1]], EXTABLE = 'labexperiment'), CXID)
     dir.create(outdir, recursive = TRUE)
