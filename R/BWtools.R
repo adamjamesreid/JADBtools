@@ -136,13 +136,13 @@ addRepToJADB <- function(IDs, res=100L) {
     con <- dbConnect(dbDriver("MySQL"), group = "jadb")
     T <- dbReadTable(con, "labchipseqrep")
     
-    INSERT <- anno[1,-c(2,3,7,8,9,10,11,12)]
+    INSERT <- out$anno[1,-c(2,3,7,8,9,10,11,12)]
     INSERT[['ContactExpID']]<- CXID
     INSERT[['dateCreated']] <- paste(Sys.Date())
     INSERT[['dateUpdated']] <- paste(Sys.Date())
-    INSERT[['Comments']] <- paste0('corA=', round(cor, 3), '; corN=', round(outNorm$cor, 3))
-    INSERT[['ExtractID']] <- paste0(unlist(anno$ExtractID), collapse=' & ')
-    INSERT[['Experiments']] <- paste0(unlist(anno$ContactExpID), collapse=' & ')
+    INSERT[['Comments']] <- paste0('corA=', round(out$cor, 3), '; corN=', round(outNorm$cor, 3))
+    INSERT[['ExtractID']] <- paste0(unlist(out$anno$ExtractID), collapse=' & ')
+    INSERT[['Experiments']] <- paste0(unlist(out$anno$ContactExpID), collapse=' & ')
     
     TABLE <- 'labchipseqrep'
     fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", TABLE))
