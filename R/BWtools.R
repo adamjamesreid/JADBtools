@@ -119,22 +119,25 @@ combineReps <- function(IDs, processing='aligned', res=100L, outdir=tempdir()) {
 #' 
 #' @examples
 #' #combineReps(IDs)
-addRepToJADB <- function(IDs, res=100L, outdir=tempdir()) {
+addRepToJADB <- function(IDs, res=100L) {
     
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
+    T <- dbReadTable(con, "labchipseqrep")
+    CXID <- sprintf('REP%03i', max(as.numeric(gsub('REP', '', T$RepID)))+1)
+    
+    outdir <- file.path('REPLICATES', JADBtools:::getAnno(IDs[[1]], EXTABLE = 'labexperiment'), CXID)
+    dir.create(outdir, recursive = TRUE)
     
     out <- combineReps(IDs, processing = 'aligned', outdir = outdir, res = res)
     outNorm <- combineReps(IDs, processing = 'NORM', outdir = outdir, res = res)
     
     attach(out)
     
-    
-    
     con <- dbConnect(dbDriver("MySQL"), group = "jadb")
-   
     T <- dbReadTable(con, "labchipseqrep")
     
     INSERT <- anno[1,-c(2,3,7,8,9,10,11,12)]
-    INSERT[['ContactExpID']]<- sprintf('REP%03i', max(as.numeric(gsub('REP', '', T$RepID)))+1)
+    INSERT[['ContactExpID']]<- CXID
     INSERT[['dateCreated']] <- paste(Sys.Date())
     INSERT[['dateUpdated']] <- paste(Sys.Date())
     INSERT[['Comments']] <- paste0('corA=', round(cor, 3), '; corN=', round(outNorm$cor, 3))
@@ -150,8 +153,8 @@ addRepToJADB <- function(IDs, res=100L, outdir=tempdir()) {
     rs <- dbSendQuery(con, sql )
     info <- dbGetInfo(rs)
     
-    addGenericFile(INSERT[['RepID']], path = basename(out$out), Processing = 'aligned',  Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'RR')
-    addGenericFile(INSERT[['RepID']], path = basename(outNorm$out), Processing = 'NORM', Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'RR')
+    addGenericFile(CXID, path = file.path('files', out$out), Processing = 'aligned',  Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'RR')
+    addGenericFile(CXID, path = file.path('files', outNorm$out), Processing = 'NORM', Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'RR')
     
     
 }

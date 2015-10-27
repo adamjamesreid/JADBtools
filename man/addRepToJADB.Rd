@@ -4,7 +4,7 @@
 \alias{addRepToJADB}
 \title{Adds replicates to database}
 \usage{
-addRepToJADB(IDs, res = 100L, outdir = tempdir())
+addRepToJADB(IDs, res = 100L)
 }
 \arguments{
 \item{IDs}{Vector of JADB ContactExpIDs}
