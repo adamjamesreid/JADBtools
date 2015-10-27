@@ -115,7 +115,8 @@ addGenericFile <- function(
     parent1_uid=NA,
     parent2_uid=NA,
     parent3_uid=NA,
-    uniq=NA
+    uniq=NA,
+    repPath=FALSE
     ) {
     
     con <- dbConnect(dbDriver("MySQL"), group = "jadb")
@@ -128,11 +129,15 @@ addGenericFile <- function(
         Scale=Scale,     
         UID=UID,
         filetype_format=filetype_format,
-        path=sprintf(
-            '%s_%s.%s', 
-            file.path(dirname(path), gsub('\\..+$', '', basename(path))),
-            UID, filetype_format
-        ),     
+        path=if(repPath) {
+            path
+        } else {
+            sprintf(
+                '%s_%s.%s', 
+                file.path(dirname(path), gsub('\\..+$', '', basename(path))),
+                UID, filetype_format
+            )
+        },     
         dateCreated=paste(Sys.Date()),
         dateUpdated=paste(Sys.Date()),
         comments=comments,
