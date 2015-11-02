@@ -14,6 +14,7 @@
 #' 
 bamStats <- function(f) {
     
+    data(rrnamodel)
     
     what <- c("rname", "strand", "pos", "mapq", "qwidth")
     flag <- scanBamFlag(isUnmappedQuery = FALSE)
@@ -32,10 +33,11 @@ bamStats <- function(f) {
     a <- length(grng)
     q <- sum(lg)
     u <- length(unique(grng[lg]))
+    rr <- sum(grng %over% rrnamodel)
     
     out <- sprintf(
-        'all=%.2fM, aligned=%.2fM[%.0f%%], mapq10=%.2fM[%.0f%%], unique10=%.2fM[%.0f%%]',
-        r/10^6, a/10^6, (a/r)*100, q/10^6, (q/r)*100, u/10^6, (u/r)*100
+        'all=%.2fM, aligned=%.2fM[%.0f%%], mapq10=%.2fM[%.0f%%], unique10=%.2fM[%.0f%%], rRNA=%.2fM[%.0f%%]',
+        r/10^6, a/10^6, (a/r)*100, q/10^6, (q/r)*100, u/10^6, (u/r)*100, rr/10^6, (rr/r)*100
     )
     
     return(out)
