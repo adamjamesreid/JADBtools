@@ -131,8 +131,6 @@ addRepToJADB <- function(IDs, res=100L) {
     out <- combineReps(IDs, processing = 'aligned', outdir = outdir, res = res)
     outNorm <- combineReps(IDs, processing = 'NORM', outdir = outdir, res = res)
     
-    attach(out)
-    
     con <- dbConnect(dbDriver("MySQL"), group = "jadb")
     T <- dbReadTable(con, "labchipseqrep")
     
@@ -153,9 +151,13 @@ addRepToJADB <- function(IDs, res=100L) {
     rs <- dbSendQuery(con, sql )
     info <- dbGetInfo(rs)
     
+    dbDisconnect(con)
+    
     addGenericFile(CXID, path = file.path('files', out$out), Processing = 'aligned',  Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
     addGenericFile(CXID, path = file.path('files', outNorm$out), Processing = 'NORM', Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
     
+    
+    #UPDATE `mydb`.`labfiles` SET `filetype_format`='bwz' WHERE `UID`='R3e31188';
     
 }
     
