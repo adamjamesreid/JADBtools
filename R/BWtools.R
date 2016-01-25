@@ -64,11 +64,11 @@ extarct_vector <- function(track, size, which = as(seqinfo(track), "GenomicRange
 #' @examples
 #' #combineReps(IDs)
 
-combineReps <- function(IDs, processing='aligned', res=100L, outdir=tempdir()) {
+combineReps <- function(IDs, processing='aligned', res=100L, scale='linear', outdir=tempdir()) {
     
     message('Getting files')
-    paths <- sapply(IDs, getFilePath, format = 'bw', processing='aligned', scale='linear') 
-    if(length(IDs) != length(paths)) stop('Mant tracks per ID, cannot combine.')
+    paths <- sapply(IDs, getFilePath, format = 'bw', processing=processing, scale=scale) 
+    if(length(IDs) != length(paths)) stop('Many/missing tracks per ID, cannot combine.')
     anno <- as.data.frame(t(sapply(basename(paths), rbeads:::ParseName)))
     
     validRep <- sapply(c('Factor', 'Strain', 'Stage', 'Processing', 'Scale', 'Resolution'), function(x) length(unique(anno[x]))==1)
@@ -130,6 +130,9 @@ addRepToJADB <- function(IDs, res=100L) {
     
     out <- combineReps(IDs, processing = 'aligned', outdir = outdir, res = res)
     outNorm <- combineReps(IDs, processing = 'NORM', outdir = outdir, res = res)
+    outNormLog2 <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2$', res = res)
+    outNormLog2zsc <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2zsc', res = res)
+    outNormZscore <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'zscore', res = res)
     
     con <- dbConnect(dbDriver("MySQL"), group = "jadb")
     T <- dbReadTable(con, "labchipseqrep")
@@ -155,6 +158,13 @@ addRepToJADB <- function(IDs, res=100L) {
     
     addGenericFile(CXID, path = file.path('files', out$out), Processing = 'aligned',  Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
     addGenericFile(CXID, path = file.path('files', outNorm$out), Processing = 'NORM', Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
+    
+    addGenericFile(CXID, path = file.path('files', outNormLog2$out), Processing = 'NORM', Resolution = '1bp', Scale = 'log2', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
+    addGenericFile(CXID, path = file.path('files', outNormLog2zsc$out), Processing = 'NORM', Resolution = '1bp', Scale = 'log2zsc', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
+    addGenericFile(CXID, path = file.path('files', outNormZscore$out), Processing = 'NORM', Resolution = '1bp', Scale = 'zscore', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
+    
+    
+    
     
     
     #UPDATE `mydb`.`labfiles` SET `filetype_format`='bwz' WHERE `UID`='R3e31188';
