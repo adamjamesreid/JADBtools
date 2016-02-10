@@ -11,7 +11,7 @@
 #' 
 getAnno <- function( ContactExpID, anno='Factor', EXTABLE='labrnaseq'){
     
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', EXTABLE) ))[['Column_name']]
     
     strain <- lapply(ContactExpID, function(x) {

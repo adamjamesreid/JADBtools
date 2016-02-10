@@ -8,7 +8,7 @@
 #' @export
 #' 
 testConnection <- function() {
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     ok <- dbExistsTable(con, 'labfiles')
     dbDisconnect(con)
     if( ok ) {

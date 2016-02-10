@@ -1,6 +1,6 @@
 getBWarray <- function(IDs, res=1000L, processing = 'aligned') {
     
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     dbListTables(con)
     all <- dbReadTable(con, "labexperimentview")
     
@@ -121,7 +121,7 @@ combineReps <- function(IDs, processing='aligned', res=100L, scale='linear', out
 #' #combineReps(IDs)
 addRepToJADB <- function(IDs, res=100L) {
     
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     T <- dbReadTable(con, "labchipseqrep")
     CXID <- sprintf('REP%03.0f', max(as.numeric(gsub('REP', '', T$ContactExpID)))+1)
     
@@ -134,7 +134,7 @@ addRepToJADB <- function(IDs, res=100L) {
     outNormLog2zsc <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2zsc', res = res)
     outNormZscore <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'zscore', res = res)
     
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     T <- dbReadTable(con, "labchipseqrep")
     
     INSERT <- out$anno[1,-c(2,3,7,8,9,10,11,12)]

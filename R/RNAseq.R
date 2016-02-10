@@ -61,7 +61,7 @@ summarizeBAMs <-function(fls, model = 'gnmodel') {
 #' 
 getStrain <- function( ContactExpID, EXTABLE='labrnaseq'){
     
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', EXTABLE) ))[['Column_name']]
     
     strain <- sapply(ContactExpID, function(x) dbGetQuery(
@@ -85,7 +85,7 @@ getStrain <- function( ContactExpID, EXTABLE='labrnaseq'){
 #' 
 getStage <- function(ContactExpID, EXTABLE='labrnaseq'){
     
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', EXTABLE) ))[['Column_name']]
     
     strain <- sapply(ContactExpID, function(x) dbGetQuery(
@@ -110,7 +110,7 @@ getStage <- function(ContactExpID, EXTABLE='labrnaseq'){
 #' 
 getDBdataField <- function(ContactExpID, field='ContactExpID', EXTABLE='labrnaseq'){
     
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb")
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', EXTABLE) ))[['Column_name']]
     
     out <- sapply(ContactExpID, function(x) dbGetQuery(

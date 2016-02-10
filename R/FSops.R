@@ -5,7 +5,7 @@ rename.files <- function( id, fields ) {
     old_id <- id
     
     mysql <- dbDriver("MySQL")
-    con <- dbConnect(mysql, user="admin", password = "pipek", dbname="mydb")
+    con <- dbConnect(mysql, group = "jadb", default.file='~/.my.cnf')
     
     #Get old files from DB
     files <- dbGetQuery(con, paste("SELECT * FROM labfiles WHERE ContactExpID = '", id,"'", sep=''))
