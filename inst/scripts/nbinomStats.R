@@ -115,7 +115,15 @@ wald.test(b = coef(mod), Sigma = vcov(mod), Terms=2)
 
 
 id <-c(paste0('rAM0', 11:30), paste0('rAM00', 1:4))
-SE2 <- getSummarizedEperiment(id)
+id <-c(paste0('rFB00', 1:9), paste0('rFB0', 10:24))
+id <-c(paste0('rCG00', 1:4))
+
+SE <- getSummarizedEperiment(id)
+colData(SE)$id <- do.call(rbind, strsplit( rownames(colData(SE)), '_'))[,9]
+colData(SE)$extract <- do.call(rbind, strsplit( rownames(colData(SE)), '_'))[,3]
+SE <- collapseReplicates(SE, factor(SE$extract), SE$id)
+
+
 
 ### DEseq
 
@@ -125,6 +133,8 @@ dds0 <- DESeq(dds)
 colData(SE)$strain <- factor(gsub('-', '', colData(SE)$strain))
 ddsTC <- DESeqDataSet(SE, design = ~ strain + stage + strain:stage )
 ddsTC <- DESeq(ddsTC, test="LRT", reduced = ~ strain + stage )
+
+
 
 save(ddsTC, file='ddsTC.Rdata')
 
