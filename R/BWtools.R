@@ -143,7 +143,7 @@ addRepToJADB <- function(IDs, res=100L) {
     INSERT[['dateUpdated']] <- paste(Sys.Date())
     INSERT[['Comments']] <- paste0('corA=', round(out$cor, 3), '; corN=', round(outNorm$cor, 3))
     INSERT[['ExtractID']] <- paste0(unlist(out$anno$ExtractID), collapse=' & ')
-    INSERT[['Experiments']] <- paste0(unlist(out$anno$ContactExpID), collapse=' & ')
+    INSERT[['Experiments']] <- paste0(unlist(out$anno$ContactExpID), collapse='|')
     
     TABLE <- 'labchipseqrep'
     fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", TABLE))
