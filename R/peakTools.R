@@ -48,6 +48,8 @@ callPeaksMACS <- function(ids, local=TRUE) {
         extract <- JADBtools::getAnno(x, anno = 'ExtractID', EXTABLE = 'labexperiment')
         
         if(extract == 'mE12') extract <- 'mE11'
+        if(extract == 'ak02') extract <- 'ak01'
+        
         
         inputs <- filter(all_experiments, ExtractID==extract, Factor=='Input')$ContactExpID
         
@@ -57,6 +59,8 @@ callPeaksMACS <- function(ids, local=TRUE) {
             inputs
         }
     })
+    
+    if(length(inp) == 0) stop('No matching inputs found!')
     
     ids  %>% sapply(getFilePath, format = 'bam', url = local)  -> fls
     unlist(inp) %>% sapply(getFilePath, format = 'bam', url = local)  -> inputs
