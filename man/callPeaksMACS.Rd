@@ -25,6 +25,7 @@ Przemyslaw Stempor
 }
 \seealso{
 Other Peaks: \code{\link{combinePeaksToBed}},
-  \code{\link{combinePeaks}}
+  \code{\link{combinePeaks}},
+  \code{\link{enrichedRegionsCall}}
 }
 
