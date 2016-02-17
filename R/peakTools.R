@@ -193,11 +193,22 @@ combinePeaksToBed <- function(ids, mode='union') {
     return(outname)
 }
 
+#' Calls enriched regions from BigWig file
+#' 
+#' @param file path/url to BW
+#' @param bedoutput path to output BED
+#' @return GRanges or bed file path 
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family Peaks
+#' @export
+#' 
+#' @examples
+#' #combinePeaksToBed(IDs)
+enrichedRegionsCall <- function(file, bedoutput=NULL) {
 
-enrichedRegionsCall <- function (ranges.raw, REF = NULL) {
-
-        
-        bw <- BigWigFile('/Volumes/raid0/Rtemp/justFiles/beads/HTZ1^SK2088-SK2089_cg07^F^lin35-sep1GFP^L3_BEADS^linear^1bp_CG023^C8600001.bw')
+        bw <- BigWigFile(file)
         REF <- seqinfo(bw)
         covtrack <- import.bw(bw, as='RleList')
         a <- quantile(unlist(covtrack), 0.75)
@@ -210,6 +221,12 @@ enrichedRegionsCall <- function (ranges.raw, REF = NULL) {
                                                                quantile(unlist(peakSumsRep1), 0.9)], "IRangesList"))
         enriched_regions <- as(enriched_regions, "GRanges")
         seqinfo(enriched_regions) <- REF[seqlevels(enriched_regions)]
-
-        return(enriched_regions)
+        
+        if(is.null(bedoutput)) {
+            return(enriched_regions)
+        } else {
+            export.bed(enriched_regions, bedoutput)
+            return(bedoutput)
+        }
+        
 }

@@ -135,8 +135,13 @@ addRepToJADB <- function(IDs, res=100L) {
     outNormZscore <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'zscore', res = res)
     
     oldwd <- getwd(); setwd(outdir)
-    peaksU <- combinePeaksToBed(IDs, mode = 'union')
-    peaksI <- combinePeaksToBed(IDs, mode = 'intersection')
+    peaksU <- file.path(outdir, combinePeaksToBed(IDs, mode = 'union'))
+    peaksI <- file.path(outdir, combinePeaksToBed(IDs, mode = 'intersection'))
+    enreg <- file.path(outdir, enrichedRegionsCall(
+        basename(outNorm),
+        gsub('PeakCalls_MACS_q01(.+)_union', 'EnrichedRegions_a75_b9\\1', peaksU)
+    ))
+    
     setwd(oldwd)
     
     con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
@@ -170,6 +175,8 @@ addRepToJADB <- function(IDs, res=100L) {
     
     addGenericFile(CXID, path = file.path('files', peaksU), Processing = 'PeakUnion',     Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
     addGenericFile(CXID, path = file.path('files', peaksI), Processing = 'PeakIntersect', Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
+    addGenericFile(CXID, path = file.path('files', enreg), Processing = 'EnrichedRegions', Resolution = 'a75', Scale = 'q9', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
+    
     
     
     
