@@ -49,18 +49,19 @@ callPeaksMACS <- function(ids, local=TRUE) {
         
         if(extract == 'mE12') extract <- 'mE11'
         if(extract == 'ak02') extract <- 'ak01'
+        if(extract == 'em01' | extract == 'em02') extract <- 'aa04'
         
         
         inputs <- filter(all_experiments, ExtractID==extract, Factor=='Input')$ContactExpID
         
-        if(length(inputs) > 1) {
+        if (length(inputs) > 1) {
             names(which.max(sapply(inputs[[1]], getAlignedReads)))
-        } else {
+        } else if (length(inputs) == 1) {
             inputs
+        } else {
+            stop('No matching inputs found for: ', extract)
         }
     })
-    
-    if(length(inp) == 0) stop('No matching inputs found!')
     
     ids  %>% sapply(getFilePath, format = 'bam', url = local)  -> fls
     unlist(inp) %>% sapply(getFilePath, format = 'bam', url = local)  -> inputs
