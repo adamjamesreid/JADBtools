@@ -192,3 +192,24 @@ combinePeaksToBed <- function(ids, mode='union') {
     export.bed(out, outname)
     return(outname)
 }
+
+
+enrichedRegionsCall <- function (ranges.raw, REF = NULL) {
+
+        
+        bw <- BigWigFile('/Volumes/raid0/Rtemp/justFiles/beads/HTZ1^SK2088-SK2089_cg07^F^lin35-sep1GFP^L3_BEADS^linear^1bp_CG023^C8600001.bw')
+        REF <- seqinfo(bw)
+        covtrack <- import.bw(bw, as='RleList')
+        a <- quantile(unlist(covtrack), 0.75)
+        
+        message("INFO: a = ", a)
+
+        enriched_regions <- IRanges::slice(covtrack, lower = a)
+        peakSumsRep1 <- viewSums(enriched_regions)
+        enriched_regions <- RangedData(as(enriched_regions[peakSumsRep1 >= 
+                                                               quantile(unlist(peakSumsRep1), 0.9)], "IRangesList"))
+        enriched_regions <- as(enriched_regions, "GRanges")
+        seqinfo(enriched_regions) <- REF[seqlevels(enriched_regions)]
+
+        return(enriched_regions)
+}
