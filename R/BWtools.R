@@ -134,8 +134,10 @@ addRepToJADB <- function(IDs, res=100L) {
     outNormLog2zsc <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2zsc', res = res)
     outNormZscore <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'zscore', res = res)
     
+    oldwd <- getwd(); setwd(outdir)
     peaksU <- combinePeaksToBed(IDs, mode = 'union')
     peaksI <- combinePeaksToBed(IDs, mode = 'intersection')
+    setwd(oldwd)
     
     con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     T <- dbReadTable(con, "labchipseqrep")
