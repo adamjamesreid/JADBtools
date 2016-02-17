@@ -133,7 +133,7 @@ addGenericFile <- function(
             path
         } else {
             sprintf(
-                '%s_%s.%s', 
+                '%s^%s.%s', 
                 file.path(dirname(path), gsub('\\..+$', '', basename(path))),
                 UID, filetype_format
             )
