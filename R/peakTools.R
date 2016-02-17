@@ -122,20 +122,3 @@ callPeaksMACS <- function(ids, local=TRUE, outdir='.') {
     }
 
 }
-    
-    
-
-    
-    
-    
-    system
-    return(cmd)
-    
-
-    
-    
-    
-    outnames_summits <- sapply(basename(fls), rbeads:::reName, proccesing = 'summits', scale = 'MACS', resolution = 'q01', ext='.bed')
-    
-    
-}
