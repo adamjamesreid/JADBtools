@@ -142,7 +142,7 @@ addRepToJADB <- function(IDs, res=100L) {
     con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     T <- dbReadTable(con, "labchipseqrep")
     
-    INSERT <- out$anno[1,-c(2,3,7,8,9,10,11,12)]
+    INSERT <- out$anno[1,-c(3,7,8,9,10,11,12)]
     INSERT[['ContactExpID']]<- CXID
     INSERT[['dateCreated']] <- paste(Sys.Date())
     INSERT[['dateUpdated']] <- paste(Sys.Date())
