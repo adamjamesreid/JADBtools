@@ -109,7 +109,7 @@ callPeaksMACS <- function(ids, local=TRUE) {
         
         peakEntry <- addGenericFile(
             ids, 
-            path = file.path('files', exp_dir, gsub('aligned^NA^NA', 'PeakCalls^MACS^q01', prefix)), 
+            path = file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'PeakCalls^MACS^q01', prefix)), 
             Processing = 'PeakCalls', 
             Scale = 'MACS', 
             Resolution = 'q01', 
@@ -120,7 +120,7 @@ callPeaksMACS <- function(ids, local=TRUE) {
         
         summitEntry <- addGenericFile(
             ids, 
-            path = file.path('files', exp_dir, gsub('aligned^NA^NA', 'summits^MACS^q01', prefix)), 
+            path = file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'summits^MACS^q01', prefix)), 
             Processing = 'summits', 
             Scale = 'MACS', 
             Resolution = 'q01', 
@@ -135,4 +135,55 @@ callPeaksMACS <- function(ids, local=TRUE) {
         setwd(base_dir)
     }
 
+}
+
+#' Combines peak in replicates
+#' 
+#' @param IDs Vector of JADB ContactExpIDs
+#' @param mode u for union or i for intersection
+#' @return GRanges 
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family Peaks
+#' @export
+#' 
+#' @examples
+#' #combinePeaks(IDs)
+combinePeaks <- function(ids, mode='u') {
+    files <- sapply(ids, getFilePath, format = 'narrowPeak', processing = 'peakCalls')
+    peaks <- lapply(files, ChIPseeker::readPeakFile, header=F)
+    if(mode=='u') {
+        Reduce(GenomicRanges::union, peaks) 
+    } else if (mode=='i') {
+        Reduce(GenomicRanges::intersect, peaks)
+    }
+}
+
+#' Combines peak in replicates and exports to bed file
+#' 
+#' @param IDs Vector of JADB ContactExpIDs
+#' @param mode union or intersection
+#' @return bed file path 
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family Peaks
+#' @export
+#' 
+#' @examples
+#' #combinePeaksToBed(IDs)
+combinePeaksToBed <- function(ids, mode='union') {
+    files <- sapply(ids, getFilePath, format = 'narrowPeak', processing = 'peakCalls')
+    peaks <- lapply(files, ChIPseeker::readPeakFile, header=F)
+    if(mode=='union') {
+        out <- Reduce(GenomicRanges::union, peaks) 
+    } else if (mode=='intersection') {
+        out <- Reduce(GenomicRanges::intersect, peaks)
+    }
+    anno <- as.data.frame(t(sapply(basename(files), rbeads:::ParseName)))
+    same <- anno[1,c('Factor', 'Strain', 'Stage', 'Processing', 'Scale', 'Resolution')]
+    outname <- paste0(paste0(unlist(same), collapse='_'), '_', paste(anno$ContactExpID, collapse = '^'), '_', mode, '.bed')
+    export.bed(out, outname)
+    return(outname)
 }

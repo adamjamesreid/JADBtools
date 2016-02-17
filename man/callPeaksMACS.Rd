@@ -23,4 +23,8 @@ Run peak calls and optionally adds them to DB
 \author{
 Przemyslaw Stempor
 }
+\seealso{
+Other Peaks: \code{\link{combinePeaksToBed}},
+  \code{\link{combinePeaks}}
+}
 
