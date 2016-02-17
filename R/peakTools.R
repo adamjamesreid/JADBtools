@@ -30,7 +30,7 @@ callPeaksMACS <- function(ids, local=TRUE) {
         }
         con <- dbConnect(dbDriver("MySQL"), group = "jadb")
         exp_file <- unlist(dbGetQuery(con, paste("SELECT ", info, " FROM labfiles WHERE ContactExpID ",
-                                                 R, " '", ID, "' AND Filetype_format ", R, " '", format,
+                                                 '=', " '", ID, "' AND Filetype_format ", R, " '", format,
                                                  "' AND  Processing ", R, " '", processing, "'", "AND Scale ",
                                                  R, " '", scale, "'", collapse = "", sep = "")), use.names = FALSE)
         names(exp_file) <- NULL
@@ -55,7 +55,7 @@ callPeaksMACS <- function(ids, local=TRUE) {
         inputs <- filter(all_experiments, ExtractID==extract, Factor=='Input')$ContactExpID
         
         if (length(inputs) > 1) {
-            names(which.max(sapply(inputs[[1]], getAlignedReads)))
+            names(which.max(sapply(inputs, getAlignedReads)))
         } else if (length(inputs) == 1) {
             inputs
         } else {
