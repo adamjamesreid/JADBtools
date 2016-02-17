@@ -134,6 +134,9 @@ addRepToJADB <- function(IDs, res=100L) {
     outNormLog2zsc <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2zsc', res = res)
     outNormZscore <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'zscore', res = res)
     
+    peaksU <- combinePeaksToBed(IDs, mode = 'union')
+    peaksI <- combinePeaksToBed(IDs, mode = 'intersection')
+    
     con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     T <- dbReadTable(con, "labchipseqrep")
     
@@ -163,7 +166,8 @@ addRepToJADB <- function(IDs, res=100L) {
     addGenericFile(CXID, path = file.path('files', outNormLog2zsc$out), Processing = 'NORM', Resolution = '1bp', Scale = 'log2zsc', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
     addGenericFile(CXID, path = file.path('files', outNormZscore$out), Processing = 'NORM', Resolution = '1bp', Scale = 'zscore', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
     
-    
+    addGenericFile(CXID, path = file.path('files', peaksU), Processing = 'PeakUnion',     Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
+    addGenericFile(CXID, path = file.path('files', peaksI), Processing = 'PeakIntersect', Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
     
     
     
