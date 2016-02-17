@@ -1,4 +1,18 @@
-callPeaksMACS <- function(ids, local=TRUE, outdir='.') {
+#' Run peak calls and optionally adds them to DB
+#' 
+#' @param IDs Vector of JADB ContactExpIDs
+#' @param local should the job be run on local or remote FS
+#'   
+#' @return List 
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family Peaks
+#' @export
+#' 
+#' @examples
+#' #callPeaksMACS(IDs)
+callPeaksMACS <- function(ids, local=TRUE) {
     con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     all_experiments <<- dbReadTable(con, "labexperimentview")
     dbDisconnect(con)
