@@ -139,7 +139,7 @@ addRepToJADB <- function(IDs, res=100L) {
     peaksI <- file.path(outdir, combinePeaksToBed(IDs, mode = 'intersection'))
     enreg <- file.path(outdir, enrichedRegionsCall(
         basename(outNorm$out),
-        gsub('PeakCalls_MACS_q01(.+)_union', 'EnrichedRegions_a75_b9\\1', peaksU)
+        basename(gsub('PeakCalls_MACS_q01(.+)_union', 'EnrichedRegions_a75_b9\\1', peaksU))
     ))
     
     setwd(oldwd)
