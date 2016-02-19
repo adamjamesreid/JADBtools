@@ -69,8 +69,8 @@ addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.
         DBinsert <- DBrecords[i,]
         prID <- as.character( insert[['ProjectID']] )
         smplID <- as.character( insert[['SampleID']] )
-        temp_dir <- file.path('files/temp', prID, smplID)
-        dir.create(temp_dir, recursive = TRUE)
+        #temp_dir <- file.path('files/temp', prID, smplID)
+        #dir.create(temp_dir, recursive = TRUE)
         
         if (any( grepl('_| |:|\\^|\\/', DBinsert[c('Factor', 'Antibody','ExtractID', 'Crosslinker', 'Strain', 'Stage')]) )) {
             stop('Not allowed character "_" or " " or ":" or "^" or "/" in name fileds.')
@@ -84,9 +84,10 @@ addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.
             #File joining, takes time
         #system( sprintf('cat %s > %s', paste(file.path(temp_dir, files$Path), collapse=' '), gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])), intern=TRUE)
         #finalFilePath <- gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])
-        if( !file.exists(finalFilePath) ) stop('Joined file does not exist!')
+        
         
         finalFilePath <- insert['OryginalFileName']
+        if( !file.exists(finalFilePath) ) stop('Joined file does not exist!')
         
         #DATABASE: Add experiment entry
         
