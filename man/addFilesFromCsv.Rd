@@ -12,7 +12,7 @@ addFilesFromCsv(csv, root = "/mnt/jadb/DBfile/DBfiles",
 
 \item{root}{root of the database FS}
 
-\item{EXTABLE}{table to add the experiment to}
+\item{EXTABLE}{table to add the experiment to ("mydb.labrnaseq" for RNAseq)}
 
 \item{gsheet}{is the source gsheet or local}
 }

@@ -20,7 +20,7 @@ mergeLanesFQ <- function() {
 #' 
 #' @param csv path to CSV or url to gsheet
 #' @param root root of the database FS
-#' @param EXTABLE table to add the experiment to 
+#' @param EXTABLE table to add the experiment to ("mydb.labrnaseq" for RNAseq)
 #' @param gsheet is the source gsheet or local
 #'   
 #' @return NULL
