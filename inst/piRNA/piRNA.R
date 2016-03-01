@@ -54,6 +54,7 @@ bed2fa <- function(bed, ups=1000, dns=100, tss=TRUE, fa=gsub('bed', 'fa', bed)) 
     message(fa)
     reg <- import.bed(bed)
     fa_promoters <- getSeq(Celegans, promoters(reg, upstream = ups, downstream = dns))
+    names(fa_promoters) <- reg$name
     writeXStringSet(fa_promoters, fa)
     return(fa_promoters)
 }
