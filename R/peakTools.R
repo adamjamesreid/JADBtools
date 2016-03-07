@@ -12,7 +12,7 @@
 #' 
 #' @examples
 #' #callPeaksMACS(IDs)
-callPeaksMACS <- function(ids, local=TRUE) {
+callPeaksMACS <- function(ids, local=TRUE, extsize=150) {
     con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     all_experiments <<- dbReadTable(con, "labexperimentview")
     dbDisconnect(con)
@@ -97,7 +97,15 @@ callPeaksMACS <- function(ids, local=TRUE) {
         message(exp_dir)
         setwd(exp_dir)
         
-        command <- '/home/ps562/anaconda2/bin/macs2 callpeak -t %s -c %s -f BAM -g ce -n %s -q 0.01 2>&1 | tee %s'
+        if(is.numeric(extsize)) {
+            message('Extsize set to ', extsize)
+            command <- paste0(
+                '/home/ps562/anaconda2/bin/macs2 callpeak -t %s -c %s --nomodel --extsize ',
+                extsize, ' -f BAM -g ce -n %s -q 0.01 2>&1 | tee %s'
+            )
+        } else {
+            command <- '/home/ps562/anaconda2/bin/macs2 callpeak -t %s -c %s -f BAM -g ce -n %s -q 0.01 2>&1 | tee %s'
+        }
         
         cmd <- sprintf(
             command,
@@ -110,25 +118,8 @@ callPeaksMACS <- function(ids, local=TRUE) {
         message(cmd)
         system(cmd)
         
-        if(!file.exists(paste0(prefix, '_peaks.narrowPeak'))) {
-            
-            message('\n-----------------------------\nRe-running with "extsize 250"\n-----------------------------\n')
-            
-            command <- '/home/ps562/anaconda2/bin/macs2 callpeak -t %s -c %s --nomodel --extsize 250 -f BAM -g ce -n %s -q 0.01 2>&1 | tee %s'
-            
-            cmd <- sprintf(
-                command,
-                gsub('files', '/mnt/jadb/DBfile/DBfiles', fls),
-                gsub('files', '/mnt/jadb/DBfile/DBfiles', inputs),
-                basename(fls) %>% substr(start=0, stop=nchar(.)-13),
-                paste0(basename(fls) %>% substr(start=0, stop=nchar(.)-13), '_log.txt')
-            )
-            
-            message(cmd)
-            system(cmd)
-        }
-        
         if(!file.exists(paste0(prefix, '_peaks.narrowPeak'))) stop('No peaks created, see log for details')
+        if(!length(readLines(paste0(prefix, '_peaks.narrowPeak')))) stop('No peaks created, [0 peaks in file], see log for details')
         
         peakEntry <- addGenericFile(
             ids, 
