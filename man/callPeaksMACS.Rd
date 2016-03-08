@@ -4,7 +4,7 @@
 \alias{callPeaksMACS}
 \title{Run peak calls and optionally adds them to DB}
 \usage{
-callPeaksMACS(ids, local = TRUE)
+callPeaksMACS(ids, local = TRUE, extsize = 150, summedinput = TRUE)
 }
 \arguments{
 \item{local}{should the job be run on local or remote FS}
