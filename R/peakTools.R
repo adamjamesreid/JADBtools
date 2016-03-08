@@ -12,7 +12,7 @@
 #' 
 #' @examples
 #' #callPeaksMACS(IDs)
-callPeaksMACS <- function(ids, local=TRUE, extsize=150) {
+callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE) {
     con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     all_experiments <<- dbReadTable(con, "labexperimentview")
     dbDisconnect(con)
@@ -43,28 +43,41 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150) {
         as.numeric(gsub('.*INFO: ([0-9]+).+', '\\1', info))
     }
     
-    
-    inp <- lapply(ids, function(x) {
-        extract <- JADBtools::getAnno(x, anno = 'ExtractID', EXTABLE = 'labexperiment')
-        
-        if(extract == 'mE12') extract <- 'mE11'
-        if(extract == 'ak02') extract <- 'ak01'
-        if(extract == 'em01' | extract == 'em02') extract <- 'aa04'
-        
-        
-        inputs <- filter(all_experiments, ExtractID==extract, Factor=='Input')$ContactExpID
-        
-        if (length(inputs) > 1) {
-            names(which.max(sapply(inputs, getAlignedReads)))
-        } else if (length(inputs) == 1) {
-            inputs
-        } else {
-            stop('No matching inputs found for: ', extract)
-        }
-    })
-    
     ids  %>% sapply(getFilePath, format = 'bam', url = local)  -> fls
-    unlist(inp) %>% sapply(getFilePath, format = 'bam', url = local)  -> inputs
+    
+    if(summedinput) {
+        inp <- 'summed_input'
+        inputs <- sapply(ids, function(x) {
+            crosslink <- JADBtools::getAnno(x, anno = 'Crosslinker', EXTABLE = 'labexperimentview')
+            if(grepl('^e', crosslink, ignore.case = TRUE)) {
+                'Input/SummedInputs/EGS_HiSeq_input.bam'
+            }  else {
+                'Input/SummedInputs/FRM_HiSeq_input.bam'
+            }
+        })
+    } else {
+        inp <- lapply(ids, function(x) {
+            extract <- JADBtools::getAnno(x, anno = 'ExtractID', EXTABLE = 'labexperiment')
+            
+            if(extract == 'mE12') extract <- 'mE11'
+            if(extract == 'ak02') extract <- 'ak01'
+            if(extract == 'em01' | extract == 'em02') extract <- 'aa04'
+            
+            
+            inputs <- filter(all_experiments, ExtractID==extract, Factor=='Input')$ContactExpID
+            
+            if (length(inputs) > 1) {
+                names(which.max(sapply(inputs, getAlignedReads)))
+            } else if (length(inputs) == 1) {
+                inputs
+            } else {
+                stop('No matching inputs found for: ', extract)
+            }
+        })
+        unlist(inp) %>% sapply(getFilePath, format = 'bam', url = local)  -> inputs
+    }
+    
+
     
     outnames <- sapply(basename(fls), rbeads:::reName, proccesing = 'PeakCalls', scale = 'MACS', resolution = 'q01', ext='.narowPeak')
     outnames_summits <- sapply(basename(fls), rbeads:::reName, proccesing = 'summits', scale = 'MACS', resolution = 'q01', ext='.bed')
@@ -110,7 +123,10 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150) {
         cmd <- sprintf(
             command,
             gsub('files', '/mnt/jadb/DBfile/DBfiles', fls),
-            gsub('files', '/mnt/jadb/DBfile/DBfiles', inputs),
+            if(summedinput) 
+                file.path('/mnt/jadb/DBfile/DBfiles', inputs) 
+            else
+                gsub('files', '/mnt/jadb/DBfile/DBfiles', inputs),
             basename(fls) %>% substr(start=0, stop=nchar(.)-13),
             paste0(basename(fls) %>% substr(start=0, stop=nchar(.)-13), '_log.txt')
         )
