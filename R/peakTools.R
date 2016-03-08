@@ -13,6 +13,7 @@
 #' @examples
 #' #callPeaksMACS(IDs)
 callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE) {
+    
     con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     all_experiments <<- dbReadTable(con, "labexperimentview")
     dbDisconnect(con)
@@ -88,7 +89,15 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE) {
     
     if(local) {
         download.file(fls, basename(fls))
-        download.file(inputs, basename(inputs))
+        if(summedinput) {
+            dwnlme <- !file.exists(basename(unique(inputs)))
+            download.file(
+                file.path('http://jadb.gurdon.private.cam.ac.uk/db4/files', unique(inputs)[dwnlme]),
+                basename(unique(inputs)[dwnlme])
+            )
+        } else {
+            download.file(inputs, basename(inputs))
+        }
         
         command <- '~/anaconda/envs/py27/bin/macs2 callpeak -t %s -c %s -f BAM -g ce -n %s -q 0.01 2>&1 | tee %s'
         
