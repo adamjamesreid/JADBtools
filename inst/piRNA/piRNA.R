@@ -50,11 +50,33 @@ names(allIlo) <- names(allI)
 
 #### general impl
 
-bed2fa <- function(bed, ups=1000, dns=100, tss=TRUE, fa=gsub('bed', 'fa', bed)) {
+motif_bed2fa <- function(bed, ups=1000, dns=100, tss=TRUE, fa=gsub('bed', 'fa', bed)) {
     message(fa)
     reg <- import.bed(bed)
-    fa_promoters <- getSeq(Celegans, promoters(reg, upstream = ups, downstream = dns))
+    
+    if(tss==TRUE) {
+        fa_promoters <- getSeq(Celegans, promoters(reg, upstream = ups, downstream = dns))
+    } else {
+        rr <- promoters( resize(reg, 1, fix='end'),  upstream = ups, downstream = dns ) 
+        fa_promoters <- getSeq(Celegans, rr)
+    }
+    
     names(fa_promoters) <- reg$name
     writeXStringSet(fa_promoters, fa)
     return(fa_promoters)
 }
+
+motif_peaks2fa <- function(peaks, ups=1000, dns=100, tss=FALSE, fa=gsub('narrowPeak', 'fa', peaks)) {
+    message(fa)
+    library(BSgenome.Celegans.UCSC.ce10)
+    library(rtracklayer)
+    library(Biostrings)
+    
+    reg <- ChIPseeker::readPeakFile(peaks, header=FALSE) #http://genome.ucsc.edu/FAQ/FAQformat.html#format12
+ 
+    fa_reg <- getSeq(Celegans, reg)
+    names(fa_reg) <- reg$V4
+    writeXStringSet(fa_reg, fa)
+    invisible( return(fa_reg) )
+}
+
