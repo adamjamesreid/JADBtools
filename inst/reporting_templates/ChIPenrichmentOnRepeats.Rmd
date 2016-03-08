@@ -1,0 +1,264 @@
+---
+title: "ChIP profiles enrichment of repetitive elements in C. elegans"
+author: "Przemyslaw Stempor"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+params:
+    res: !r iris
+    inputfile: HPL2_N2_L3_NORM_linear_1bp_PK011^PK010_F1907331^F6c07325.bw
+    cores: 12
+output: 
+  html_document: 
+    fig_caption: yes
+    number_sections: no
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+    code_folding: hide
+    css: style.css
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+library(DT)
+library(JADBtools)
+library(rtracklayer)
+library(GenomicRanges)
+library(parallel)
+library(seqplots)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+<hr \>
+
+Methods
+=======
+
+Repeats annotation
+------------------
+
+The analyses are performed on individual repeats, as well as following repeat classes:
+
+```{r class-info, cache=FALSE}
+data(repeatModel, package = 'JADBtools')
+dat <- data.frame('Class_name' = names(repeatModel), 'Number_of_repeats_in_class'= elementLengths(repeatModel), 'Total_width_in_kb' = round(sum(width(repeatModel))/1000, 2))
+datatable(dat, rownames = FALSE)
+```
+
+Data acquisition
+----------------
+
+ChIP-seq experiments are aligned to ce10 reference genome using BWA backtrack 
+algorithm. The ChIP enrichment profiles (BigWig files) are generated using unique 
+reads, with mapping quality cutoff >=10 and are normalised with BEADS algorithm.
+
+Each experiment is performed in 2 replicates. Final enrichment profile is
+obtained by combining (averaging) the signal from individual replicates.
+
+Finally, the rtracklayer package is used to extract the signal from profile 
+files - the signal on each individual repeat is summarized as numeric value 
+representing average signal on this repeat. See `Code` for exact implementation.
+
+```{r extarct_vector-fun}
+extarct_vector <- function(track, size, which = as(seqinfo(track), "GenomicRanges")) {
+    sum <- .Call(
+        'BWGFile_summary', path.expand(path(track)),
+        as.character(seqnames(which)), ranges(which), 
+        S4Vectors::recycleIntegerArg(size, "size", length(which)), 
+        "mean", as.numeric(NA_real_), PACKAGE = 'rtracklayer'
+    )
+    return(unlist(sum))
+}
+```
+
+
+Estimating enrichment significance for individual repeats
+---------------------------------------------------------
+
+The signal values on all repeats are extracted from BigWig profile. These 
+values are used to construct Empirical Cumulative Distribution Function (eCDF).
+Since we are interested in enrichment of signal on individual repeats versus 
+repeats background, the probability values age calculated using following formula:
+
+
+> pval = 1 - eCDF(repeat_signal)
+
+
+Estimating enrichment significance for repeat classes
+-----------------------------------------------------
+
+Enrichment for repeats in given class are extracted from BigWiggle file.
+Next, a background signal is acquired using simulation - new start positions of
+repeats are acquired from uniform distribution(with minimum equals 1 and maximum 
+equals the length of chromosome). The widths, strand and chromosome ratio of
+repeats in given class are retained from annotation. This values are used as 
+genomic background of given repeat class (bg). Also, the signal on all repeats 
+except the assesed class is calculated - this values are used as repeats 
+background for given class (rbg).
+
+Using the bg and rbg values separately the statistical significance of signal 
+enrichment is calculated using Wilcoxon Rank Sum test (wt) and 
+Kolmogorov-Smirnov test (ks). The tests statistic values and estimated p-values
+are reported in final results table. See `Code` for exact implementation.
+
+
+```{r getclassenrichment-fun}
+getrepeatEnrichment <- function(rname) {
+    message(rname)
+    which <- repeatModel[[rname]]
+    ex <- extarct_vector(bwf, which = which, size = size)
+    
+    
+    rexp <- function() {
+        rstart <- unlist(sapply(runValue(seqnames(which)), function(x) 
+            runif(sum(seqnames(which) == x), 1, len[x])
+        ))
+        rwhich <- GRanges(seqnames(which), IRanges(rstart, width = width(which)), strand = strand(which))
+        rn <- extarct_vector(bwf, which = rwhich, size = size)
+        rn
+    }
+    
+    rnl <- replicate(10, rexp(), simplify = FALSE)
+    wt <- wilcox.test(ex, unlist(rnl), alternative='greater')
+    ks <- ks.test(ex, unlist(rnl), alternative='less')
+    
+    rbg <- repeatbackground[unlist(repeatModel)$id != rname]
+    rbg_wt <- wilcox.test(ex, rbg, alternative='greater')
+    rbg_ks <- ks.test(ex, rbg, alternative='less')
+    
+    out <- data.frame(
+        name=rname,
+        n_rep=length(which),
+        size_kb=sum(width(which))/1e3,
+        mean=mean(ex), 
+        bg_mean=mean(unlist(rnl)), 
+        rbg_mean=mean(rbg),
+        med=median(ex), 
+        bg_med=median(unlist(rnl)), 
+        rbg_med=median(rbg),
+        ks_p=ks$p.value,
+        ks_stat=ks$statistic,
+        wt_p=wt$p.value,
+        wt_stat=wt$statistic,
+        rbg_ks_p=rbg_ks$p.value,
+        rbg_ks_stat=rbg_ks$statistic,
+        rbg_wt_p=rbg_wt$p.value,
+        rbg_wt_stat=rbg_wt$statistic
+    )
+    attr(out, 'rnl') <- rnl
+    attr(out, 'ex') <- ex
+    attr(out, 'rbg') <- rbg
+    return(out)
+    
+}
+```
+
+<hr \>
+
+Results for `r t=params$inputfile; paste0(strsplit(t, '_')[[1]][1], ' (', strsplit(t, '_')[[1]][7], ')')`
+================================================================================
+
+```{r get file}
+bwf <- BigWigFile(params$inputfile)
+len <- seqlengths(bwf)
+size <- 1L
+
+repeatbackground <- extarct_vector(bwf, which = unlist(repeatModel), size = 1L)
+```
+
+
+Estimating enrichment significance for individual repeats
+---------------------------------------------------------
+
+```{r Estimating enrichment significance for individual repeats}
+cdf <- ecdf(repeatbackground)
+repPval <- 1-cdf(repeatbackground)
+names(repPval) <- unlist(repeatModel)$id
+pos <- paste0(seqnames(unlist(repeatModel)), ':', start(unlist(repeatModel)), '-', end(unlist(repeatModel)))
+names(repPval) <- paste0(names(repPval), '__', pos)
+names(repeatbackground) <- names(repPval)
+dat_indi <- data.frame(
+    name=unlist(repeatModel)$id, 
+    position=pos, 
+    mean_signal_value=round(repeatbackground, 2), 
+    p_value=round(repPval, 8)
+)
+dat_indi <- dat_indi[dat_indi$p_value <= 0.05,]
+dat_indi <- dat_indi[order(dat_indi$p_value),]
+```
+
+### Repeats background - diagnostic plots {.tabset}
+
+#### Histogram
+```{r Histogram}
+hist(repeatbackground, xlim=c(0,8), breaks = 500, main='')
+```
+
+#### PDF estimation 
+```{r PDF estimation}
+plot(density(repeatbackground, na), xlim=c(0,8), main='')
+```
+
+#### CDF
+```{r CDF}
+plot(cdf, xlim=c(0,8), main='')
+```
+
+### Result table for individual repeats:
+```{r indi-DT, warning=FALSE, cache=FALSE}
+datatable(dat_indi, rownames = FALSE)
+```
+
+Estimating enrichment significance for repeat classes
+-----------------------------------------------------
+
+
+```{r classes-getdata, message=FALSE, warning=FALSE}
+out <- mclapply(names(repeatModel), getrepeatEnrichment, mc.cores = as.numeric(params$cores))
+res <- do.call(rbind, out)
+
+ord <- order(res$rbg_wt_p)
+res <- res[ord,]
+out <- out[ord]
+
+```
+
+### Result table for repeat classes:
+```{r classes-DT, warning=FALSE, cache=FALSE}
+tmp <- res
+tmp$name <- paste0('<a href="#',tolower(res$name),'">', res$name, '</a>')
+formatSignif(
+    datatable(tmp, rownames = FALSE, options = list(scrollX = TRUE), escape = FALSE), 
+    c(2:ncol(res)), 3
+) 
+```
+
+
+### Gaussian Kernel Density Estimation plots for repeat classes
+```{r classes-plots, echo=FALSE, results='asis', message=FALSE}
+rnl <- lapply(out, attr, 'rnl')
+ex <- lapply(out, attr, 'ex')
+rbg <- lapply(out, attr, 'rbg')
+
+for(i in 1:length(rnl)) {
+    nam <- as.character(res[i,1])
+    cat(paste0('\n\n\n#### ',nam,' \n'))
+    if( length(ex[[i]]) < 10 ) {
+        cat('Less than 10 repeats in this class. Density estimationnot feasible.')
+        next
+    }
+    message('Plotting ', nam)
+    plot(density(ex[[i]], na.rm = TRUE), col='red', lwd=3, ylim=c(0, 2), xlim=c(0,8), main=nam)
+    sapply(rnl[[i]], function(x) lines(density(x, na.rm = TRUE)))
+    lines(density(unlist(rnl[[i]]), na.rm = TRUE), col='green', lwd=1, ylim=c(0, 2))
+    lines(density(rbg[[i]], na.rm = TRUE), col='orange', lwd=3)
+    abline(v=1)
+    legend("topright", legend=c('Tested repeat', 'All repeats', 'Pooled simulations', 'Individual simulations'), fill=c('red', 'orange', 'green', 'black'))
+    
+    ff <- repeatModel[[nam]]
+    plotset <- getPlotSetArray(bwf, ff, 'ce10', type = 'af', xmin = 1000, xmax = 1000, xanchored = median(width(ff)))
+    plotHeatmap(plotset, clusters = 0, sortrows = 'decreasing', labels = paste0(nam, ' [', median(width(ff)), 'bp]'))
+        
+}
+```
+
