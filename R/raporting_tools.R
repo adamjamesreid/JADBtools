@@ -19,15 +19,13 @@ renderReport <- function(infile) {
     require(Cairo)
     options("bitmapType" = "cairo")
     
-    gsub('bw', '_cache', basename(infile))
-    
     file.copy(
         system.file('reporting_templates/ChIPenrichmentOnReporting.Rmd', package = 'JADBtools'), 
         gsub('bw$', 'Rmd', basename(infile))
     )
     
     rmarkdown::render(
-        'ChIPenrichmentOnReporting.Rmd',
+        gsub('bw$', 'Rmd', basename(infile)),
         params = list(inputfile = infile), 
         output_file = gsub('bw', 'html', basename(infile))
     )
