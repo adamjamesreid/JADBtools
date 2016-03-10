@@ -9,6 +9,9 @@
 #' @family raporting
 #' @export
 #' 
+#' @examples 
+#' #final_out <- lapply(dir(pattern='*.bw'), renderReport)
+#' 
 renderReport <- function(infile) {
     message('==> Processing: ', infile)
     require(rmarkdown)
@@ -18,11 +21,13 @@ renderReport <- function(infile) {
     
     gsub('bw', '_cache', basename(infile))
     
-    require(knitr)
-    opts_chunk$set(cache.path = gsub('bw', '_cache', basename(infile)))
+    file.copy(
+        system.file('reporting_templates/ChIPenrichmentOnReporting.Rmd', package = 'JADBtools'), 
+        gsub('bw$', 'Rmd', basename(infile))
+    )
     
     rmarkdown::render(
-        system.file('reporting_templates/ChIPenrichmentOnReporting.Rmd', package = 'JADBtools'),
+        'ChIPenrichmentOnReporting.Rmd',
         params = list(inputfile = infile), 
         output_file = gsub('bw', 'html', basename(infile))
     )

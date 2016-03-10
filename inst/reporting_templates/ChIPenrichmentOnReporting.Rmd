@@ -27,7 +27,6 @@ library(parallel)
 library(seqplots)
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(cache = TRUE)
-knitr::opts_chunk$set(cache.path = gsub('.bw', '_cache', params$inputfile))
 ```
 
 <hr \>
@@ -197,7 +196,7 @@ hist(repeatbackground, xlim=c(0,8), breaks = 500, main='')
 
 #### PDF estimation 
 ```{r PDF estimation}
-plot(density(repeatbackground, na.rm=TRUE), xlim=c(0,8), main='')
+plot(density(repeatbackground, na.rm = TRUE), xlim = c(0,8), main = '')
 ```
 
 #### CDF
