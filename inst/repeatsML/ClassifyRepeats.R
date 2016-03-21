@@ -53,7 +53,13 @@ abline(0, 1, col='gray')
 
 require('e1071')
 svm.model <- svm(class ~., data = train)
-svm.pred <- predict(svm.model, test, type = "class")
+svm.pred <- predict(svm.model, test, type = "response")
+
+pr <- prediction(as.numeric(svm.pred), as.numeric(test$class))
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf, main="")
+text(0.70, 0.25, paste0('AUC = ',round(performance(pr, measure = "auc")@y.values[[1]], 3)), cex=3)
+abline(0, 1, col='gray')
 
 
 summary(model)
