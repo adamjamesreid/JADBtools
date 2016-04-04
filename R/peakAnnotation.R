@@ -11,6 +11,7 @@ gistToFile <- function(id, ...) {
 annotatePeaks <- function(bed) {
     
     require(ChIPseeker)
+    require(GenomicFeatures)
     
     db <- system.file('anno/WBcel235_EnsemblGenes77_TxDb.sqlite', package = 'JADBtools')
     txdb <- loadDb(db)
