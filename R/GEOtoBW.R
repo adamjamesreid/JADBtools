@@ -91,7 +91,7 @@ GEOseqrch <- function(x) {
     #BEST
     require(rentrez)
     quer <- '(("genome binding/occupancy profiling by high throughput sequencing"[DataSet Type] AND ("2014/01/01"[PDAT] : "3000"[PDAT])) AND ("2014/01/01"[PDAT] : "2014/12/31"[PDAT])) AND "high throughput sequencing"[Platform Technology Type]'
-    web_env_search <- entrez_search(db = "gds", term = quer, retmax = 10000, usehistory="y")
+    web_env_search <- entrez_search(db = "gds", term = quer, retmax = 10000, usehistory="n")
     cookie <- web_env_search$WebEnv
     qk <- web_env_search$QueryKey
     
@@ -118,6 +118,20 @@ GEOseqrch <- function(x) {
     })
     
     do.call(rbind, LIST)  -> TAB
+    
+    TAB[, "pubmedids"]  %>% elementLengths() -> N
+    TAB <- TAB[N > 0,]
+    
+    unique(TAB[, "pubmedids"]) %>% lapply(function(x) {
+        test <- TAB[paste0(TAB[, "pubmedids"]) == paste0(list(x)), ]
+        if( sum(paste0(TAB[, "pubmedids"]) == paste0(list(x))) > 1 )
+            test[which.max(test[,'n_samples']), ]
+        else 
+            test
+    }) -> FILT
+    do.call(rbind, FILT)  -> TAB
+    TAB <- cbind(TAB, chip='', rna='', mnase='', dnase='', nrd='', comments='')
+    save(TAB, file='TAB.rda')
     
     library ( XLConnect )
     
