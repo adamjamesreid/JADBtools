@@ -36,20 +36,25 @@ test <- Z[-train_ind, ]
 
 
 #Logistic gregression
-train$class <- factor(train$class == 'CeRep5') 
-test$class <- factor(test$class == 'CeRep5')
+train <- M[train_ind, ]
+test <- M[-train_ind, ]
+train$class <- factor(train$class == 'CELE1') 
+test$class <- factor(test$class == 'CELE1')
 model <- glm(class ~., family=binomial(link='logit'),data=train)
 fitted.results <- predict(model,newdata=test, type='response')
 fitted.results <- ifelse(fitted.results > 0.5,1,0)
 
 
-ibrary(ROCR)
+library(ROCR)
 p <- predict(model, newdata=test[,-10], type="response")
 pr <- prediction(p, test$class)
 prf <- performance(pr, measure = "tpr", x.measure = "fpr")
 plot(prf, main="")
 text(0.70, 0.25, paste0('AUC = ',round(performance(pr, measure = "auc")@y.values[[1]], 3)), cex=3)
 abline(0, 1, col='gray')
+title(main = 'CELE1 vs. ALL')
+anova(model, test="Chisq")
+
 
 require('e1071')
 svm.model <- svm(class ~., data = train)
@@ -82,9 +87,21 @@ mod.p <- predict(rp.iris, type = "class", newdata = test)
 sum(mod.p == test$class)
 
 library(rpart)
+
+trainp <- train[ train$class  %in% predictable, ]
 rp.iris <- rpart(class ~., train)
+rpart.plot(rp.iris)
 
 pred1 <- predict(rp.iris, type = "class")
+pred1  %>% table  %>% .[.>0]  %>% names -> predictable
+
+testp <- test[ test$class  %in% predictable, ]
+pred1 <- predict(rp.iris, type = "class", newdata = testp)
+pred1  %>% table  %>% .[.>0]  %>% names -> predictable
+
+sum(testp$class == pred1)/nrow(testp)
+
+cm = as.matrix(table(Actual = droplevels(testp$class), Predicted = droplevels(pred1)))
 
 head(pred1)
 
@@ -159,3 +176,19 @@ m2 <- h2o.deeplearning(
 
 
 D = h2o.importFile(path = normalizePath("repeat_data.csv"))
+
+
+
+
+
+nsfa <- "/Users/przemol/Documents/MATLAB/nsfa_vanilla_git/All_repeats_mean_signal_NSFA_unmasked_200iter.mat"
+nr <- nr$finalsample
+names(nr) <- attributes(nr)$dimnames[[1]]
+
+
+ans <- sapply( levels(M$class), function(x) {
+    colSums(nr$G[M$class==x, ])
+})
+
+sum((as.matrix(M[,-10]) - (nr$G%*%nr$X))  ^2) / length(as.matrix(M[,-10]))
+
