@@ -1,3 +1,6 @@
+require(devtools)
+load_all()
+
 fls <- dir()
 
 
@@ -17,6 +20,8 @@ n <- fls  %>% strsplit('_')  %>% sapply('[[', 1)
 nn <- fls  %>% strsplit('_')  %>% sapply('[[', 7)
 nam <- paste(n, nn, sep='_')
 colnames(M)[1:9] <- nam
+
+#load('inst/repeatsML/M.Rdata')
 
 low <- names(table(M$class)[table(M$class) < 10])
 M <- M[!(M$class %in% low),]
@@ -180,15 +185,29 @@ D = h2o.importFile(path = normalizePath("repeat_data.csv"))
 
 
 
-
+library(R.matlab)
 nsfa <- "/Users/przemol/Documents/MATLAB/nsfa_vanilla_git/All_repeats_mean_signal_NSFA_unmasked_200iter.mat"
-nr <- nr$finalsample
+nsfa <- readMat("inst/repeatsML/All_repeats_mean_signal_NSFA_unmasked_200iter.mat")
+nr <- nsfa$finalsample
 names(nr) <- attributes(nr)$dimnames[[1]]
 
 
 ans <- sapply( levels(M$class), function(x) {
-    colSums(nr$G[M$class==x, ])
+    colMeans(nr$G[M$class==x, ])
 })
 
-sum((as.matrix(M[,-10]) - (nr$G%*%nr$X))  ^2) / length(as.matrix(M[,-10]))
+ans2 <- sapply( levels(M$class), function(x) {
+    colMeans(M[M$class==x, -10])
+})
 
+MSE <- mean(( as.matrix(M[,-10]) - (nr$G%*%nr$X) )^2)
+RMSE <- sqrt(mean( ( as.matrix(M[,-10]) - (nr$G%*%nr$X) )^2 ))
+MAE <- mean( abs( as.matrix(M[,-10]) - (nr$G%*%nr$X) ) )
+
+nval <- max(as.matrix(M[,-10]), na.rm=TRUE)-min(as.matrix(M[,-10]), na.rm=TRUE)
+nval <- sd(as.matrix(M[,-10]))
+nval <- mean(as.matrix(M[,-10]))
+nrmse = 100 * (RMSE / nval )
+
+z = princomp(as.matrix(M[,-10]))
+mean(( as.matrix(M[,-10]) - (z$scores  %*% z$loadings) )^2)
