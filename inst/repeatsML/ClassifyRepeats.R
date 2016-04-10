@@ -4,18 +4,46 @@ load_all()
 fls <- dir()
 
 
+ALLpaths <- function(format='.', processing='.', scale='.', url=TRUE, eq=FALSE) {
+    
+    if (eq) { R <- '=' } else { R <- 'REGEXP' } 
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
+    
+    exp_file <- unlist( dbGetQuery(
+        con, paste(
+            "SELECT path FROM labfiles WHERE ", 
+            "Filetype_format ",R," '",format,"' AND  Processing ",R," '", processing,
+            "'", " AND Scale ",R," '", scale, "'", collapse="", sep=""
+        ) 
+    ), use.names = FALSE)
+    names(exp_file) <- NULL
+    addr <- file.path("http://jadb.gurdon.private.cam.ac.uk/db4",  exp_file )
+    dbDisconnect(con)
+    if(url) return(addr) else return(exp_file) 
+}
+all <- ALLpaths(format = 'bw', processing = 'NORM', scale = 'linear')
+fls <- all
 data <- lapply(fls, function(f) {
     message(f)
-    bwf <- BigWigFile(f)
-    vec <- extarct_vector(bwf, which = unlist(repeatModel), size = 1L)
-    return(vec)
+    try({
+        bwf <- BigWigFile(f)
+        vec <- extarct_vector(bwf, which = unlist(repeatModel), size = 1L)
+        return(vec)
+    })
 })
-m <- do.call(cbind, data)
+data  %>% sapply(class) -> cl
+experiment_names <- fls[cl=='numeric']
+
+urm <- unlist(repeatModel)
+positions <- paste0(seqnames(urm),'-',start(urm),':',end(urm))
+
+m <- do.call(cbind, data[cl=='numeric'])
 M <- as.data.frame(m) 
 
 M <- cbind(M, class=unlist(repeatModel)$id)
 M <- M[rowMeans(M[,1:9]) >= 1, ]
-
+#positions <- 
+    
 n <- fls  %>% strsplit('_')  %>% sapply('[[', 1)
 nn <- fls  %>% strsplit('_')  %>% sapply('[[', 7)
 nam <- paste(n, nn, sep='_')
@@ -190,15 +218,43 @@ nsfa <- "/Users/przemol/Documents/MATLAB/nsfa_vanilla_git/All_repeats_mean_signa
 nsfa <- readMat("inst/repeatsML/All_repeats_mean_signal_NSFA_unmasked_200iter.mat")
 nr <- nsfa$finalsample
 names(nr) <- attributes(nr)$dimnames[[1]]
+G <- nr$G
+Z <- nr$Z
+
+## Anomaly detection
+ids <- which(colSums(nr$Z)==1)
+
+info <- function(component){
+    zz <- data.frame(
+        value = unlist(M[which(G[, component]!=0),1:9]),
+        importance = c(nr$X[component,] * G[,component][which(G[, component]!=0)]),
+        class = M[which(G[, component]!=0),10]
+    )
+    return(zz)
+}
+
+mode(Z) <- 'logical'
+
 
 
 ans <- sapply( levels(M$class), function(x) {
     colMeans(nr$G[M$class==x, ])
 })
+d3heatmap(t(ans), Rowv = FALSE, Colv = FALSE, colors = heat.colors(100))
+
+ansZ <- sapply( levels(M$class), function(x) {
+    colMeans(nr$Z[M$class==x, ])
+})
+ansZ <- t(ansZ)
+d3heatmap(ansZ, Rowv = FALSE, Colv = FALSE, colors = c('black', heat.colors(100)))
 
 ans2 <- sapply( levels(M$class), function(x) {
     colMeans(M[M$class==x, -10])
 })
+require(fields)
+image.plot()
+image.plot(1:9, 1:135, ans2)
+d3heatmap(scale = 'none', t(ans2), Rowv = FALSE, Colv = FALSE, colors = c(heat.colors(100)))
 
 MSE <- mean(( as.matrix(M[,-10]) - (nr$G%*%nr$X) )^2)
 RMSE <- sqrt(mean( ( as.matrix(M[,-10]) - (nr$G%*%nr$X) )^2 ))

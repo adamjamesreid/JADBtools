@@ -80,3 +80,30 @@ motif_peaks2fa <- function(peaks, ups=1000, dns=100, tss=FALSE, fa=gsub('narrowP
     invisible( return(fa_reg) )
 }
 
+data("repeatModel")
+grangeslist2fa <- function(gr) {
+    library(BSgenome.Celegans.UCSC.ce10)
+    library(rtracklayer)
+    library(Biostrings)
+    require(GenomicRanges)
+    
+    sapply(names(gr), function(nam) {
+        message(nam)
+        reg <- gr[[nam]]
+        fa_reg <- getSeq(Celegans, reg)
+        names(fa_reg) <- paste0(seqnames(reg),'-',start(reg),':',end(reg))
+        writeXStringSet(fa_reg, paste0(nam, '.fa'))
+    })
+}
+
+data("modencodetfbs")
+names(modencodetfbs)  %>% gsub('spp.idrOptimal.bf.ce.[^_]+_', '', .)  %>%  gsub('.bam.unique.tagAlign.narrowPeak.gz', '', .)  -> nn
+names(modencodetfbs) <- nn
+
+elementLengths(modencodetfbs[grep('HPL-2', nn)])
+
+peak <- lapply(dir(), ChIPseeker::readPeakFile, header=FALSE)
+names(peak) <- gsub('.narrowPeak', '', dir())
+peaks <- GRangesList(peak)
+grangeslist2fa(peaks)
+
