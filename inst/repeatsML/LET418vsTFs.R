@@ -37,5 +37,7 @@ ovrR <- findOverlaps(promoters(sample(hi, 10), upstream = 500, downstream = 100)
 sort(factor[subjectHits(ovrR)]  %>% table, decreasing = TRUE) / length(uni)
 
 
-unique(factor)  %>%  sapply(function(x) length(unlist(modencodetfbs[factor==x])) ) -> n
+unique(factor)  %>%  sapply(function(x) length(unlist(modencodetfbs[factor==x])) ) -> nf
+unm <- sort(factor[subjectHits(ovr)]  %>% table, decreasing = TRUE)
+
 
