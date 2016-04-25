@@ -422,6 +422,11 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
         data <- read.csv(csv)
     }
     
+    if( length(unique(data$ProjectID)) < 1 ) stop('FATAL: No BaseSpace project ID found!')
+    if( length(unique(data$ProjectID)) > 1 ) stop('FATAL: More than one BaseSpace project ID in form, split to multiple forms.')
+    
+    prID <- unique(data$ProjectID)
+    
     library(BaseSpaceR)
     app_access_token <- "f58a0ccf1599418d8b4b09034a56bdd5"
     aAuth <- AppAuth(access_token = app_access_token, scope = "browse Sample")
@@ -429,7 +434,7 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
     PrAno <- data.frame(Name = Name(myProj), Id = Id(myProj))
     
     
-    if(!any(PrAno$Name == prID)) warning('Project ID name does not match one(s) in BaseSpace, allowed values are:\n', paste(PrAno$Name, collapse=', '))
+    if(!any(PrAno$Name == prID)) stop('FATAL: Unable to mach BaseSpace project ID: ', prID, '. Projects on BaseSpace:\n', paste(PrAno$Name, collapse=', '))
     
     mysql <- dbDriver("MySQL")
     con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
@@ -460,7 +465,7 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
         #dir.create(temp_dir, recursive = TRUE)
         
         if (any( grepl('_| |:|\\^|\\/', DBinsert[fld]) )) {
-            stop('Not allowed character "_" or " " or ":" or "^" or "/" in name fileds.')
+            stop('FATAL: Not allowed character "_" or " " or ":" or "^" or "/" in file name fileds:\n', paste(fld, collapse=', '))
         }
         
         
@@ -470,11 +475,11 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
         SmAno <- data.frame(Name = Name(mySmpl), Id = Id(mySmpl))
         files <- listFiles(aAuth, sampleId = subset(SmAno, Name == smplID, Id, drop = TRUE))
         
-        if(!any(SmAno$Name == smplID)) warning('Experiment ID does not match one(s) in BaseSpace, allowed values are:\n', paste(SmAno$Name, collapse=', '))
+        if(!any(SmAno$Name == smplID)) warning('Experiment ID [', smplID, '] does not match one(s) in BaseSpace, allowed values are:\n', paste(SmAno$Name, collapse=', '))
         
         if(length(files)==2) message('SE experiemt')
         if(length(files)==4) message('SE experiemt')
-        if(length(files)==0) warning('No files in BaseSpace')
+        if(length(files)==0) stop('No files in BaseSpace')
         #File joining, takes time
         #system( sprintf('cat %s > %s', paste(file.path(temp_dir, files$Path), collapse=' '), gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])), intern=TRUE)
         #finalFilePath <- gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])
