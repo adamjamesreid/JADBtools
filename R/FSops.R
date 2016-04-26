@@ -449,7 +449,8 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
     mysql <- dbDriver("MySQL")
     con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     ALL <- dbReadTable(con, EXTABLE)
-    
+    extract <- dbReadTable(con, 'labextract')
+    close(con)
     
     records <- as.matrix(data)
     DBrecords <- records[,colnames(records) %in% colnames(ALL)]
@@ -502,8 +503,12 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
         #EXPERIMENT <-   dbGetQuery(
          #   con, sprintf('SELECT %s FROM %s WHERE %s = "%s"', paste(fld, collapse = ', '), EXTABLE, PK, id)
         #)
-        
         if(any(id == ALL$ContactExpID)) stop('ContactExperimentID ', id, ' alredy exists in database')
+        
+        
+        if (EXTABLE=='mydb.labexperiment') {
+            if( !any(insert[['ExtractID']] == extract$ExtractID) ) stop('[', id, ']: extract ',insert[['ExtractID']], ' not found in extracts table.')
+        }
         
     cat(" - [OK] \n")
     
