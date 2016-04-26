@@ -417,7 +417,17 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
     library(gsheet)
     
     if (gsheet == TRUE) {
-        data <- gsheet2tbl(csv)
+        if(grepl('csv', csv)) {
+            require(RCurl)
+            myCsv <- getURL(csv)
+            con <- textConnection(myCsv)
+            data <- read.csv(con)
+            close(con)
+        } else {
+            library(gsheet)
+            data <- gsheet2tbl(csv)
+        }
+        
     } else {
         data <- read.csv(csv)
     }
@@ -425,7 +435,7 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
     if( length(unique(data$ProjectID)) < 1 ) stop('FATAL: No BaseSpace project ID found!')
     if( length(unique(data$ProjectID)) > 1 ) stop('FATAL: More than one BaseSpace project ID in form, split to multiple forms.')
     
-    prID <- unique(data$ProjectID)
+    prID <- as.character(unique(data$ProjectID))
     
     library(BaseSpaceR)
     app_access_token <- "f58a0ccf1599418d8b4b09034a56bdd5"
@@ -454,7 +464,7 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
     
     for(i in 1:nrow(records)) {
         
-        message('Processing: ', DBrecords[i,])
+        cat('Processing: ', DBrecords[i,c(1, 5)])
         
         #set yp variables
         insert <- records[i,]
@@ -477,8 +487,8 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
         
         if(!any(SmAno$Name == smplID)) warning('Experiment ID [', smplID, '] does not match one(s) in BaseSpace, allowed values are:\n', paste(SmAno$Name, collapse=', '))
         
-        if(length(files)==2) message('SE experiemt')
-        if(length(files)==4) message('SE experiemt')
+        if(length(files)==2) cat(' - SE experiemt')
+        if(length(files)==4) cat(' - PE experiemt')
         if(length(files)==0) stop('No files in BaseSpace')
         #File joining, takes time
         #system( sprintf('cat %s > %s', paste(file.path(temp_dir, files$Path), collapse=' '), gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])), intern=TRUE)
@@ -487,16 +497,15 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
         
         
         id <- insert['ContactExpID']
-        if(!grepl('^r*[A-Z]{2}[0-9]{3}$', id)) warning('Missformated experiemt ID')
+        if(!grepl('^r*[A-Z]{2}[0-9]{3}$', id)) stop('Missformated experiemt ID')
         
-        EXPERIMENT <-   dbGetQuery(
-            con, sprintf('SELECT %s FROM %s WHERE %s = "%s"', paste(fld, collapse = ', '), EXTABLE, PK, id)
-        )
-        if(length(EXPERIMENT)) warning('ContactExperimentID ', id, ' alredy exists in database')
+        #EXPERIMENT <-   dbGetQuery(
+         #   con, sprintf('SELECT %s FROM %s WHERE %s = "%s"', paste(fld, collapse = ', '), EXTABLE, PK, id)
+        #)
         
-       
-    
-    message("Success")
+        if(any(id == ALL$ContactExpID)) stop('ContactExperimentID ', id, ' alredy exists in database')
+        
+    cat(" - [OK] \n")
     
     
     } 
