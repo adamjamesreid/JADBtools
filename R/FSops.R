@@ -259,7 +259,7 @@ addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE=
             data <- read.csv(csv)
         }
         
-        if(lenght(subset)) data <- data[data$ContactExpID == subset]
+        if(length(subset)) data <- data[data$ContactExpID == subset]
         
         records <- as.matrix(data)
         DBrecords <- records[,colnames(records) %in% colnames(ALL)]
