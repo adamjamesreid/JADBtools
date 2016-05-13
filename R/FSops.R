@@ -216,22 +216,16 @@ addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.
 #' @family FSops
 #' @export
 #'
-addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.labexperiment') {
+addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.labexperiment', gsheet=TRUE, subset=NULL) {
     if (system('whoami', intern = TRUE) != 'www-data') stop('Run as web server user!', call. = TRUE)	
-
-    www.path <- root 
-    
 	
         setwd( root )	
-        
 
- 
         library(RJSONIO)
         library(DBI)
         library(RMySQL)
         library(digest)
     
-        
         library(BaseSpaceR)
         app_access_token <- "f58a0ccf1599418d8b4b09034a56bdd5"
         aAuth <- AppAuth(access_token = app_access_token, scope = "browse Sample")
@@ -243,16 +237,13 @@ addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE=
         
         ALL <- dbReadTable(con, EXTABLE)
         
-        
-        
-        
         if (gsheet == TRUE) {
             if(grepl('csv', csv)) {
                 require(RCurl)
                 myCsv <- getURL(csv)
-                con <- textConnection(myCsv)
-                data <- read.csv(con)
-                close(con)
+                conCsv <- textConnection(myCsv)
+                data <- read.csv(conCsv)
+                close(conCsv)
             } else {
                 require(RCurl)
                 library(stringr)
@@ -268,6 +259,7 @@ addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE=
             data <- read.csv(csv)
         }
         
+        if(lenght(subset)) data <- data[data$ContactExpID == subset]
         
         records <- as.matrix(data)
         DBrecords <- records[,colnames(records) %in% colnames(ALL)]
@@ -300,7 +292,7 @@ addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE=
             
             ##stop(subset(SmAno, Name == smplID, Id, drop = TRUE))
 
-            message('Procesing: ', paste(insert))
+            message('Procesing: ', paste(insert, collapse = ' | '))
             #File download, takes time
             getFiles(aAuth, id = Id(files), destDir = temp_dir, verbose = TRUE)
             
