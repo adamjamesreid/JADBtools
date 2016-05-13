@@ -216,175 +216,234 @@ addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.
 #' @family FSops
 #' @export
 #'
-addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.labexperiment', gsheet=TRUE) {
+addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.labexperiment') {
     if (system('whoami', intern = TRUE) != 'www-data') stop('Run as web server user!', call. = TRUE)	
+
+    www.path <- root 
     
-    library(DBI)
-    library(RMySQL)
-    library(digest)
-    library(gsheet)
-    
-    if (gsheet == TRUE) {
-        data <- gsheet2tbl(csv)
-    } else {
-        data <- read.csv(csv)
-    }
-    
-    library(BaseSpaceR)
-    app_access_token <- "f58a0ccf1599418d8b4b09034a56bdd5"
-    aAuth <- AppAuth(access_token = app_access_token, scope = "browse Sample")
-    myProj <- listProjects(aAuth, Limit = 1000)
-    PrAno <- data.frame(Name = Name(myProj), Id = Id(myProj))
-    
-    
-    mysql <- dbDriver("MySQL")
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
-    ALL <- dbReadTable(con, EXTABLE)
-    
-    
-    records <- as.matrix(data)
-    DBrecords <- records[,colnames(records) %in% colnames(ALL)]
-    
-    
-    
-    
-    
-    
-    for(i in 1:nrow(records)) {
+	
+        setwd( root )	
         
-        message('Processing: ', i)
+
+ 
+        library(RJSONIO)
+        library(DBI)
+        library(RMySQL)
+        library(digest)
+    
         
-        #set yp variables
-        insert <- records[i,]
-        DBinsert <- DBrecords[i,]
-        prID <- as.character( insert[['ProjectID']] )
-        smplID <- as.character( insert[['SampleID']] )
-        #temp_dir <- file.path('files/temp', prID, smplID)
-        #dir.create(temp_dir, recursive = TRUE)
+        library(BaseSpaceR)
+        app_access_token <- "f58a0ccf1599418d8b4b09034a56bdd5"
+        aAuth <- AppAuth(access_token = app_access_token, scope = "browse Sample")
+        myProj <- listProjects(aAuth, Limit = 1000)
+        PrAno <- data.frame(Name = Name(myProj), Id = Id(myProj))
         
-        if (any( grepl('_| |:|\\^|\\/', DBinsert[c('Factor', 'Antibody','ExtractID', 'Crosslinker', 'Strain', 'Stage')]) )) {
-            stop('Not allowed character "_" or " " or ":" or "^" or "/" in name fileds.')
+        mysql <- dbDriver("MySQL")
+        con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
+        
+        ALL <- dbReadTable(con, EXTABLE)
+        
+        
+        
+        
+        if (gsheet == TRUE) {
+            if(grepl('csv', csv)) {
+                require(RCurl)
+                myCsv <- getURL(csv)
+                con <- textConnection(myCsv)
+                data <- read.csv(con)
+                close(con)
+            } else {
+                require(RCurl)
+                library(stringr)
+                key <- stringr::str_extract(csv, "[[:alnum:]_-]{30,}")
+                address <- paste0("https://docs.google.com/spreadsheets/d/",key,"/export?exportFormat=", 'csv')
+                myCsv <- RCurl::getURL(address)
+                con <- textConnection(myCsv)
+                data <- read.csv(con)
+                close(con)
+            }
+            
+        } else {
+            data <- read.csv(csv)
         }
         
         
-        #files <- ##from csv
+        records <- as.matrix(data)
+        DBrecords <- records[,colnames(records) %in% colnames(ALL)]
         
-        mySmpl <- listSamples(aAuth, projectId=subset(PrAno, Name == prID, Id, drop = TRUE), Limit=1000)
-        SmAno <- data.frame(Name = Name(mySmpl), Id = Id(mySmpl))
-        files <- listFiles(aAuth, sampleId = subset(SmAno, Name == smplID, Id, drop = TRUE))
-        
-        #File joining, takes time
-        #system( sprintf('cat %s > %s', paste(file.path(temp_dir, files$Path), collapse=' '), gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])), intern=TRUE)
-        #finalFilePath <- gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])
-        
-        
-        finalFilePath <- insert['OryginalFileName']
-        if( !file.exists(finalFilePath) ) stop('Joined file does not exist!')
-        
-        #DATABASE: Add experiment entry
-        
-        DBinsert[['dateCreated']] 	<- paste(Sys.Date())
-        DBinsert[['dateUpdated']] 	<- paste(Sys.Date())
-        DBinsert[['OryginalFileName']]   <- basename(finalFilePath)
-        fields <- names(DBinsert)
-        
-        sql <- paste(
-            sprintf("INSERT INTO %s(", EXTABLE),
-            paste(fields, collapse=", "), ") VALUES('",
-            paste(DBinsert, collapse="', '"), "')", collapse=", ", sep=""
-        )
-        
-        rs <- dbSendQuery(con,  sql)
-        
-        id <- insert['ContactExpID']
-        TABLE <- 'labfiles'
-        
-        if( EXTABLE ==  'mydb.labexperiment' ) {
+        for(i in 1:nrow(records)) {
             
-            EXPERIMENT <- 	dbGetQuery(con, paste("SELECT Factor, Antibody, ExtractID, Crosslinker, Strain, Stage FROM mydb.labexperimentview WHERE ContactExpID = '", id, "'", collapse="", sep=""))
-            dirPath <- file.path('files', EXPERIMENT[['Factor']], EXPERIMENT[['Strain']], paste(id, EXPERIMENT[['ExtractID']], EXPERIMENT[['Antibody']], sep='_'))
-            fileName <- paste(	paste(EXPERIMENT[['Factor']], EXPERIMENT[['Antibody']], sep='^'), 
-                               paste(EXPERIMENT[['ExtractID']], EXPERIMENT[['Crosslinker']], EXPERIMENT[['Strain']], EXPERIMENT[['Stage']], sep='^'), 
-                               paste('raw', 'NA', 'NA', sep='^'), id, sep='_')
-            if(! is.null(dbReadTable(con, TABLE)$UID) ) { 
-                fileUID <- sprintf('%.1s%.2s%05d', 'C', digest(fileName, algo='md5', serialize = FALSE), max(as.numeric(substr(dbReadTable(con, TABLE)$UID, 4, 8)))+1) 
-            } else { 
-                fileUID <- sprintf('%.1s%.2s%05d', 'C', digest(fileName, algo='md5', serialize = FALSE), 1) 
+            #set yp variables
+            insert <- records[i,]
+            DBinsert <- DBrecords[i,]
+            prID <- as.character( insert[['ProjectID']] )
+            smplID <- as.character( insert[['SampleID']] )
+            temp_dir <- file.path('files/temp', prID, smplID)
+            dir.create(temp_dir, recursive = TRUE)
+            
+            if (any( grepl('_| |:|\\^|\\/', DBinsert[c('Factor', 'Antibody','ExtractID', 'Crosslinker', 'Strain', 'Stage')]) )) {
+                stop('Not allowed character "_" or " " or ":" or "^" or "/" in name fileds.')
             }
-            fileName <- sprintf('%s^%s.%s', fileName, fileUID, 'txt.gz')
             
-            dir.success <- dir.create(gsub('files', root, dirPath), recursive = TRUE)
-            if ( !file.exists(finalFilePath) ) {dbDisconnect(con); stop(paste('Temp file do not exists', insert['OryginalFileName']))}
-            file.copy( finalFilePath, file.path(gsub('files', root, dirPath), fileName) )
             
-            fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", TABLE))
-            PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', TABLE) ))[['Column_name']]
+            mySmpl <- listSamples(aAuth, projectId=subset(PrAno, Name == prID, Id, drop = TRUE), Limit=1000)
+            SmAno <- data.frame(Name = Name(mySmpl), Id = Id(mySmpl))
+            files <- listFiles(aAuth, sampleId = subset(SmAno, Name == smplID, Id, drop = TRUE))
             
-            INSERT <- list()
-            INSERT[['Processing']] 		<- as.character( 'raw' 		)
-            INSERT[['Scale']] 			<- as.character( 'NA'		)
-            INSERT[['ContactExpID']] 	<- as.character( id	)
-            INSERT[['UID']] 			<- as.character( fileUID )
-            INSERT[['filetype_format']] <- as.character( 'txt.gz'	)
-            INSERT[['path']] 			<- as.character( file.path(dirPath, fileName) )
-            INSERT[['dateCreated']] 	<- paste(Sys.Date())
-            INSERT[['dateUpdated']] 	<- paste(Sys.Date())
-            INSERT[['uniq']]			<- NA
-            sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
+            #if( insert[['SeqType']] == 'PE') {
+            #  stop('Not yet implemented')      
+            #} else {
             
-            rs <- dbSendQuery(con, sql )
+            ##Single end force mode, TODO: expand on 2nd end
+            files <- files[grepl('R1', Name(files))]
             
-        } else {
+            ##stop(subset(SmAno, Name == smplID, Id, drop = TRUE))
+
+            message('Procesing: ', paste(insert))
+            #File download, takes time
+            getFiles(aAuth, id = Id(files), destDir = temp_dir, verbose = TRUE)
             
-            PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', EXTABLE) ))[['Column_name']]
-            fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", EXTABLE))
+            #File size check
+            if( !all(files$Size == file.info(file.path(temp_dir, files$Path))$size) ) {
+                stop('Downloaded file sizes does not match the inforamtion from BaseSpace.')
+            }
             
-            fld <- fileds.def[fileds.def$Null=='NO' & fileds.def$Key!='PRI',]$Field
-            EXPERIMENT <-   dbGetQuery(
-                con, sprintf('SELECT %s FROM %s WHERE %s = "%s"', paste(fld, collapse = ', '), EXTABLE, PK, id)
+            #File joining, takes time
+            system( sprintf('cat %s > %s', paste(file.path(temp_dir, files$Path), collapse=' '), gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])), intern=TRUE)
+            finalFilePath <- gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])
+            if( !file.exists(finalFilePath) ) stop('Joined file does not exist!')
+            
+            
+            #DATABASE: Add experiment entry
+            
+            DBinsert[['dateCreated']] 	<- paste(Sys.Date())
+            DBinsert[['dateUpdated']] 	<- paste(Sys.Date())
+            DBinsert[['OryginalFileName']]   <- basename(finalFilePath)
+            fields <- names(DBinsert)
+            
+            sql <- paste(
+                sprintf("INSERT INTO %s(", EXTABLE),
+                paste(fields, collapse=", "), ") VALUES('",
+                paste(DBinsert, collapse="', '"), "')", collapse=", ", sep=""
             )
-            fileName=paste(c(EXPERIMENT, 'raw', 'NA', 'NA', id), collapse = '_')
             
-            if(toupper(gsub('mydb.lab', '', EXTABLE)) == "RNASEQ") {
-                prefix <- 'Q' 
-            } else if(toupper(gsub('mydb.lab', '', EXTABLE)) == "DNASE") {
-                prefix <- 'A' 
+            rs <- dbSendQuery(con,  sql)
+            
+            # }
+            
+            #DATABASE: Add file entry
+            
+            id <- insert['ContactExpID']
+            TABLE <- 'labfiles'
+            if( EXTABLE ==  'mydb.labexperiment' ) {
+                
+                EXPERIMENT <- 	dbGetQuery(con, paste("SELECT Factor, Antibody, ExtractID, Crosslinker, Strain, Stage FROM mydb.labexperimentview WHERE ContactExpID = '", id, "'", collapse="", sep=""))
+                dirPath <- file.path('files', EXPERIMENT[['Factor']], EXPERIMENT[['Strain']], paste(id, EXPERIMENT[['ExtractID']], EXPERIMENT[['Antibody']], sep='_'))
+                fileName <- paste(	paste(EXPERIMENT[['Factor']], EXPERIMENT[['Antibody']], sep='^'), 
+                                   paste(EXPERIMENT[['ExtractID']], EXPERIMENT[['Crosslinker']], EXPERIMENT[['Strain']], EXPERIMENT[['Stage']], sep='^'), 
+                                   paste('raw', 'NA', 'NA', sep='^'), id, sep='_')
+                if(! is.null(dbReadTable(con, TABLE)$UID) ) { 
+                    fileUID <- sprintf('%.1s%.2s%05d', 'C', digest(fileName, algo='md5', serialize = FALSE), max(as.numeric(substr(dbReadTable(con, TABLE)$UID, 4, 8)))+1) 
+                } else { 
+                    fileUID <- sprintf('%.1s%.2s%05d', 'C', digest(fileName, algo='md5', serialize = FALSE), 1) 
+                }
+                fileName <- sprintf('%s^%s.%s', fileName, fileUID, 'txt.gz')
+                
+                dir.success <- dir.create(dirPath, recursive = TRUE)
+                if ( !file.exists(finalFilePath) ) {dbDisconnect(con); stop(paste('Temp file do not exists', insert['OryginalFileName']))}
+                file.copy( finalFilePath, file.path(dirPath, fileName) )
+                
+                fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", TABLE))
+                PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', TABLE) ))[['Column_name']]
+                
+                INSERT <- list()
+                INSERT[['Processing']] 		<- as.character( 'raw' 		)
+                INSERT[['Scale']] 			<- as.character( 'NA'		)
+                INSERT[['ContactExpID']] 	<- as.character( id	)
+                INSERT[['UID']] 			<- as.character( fileUID )
+                INSERT[['filetype_format']] <- as.character( 'txt.gz'	)
+                INSERT[['path']] 			<- as.character( file.path(dirPath, fileName) )
+                INSERT[['dateCreated']] 	<- paste(Sys.Date())
+                INSERT[['dateUpdated']] 	<- paste(Sys.Date())
+                INSERT[['uniq']]			<- NA
+                sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
+                
+                rs <- dbSendQuery(con, sql )
+                
             } else {
-                prefix <- 'X'
-            }
-            if(! is.null(dbReadTable(con, TABLE)$UID) ) { 
-                fileUID <- sprintf('%.1s%.2s%05d', prefix, digest(fileName, algo='md5', serialize = FALSE), max(as.numeric(substr(dbReadTable(con, TABLE)$UID, 4, 8)))+1) 
-            } else { 
-                fileUID <- sprintf('%.1s%.2s%05d', prefix, digest(fileName, algo='md5', serialize = FALSE), 1) 
-            }
-            fileName <- sprintf('%s_%s.%s', fileName, fileUID, 'txt.gz')
-            dirPath <- file.path(
-                'files', toupper(gsub('mydb.lab', '', EXTABLE)), 
-                EXPERIMENT[['CellFraction']], EXPERIMENT[['LibraryType']], id
-            )
+                
+                PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', EXTABLE) ))[['Column_name']]
+                fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", EXTABLE))
+                
+                fld <- fileds.def[fileds.def$Null=='NO' & fileds.def$Key!='PRI',]$Field
+                EXPERIMENT <-   dbGetQuery(
+                    con, sprintf('SELECT %s FROM %s WHERE %s = "%s"', paste(fld, collapse = ', '), EXTABLE, PK, id)
+                )
+                fileName=paste(c(EXPERIMENT, 'raw', 'NA', 'NA', id), collapse = '_')
+                
+                if(toupper(gsub('mydb.lab', '', EXTABLE)) == "RNASEQ") {
+                    prefix <- 'Q' 
+                } else if(toupper(gsub('mydb.lab', '', EXTABLE)) == "DNASE") {
+                    prefix <- 'A' 
+                } else {
+                    prefix <- 'X'
+                }
+                if(! is.null(dbReadTable(con, TABLE)$UID) ) { 
+                    fileUID <- sprintf('%.1s%.2s%05d', prefix, digest(fileName, algo='md5', serialize = FALSE), max(as.numeric(substr(dbReadTable(con, TABLE)$UID, 4, 8)))+1) 
+                } else { 
+                    fileUID <- sprintf('%.1s%.2s%05d', prefix, digest(fileName, algo='md5', serialize = FALSE), 1) 
+                }
+                fileName <- sprintf('%s_%s.%s', fileName, fileUID, 'txt.gz')
+                dirPath <- file.path(
+                    'files', toupper(gsub('mydb.lab', '', EXTABLE)), 
+                    EXPERIMENT[['CellFraction']], EXPERIMENT[['LibraryType']], id
+                )
+                
+                dir.success <- dir.create(dirPath, recursive = TRUE)
+                if ( !file.exists(finalFilePath) ) {dbDisconnect(con); stop(paste('Temp file do not exists', insert['OryginalFileName']))}
+                file.copy( finalFilePath, file.path(dirPath, fileName) )
+                
+                INSERT <- list()
+                INSERT[['Processing']]    <- as.character( 'raw' 		)
+                INSERT[['Scale']] 			  <- as.character( 'NA'		)
+                INSERT[['ContactExpID']] 	<- as.character( id	)
+                INSERT[['UID']] 			    <- as.character( fileUID )
+                INSERT[['filetype_format']] <- as.character( 'txt.gz'	)
+                INSERT[['path']] 			    <- as.character( file.path(dirPath, fileName) )
+                INSERT[['dateCreated']] 	<- paste(Sys.Date())
+                INSERT[['dateUpdated']] 	<- paste(Sys.Date())
+                INSERT[['uniq']]			    <- NA
+                sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
+                
+                rs <- dbSendQuery(con, sql )
+                
+            } 
             
-            dir.success <- dir.create(gsub('files', root, dirPath), recursive = TRUE)
-            if ( !file.exists(finalFilePath) ) {dbDisconnect(con); stop(paste('Temp file do not exists', insert['OryginalFileName']))}
-            file.copy( finalFilePath, file.path(gsub('files', root, dirPath), fileName) )
+            message(' - OK')
             
-            INSERT <- list()
-            INSERT[['Processing']]    <- as.character( 'raw' 		)
-            INSERT[['Scale']] 			  <- as.character( 'NA'		)
-            INSERT[['ContactExpID']] 	<- as.character( id	)
-            INSERT[['UID']] 			    <- as.character( fileUID )
-            INSERT[['filetype_format']] <- as.character( 'txt.gz'	)
-            INSERT[['path']] 			    <- as.character( file.path(dirPath, fileName) )
-            INSERT[['dateCreated']] 	<- paste(Sys.Date())
-            INSERT[['dateUpdated']] 	<- paste(Sys.Date())
-            INSERT[['uniq']]			    <- NA
-            sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
             
-            rs <- dbSendQuery(con, sql )
-            
-        } 
+        }
+        
+        dbDisconnect(con)
+        
+        pb <- list(success=TRUE, progress=1, text=insert[['SampleID']], toptext='Finalizing')
+        cat( RJSONIO::toJSON(pb), file=paste('files/temp/', UID, '.json', sep='') )
+        
+        message <- paste(	'<br /> <i>Experiments</i>: ',  paste(unique(data$ProjectID), collapse=' '),
+                          '<br />	<i>SampleID:</i><br /> ', paste(data$SampleID, collapse=' '),
+                          '<br />	<i>ContactExpID:</i><br /> ', paste(data$ContactExpID, collapse=' '),
+                          '<br />	<i>fileUID:</i><br /> ', fileUID, 
+                          '<br /> <i>Command</i>: ', '' , sep='')
+        cat( toJSON(list( success=TRUE, status='<span style="color:green;">Done</span>', details=message )) )
         
         
-    }
+        # } else {
+        #   message <- sprintf('<i>Experiment</i>: %s<br />	<i>File</i>: %s<br />', POST$ContactExpID, FILES[[1]]$name)
+        #  cat(toJSON(list( success=FALSE, file=FILES[[1]]$name, status='Failed', details=message )))
+        # }
+        
+
     
     message("Success")
     
@@ -424,8 +483,14 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
             data <- read.csv(con)
             close(con)
         } else {
-            library(gsheet)
-            data <- gsheet2tbl(csv)
+            require(RCurl)
+            library(stringr)
+            key <- stringr::str_extract(csv, "[[:alnum:]_-]{30,}")
+            address <- paste0("https://docs.google.com/spreadsheets/d/",key,"/export?exportFormat=", 'csv')
+            myCsv <- RCurl::getURL(address)
+            con <- textConnection(myCsv)
+            data <- read.csv(con)
+            close(con)
         }
         
     } else {
@@ -450,22 +515,21 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
     con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     ALL <- dbReadTable(con, EXTABLE)
     extract <- dbReadTable(con, 'labextract')
-    close(con)
+    
+    PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', EXTABLE) ))[['Column_name']]
+    fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", EXTABLE))
+    dbDisconnect(con)
     
     records <- as.matrix(data)
     DBrecords <- records[,colnames(records) %in% colnames(ALL)]
     
-    
-    
-    
-    PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', EXTABLE) ))[['Column_name']]
-    fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", EXTABLE))
+
     
     fld <- fileds.def[fileds.def$Null=='NO' & fileds.def$Key!='PRI',]$Field
     
     for(i in 1:nrow(records)) {
         
-        cat('Processing: ', DBrecords[i,c(1, 5)])
+        cat('Processing: ', DBrecords[i,c(1, 4, 5)])
         
         #set yp variables
         insert <- records[i,]
