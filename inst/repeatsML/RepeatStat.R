@@ -1,6 +1,7 @@
 
 big <- tail(sort(lengths(repeatModel)), 10)
 rm <- repeatModel[names(big)]
+rm <- repeatModel[heli]
 
 dat <- data.frame( nam=unlist(rm)$id, wd=width(unlist(rm)))
 
@@ -22,3 +23,15 @@ length(unlist(repeatModel))
 
 #number
 length(unlist(repeatModel))
+
+#msa
+
+load(repeatModel)
+heli <- grep('Helitron', names(repeatModel), value = TRUE)
+rep <- repeatModel[[heli[[1]]]]
+paste(rep)  %>%  gsub('\\:(\\-|\\+)', '', .)  -> names(rep)
+seq <- getSeq(Celegans, rep)
+require(msa)
+myFirstAlignment <- msa(seq)
+
+msaPrettyPrint(myFirstAlignment, output="pdf", showNames="none", showLogo="none", askForOverwrite=FALSE, verbose=FALSE)
