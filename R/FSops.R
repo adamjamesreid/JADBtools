@@ -250,9 +250,9 @@ addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE=
                 key <- stringr::str_extract(csv, "[[:alnum:]_-]{30,}")
                 address <- paste0("https://docs.google.com/spreadsheets/d/",key,"/export?exportFormat=", 'csv')
                 myCsv <- RCurl::getURL(address)
-                con <- textConnection(myCsv)
-                data <- read.csv(con)
-                close(con)
+                conCsv <- textConnection(myCsv)
+                data <- read.csv(conCsv)
+                close(conCsv)
             }
             
         } else {
