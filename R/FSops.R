@@ -75,15 +75,6 @@ addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.
         }
         
         
-        #files <- ##from csv
-            
-            
-            
-            #File joining, takes time
-        #system( sprintf('cat %s > %s', paste(file.path(temp_dir, files$Path), collapse=' '), gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])), intern=TRUE)
-        #finalFilePath <- gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])
-        
-        
         finalFilePath <- insert['OryginalFileName']
         if( !file.exists(finalFilePath) ) stop('Joined file does not exist!')
         
@@ -119,9 +110,9 @@ addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.
             }
             fileName <- sprintf('%s^%s.%s', fileName, fileUID, 'txt.gz')
             
-            dir.success <- dir.create(gsub(root, dirPath), recursive = TRUE)
+            dir.success <- dir.create(file.path(root, dirPath), recursive = TRUE)
             if ( !file.exists(finalFilePath) ) {dbDisconnect(con); stop(paste('Temp file do not exists', insert['OryginalFileName']))}
-            file.copy( finalFilePath, file.path(gsub(root, dirPath), fileName) )
+            file.copy( finalFilePath, file.path(file.path(root, dirPath), fileName) )
             
             fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", TABLE))
             PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', TABLE) ))[['Column_name']]
@@ -169,9 +160,9 @@ addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.
                 EXPERIMENT[['CellFraction']], EXPERIMENT[['LibraryType']], id
             )
             
-            dir.success <- dir.create(gsub(root, dirPath), recursive = TRUE)
+            dir.success <- dir.create(file.path(root, dirPath), recursive = TRUE)
             if ( !file.exists(finalFilePath) ) {dbDisconnect(con); stop(paste('Temp file do not exists', insert['OryginalFileName']))}
-            file.copy( finalFilePath, file.path(gsub(root, dirPath), fileName) )
+            file.copy( finalFilePath, file.path(file.path(root, dirPath), fileName) )
             
             INSERT <- list()
             INSERT[['Processing']]    <- as.character( 'raw' 		)
