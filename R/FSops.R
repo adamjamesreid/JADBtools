@@ -346,7 +346,7 @@ addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE=
                 INSERT[['ContactExpID']] 	<- as.character( id	)
                 INSERT[['UID']] 			<- as.character( fileUID )
                 INSERT[['filetype_format']] <- as.character( 'txt.gz'	)
-                INSERT[['path']] 			<- as.character( file.path(dirPath, fileName) )
+                INSERT[['path']] 			<- as.character( file.path('files', dirPath, fileName) )
                 INSERT[['dateCreated']] 	<- paste(Sys.Date())
                 INSERT[['dateUpdated']] 	<- paste(Sys.Date())
                 INSERT[['uniq']]			<- NA
@@ -393,7 +393,7 @@ addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE=
                 INSERT[['ContactExpID']] 	<- as.character( id	)
                 INSERT[['UID']] 			    <- as.character( fileUID )
                 INSERT[['filetype_format']] <- as.character( 'txt.gz'	)
-                INSERT[['path']] 			    <- as.character( file.path(dirPath, fileName) )
+                INSERT[['path']] 			    <- as.character( file.path('files', dirPath, fileName) )
                 INSERT[['dateCreated']] 	<- paste(Sys.Date())
                 INSERT[['dateUpdated']] 	<- paste(Sys.Date())
                 INSERT[['uniq']]			    <- NA
