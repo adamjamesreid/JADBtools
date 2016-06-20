@@ -264,3 +264,67 @@ enrichedRegionsCall <- function(file, bedoutput=NULL) {
         }
         
 }
+
+#' Run peak calls and optionally adds them to DB
+#' 
+#' @param IDs Vector of JADB ContactExpIDs
+#' @param local should the job be run on local or remote FS
+#'   
+#' @return List 
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family Peaks
+#' @export
+#' 
+#' @examples
+#' #addMapq0Track('AA001')
+addMapq0Track <- function(ids, local=FALSE) {
+    require(magrittr)
+    require(Rsamtools)
+    require(BSgenome)
+    
+    base_dir  <- getwd()
+    on.exit(setwd(base_dir))
+    
+    ids  %>% sapply(getFilePath, format = 'bam', url = local)  -> fls
+    if (length(ids) != 1) stop('No or more than 1 BAM files.')
+    
+    outnames <- sapply(basename(fls), rbeads:::reName, proccesing = 'mapq0', scale = 'linear', resolution = '1bp', ext='.bw')
+    prefix <- basename(fls) %>% substr(start=0, stop=nchar(.)-13)
+    
+    exp_dir <- gsub('files/', '', dirname(fls))
+    message(exp_dir)
+    setwd(exp_dir)
+    
+
+    what <- c("rname", "strand", "pos", "qwidth")
+    flag <- scanBamFlag(isUnmappedQuery = FALSE)
+    param <- ScanBamParam(flag = flag, simpleCigar = FALSE, what = what)
+        
+    message('File: ', basename(fls))
+            
+    a <- scanBam(basename(fls), param = param)[[1]]
+    grng <- GRanges(
+        seqnames = a$rname, ranges = IRanges(a$pos, width = a$qwidth), 
+        strand = a$strand, seqinfo=SeqinfoForBSGenome('ce10')
+    )
+            
+    grng <- trim(resize(grng, 200L))
+    
+    Entry <- addGenericFile(
+        ids,
+        path = file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'mapq0^^q01', prefix)), 
+        Processing = 'mapq0', 
+        Scale = 'linear', 
+        Resolution = '1bp',
+        filetype_format = 'bw', 
+        prefix = 'P',
+        comments = JADBtools::bamStats(basename(fls))
+    )
+            
+    message("All ranges (200bp): ", length(grng))
+    export.bw(coverage(grng), basename(Entry$path))
+    
+}
+
