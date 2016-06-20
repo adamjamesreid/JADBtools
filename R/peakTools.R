@@ -314,7 +314,7 @@ addMapq0Track <- function(ids, local=FALSE) {
     
     Entry <- addGenericFile(
         ids,
-        path = file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'mapq0^^q01', prefix)), 
+        path = file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'mapq0^linear^1bp', prefix)), 
         Processing = 'mapq0', 
         Scale = 'linear', 
         Resolution = '1bp',
