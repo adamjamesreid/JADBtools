@@ -197,7 +197,7 @@ addRepToJADB <- function(IDs, res=100L) {
     
     
     file.copy('IDR/idr_final_peaks_0.05.narrowPeak', outname)
-    addGenericFile(CXID, path = file.path('files', outdir, outname), Processing = 'PeakCalls', Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
+    addGenericFile(CXID, path = file.path('files', outdir, outname), Processing = 'IDR', Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
     setwd(oldwd)
     
     #UPDATE `mydb`.`labfiles` SET `filetype_format`='bwz' WHERE `UID`='R3e31188';
