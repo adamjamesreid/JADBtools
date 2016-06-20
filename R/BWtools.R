@@ -187,8 +187,12 @@ addRepToJADB <- function(IDs, res=100L) {
     
     cmd <- sprintf(
         'export PATH=/home/ps562/software/bin:$PATH; /home/ps562/anaconda/bin/ipython ~/TEST/macs2_idr.ipy -- %s %s -c %s -p ./IDR/idr',
-        basename(BAM[1]), basename(BAM[2]), '/mnt/jadb/DBfile/DBfiles/Input/SummedInputs/EGS_HiSeq_input.bam'
+        gsub('^files', '/mnt/jadb/DBfile/DBfiles', BAM[1]), 
+        gsub('^files', '/mnt/jadb/DBfile/DBfiles', BAM[2]), 
+        '/mnt/jadb/DBfile/DBfiles/Input/SummedInputs/EGS_HiSeq_input.bam'
     )
+    message('--> ', cmd)
+    system(cmd)
     
     anno <- as.data.frame(t(sapply(basename(BAM), rbeads:::ParseName)))
     same <- anno[1,c('Factor', 'Antibody', 'Strain', 'Stage', 'Processing', 'Scale', 'Resolution')]
