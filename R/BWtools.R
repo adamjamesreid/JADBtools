@@ -121,12 +121,38 @@ combineReps <- function(IDs, processing='aligned', res=100L, scale='linear', out
 #' #combineReps(IDs)
 addRepToJADB <- function(IDs, res=100L) {
     
+    
+    ## get metatdata
     con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     T <- dbReadTable(con, "labchipseqrep")
     CXID <- sprintf('REP%03.0f', max(as.numeric(gsub('REP', '', T$ContactExpID)))+1)
     
     outdir <- file.path('REPLICATES', JADBtools:::getAnno(IDs[[1]], EXTABLE = 'labexperiment'), CXID)
     dir.create(outdir, recursive = TRUE)
+    
+    BAM <- sapply(IDs, getFilePath, format='bam', url=FALSE)
+    anno <- as.data.frame(t(sapply(basename(BAM), rbeads:::ParseName)))
+    
+    ## Add experiment to db
+    INSERT <- out$anno[1,-c(3,7,8,9,10,11,12)]
+    INSERT[['ContactExpID']]<- CXID
+    INSERT[['dateCreated']] <- paste(Sys.Date())
+    INSERT[['dateUpdated']] <- paste(Sys.Date())
+    INSERT[['Comments']] <- paste0('corA=', round(out$cor, 3), '; corN=', round(outNorm$cor, 3))
+    INSERT[['ExtractID']] <- paste0(unlist(out$anno$ExtractID), collapse='|')
+    INSERT[['Experiments']] <- paste0(unlist(out$anno$ContactExpID), collapse='|')
+    
+    TABLE <- 'labchipseqrep'
+    fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", TABLE))
+    PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', TABLE) ))[['Column_name']]
+    
+    sql <- paste("INSERT INTO ", TABLE,"(", paste(colnames(INSERT), collapse=", "),") VALUES('", paste(as.character(unlist(INSERT)), collapse="', '"), "')", collapse=", ", sep="")
+    
+    rs <- dbSendQuery(con, sql )
+    info <- dbGetInfo(rs)
+    
+    dbDisconnect(con)
+    
     
     out <- combineReps(IDs, processing = 'aligned', outdir = outdir, res = res)
     outMapq0 <- combineReps(IDs, processing = 'mapq0', outdir = outdir, res = res)
@@ -145,27 +171,7 @@ addRepToJADB <- function(IDs, res=100L) {
     
     setwd(oldwd)
     
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
-    T <- dbReadTable(con, "labchipseqrep")
-    
-    INSERT <- out$anno[1,-c(3,7,8,9,10,11,12)]
-    INSERT[['ContactExpID']]<- CXID
-    INSERT[['dateCreated']] <- paste(Sys.Date())
-    INSERT[['dateUpdated']] <- paste(Sys.Date())
-    INSERT[['Comments']] <- paste0('corA=', round(out$cor, 3), '; corN=', round(outNorm$cor, 3))
-    INSERT[['ExtractID']] <- paste0(unlist(out$anno$ExtractID), collapse='|')
-    INSERT[['Experiments']] <- paste0(unlist(out$anno$ContactExpID), collapse='|')
-    
-    TABLE <- 'labchipseqrep'
-    fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", TABLE))
-    PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', TABLE) ))[['Column_name']]
-		
-    sql <- paste("INSERT INTO ", TABLE,"(", paste(colnames(INSERT), collapse=", "),") VALUES('", paste(as.character(unlist(INSERT)), collapse="', '"), "')", collapse=", ", sep="")
-    
-    rs <- dbSendQuery(con, sql )
-    info <- dbGetInfo(rs)
-    
-    dbDisconnect(con)
+
     
     addGenericFile(CXID, path = file.path('files', out$out), Processing = 'aligned',  Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
     addGenericFile(CXID, path = file.path('files', outNorm$out), Processing = 'NORM', Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
@@ -183,18 +189,22 @@ addRepToJADB <- function(IDs, res=100L) {
     oldwd <- getwd(); setwd(outdir)
     dir.create('IDR', recursive = TRUE)
     
-    BAM <- sapply(IDs, getFilePath, format='bam', url=FALSE)
+
     
     cmd <- sprintf(
         'export PATH=/home/ps562/software/bin:$PATH; /home/ps562/anaconda/bin/ipython ~/TEST/macs2_idr.ipy -- %s %s -c %s -p ./IDR/idr',
         gsub('^files', '/mnt/jadb/DBfile/DBfiles', BAM[1]), 
         gsub('^files', '/mnt/jadb/DBfile/DBfiles', BAM[2]), 
-        '/mnt/jadb/DBfile/DBfiles/Input/SummedInputs/EGS_HiSeq_input.bam'
+        if( grepl('^E', anno$Crosslinker[[1]]) ) {
+            '/mnt/jadb/DBfile/DBfiles/Input/SummedInputs/EGS_HiSeq_input.bam'
+        } else {
+            '/mnt/jadb/DBfile/DBfiles/Input/SummedInputs/FRM_HiSeq_input.bam'
+        }
     )
     message('--> ', cmd)
     system(cmd)
     
-    anno <- as.data.frame(t(sapply(basename(BAM), rbeads:::ParseName)))
+    
     same <- anno[1,c('Factor', 'Antibody', 'Strain', 'Stage', 'Processing', 'Scale', 'Resolution')]
     same$Processing <- 'PeakCalls'; same$Scale <- 'MACS'; same$Resolution <- 'q01'
     outname <- paste0(paste0(unlist(same), collapse='_'), '_', paste(anno$ContactExpID, collapse = '^'), '_', 'IDR', '.bed')
