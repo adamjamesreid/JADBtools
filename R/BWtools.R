@@ -134,6 +134,7 @@ addRepToJADB <- function(IDs, res=100L) {
     anno <- as.data.frame(t(sapply(basename(BAM), rbeads:::ParseName)))
     
     out <- combineReps(IDs, processing = 'aligned', outdir = outdir, res = res)
+    outNorm <- combineReps(IDs, processing = 'NORM', outdir = outdir, res = res)
     
     ## Add experiment to db
     INSERT <- out$anno[1,-c(3,7,8,9,10,11,12)]
@@ -156,7 +157,6 @@ addRepToJADB <- function(IDs, res=100L) {
     dbDisconnect(con)
     
     outMapq0 <- combineReps(IDs, processing = 'mapq0', outdir = outdir, res = res)
-    outNorm <- combineReps(IDs, processing = 'NORM', outdir = outdir, res = res)
     outNormLog2 <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2$', res = res)
     outNormLog2zsc <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2zsc', res = res)
     outNormZscore <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'zscore', res = res)
