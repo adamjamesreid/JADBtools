@@ -133,6 +133,8 @@ addRepToJADB <- function(IDs, res=100L) {
     BAM <- sapply(IDs, getFilePath, format='bam', url=FALSE)
     anno <- as.data.frame(t(sapply(basename(BAM), rbeads:::ParseName)))
     
+    out <- combineReps(IDs, processing = 'aligned', outdir = outdir, res = res)
+    
     ## Add experiment to db
     INSERT <- out$anno[1,-c(3,7,8,9,10,11,12)]
     INSERT[['ContactExpID']]<- CXID
@@ -153,8 +155,6 @@ addRepToJADB <- function(IDs, res=100L) {
     
     dbDisconnect(con)
     
-    
-    out <- combineReps(IDs, processing = 'aligned', outdir = outdir, res = res)
     outMapq0 <- combineReps(IDs, processing = 'mapq0', outdir = outdir, res = res)
     outNorm <- combineReps(IDs, processing = 'NORM', outdir = outdir, res = res)
     outNormLog2 <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2$', res = res)
