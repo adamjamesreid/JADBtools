@@ -279,7 +279,7 @@ enrichedRegionsCall <- function(file, bedoutput=NULL) {
 #' 
 #' @examples
 #' #addMapq0Track('AA001')
-addMapq0Track <- function(ids, local=FALSE) {
+addMapq0Track <- function(ids) {
     require(magrittr)
     require(Rsamtools)
     require(BSgenome)
@@ -287,7 +287,7 @@ addMapq0Track <- function(ids, local=FALSE) {
     base_dir  <- getwd()
     on.exit(setwd(base_dir))
     
-    ids  %>% sapply(getFilePath, format = 'bam', url = local)  -> fls
+    ids  %>% sapply(getFilePath, format = "bam", eq=TRUE, processing = "aligned", scale = "NA", url = FALSE)  -> fls
     if (length(ids) != 1) stop('No or more than 1 BAM files.')
     
     outnames <- sapply(basename(fls), rbeads:::reName, proccesing = 'mapq0', scale = 'linear', resolution = '1bp', ext='.bw')

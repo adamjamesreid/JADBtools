@@ -24,8 +24,8 @@ Add file to database
 Przemyslaw Stempor
 }
 \seealso{
-Other dbtools: \code{\link{formGenericPath}},
-  \code{\link{getFilePath}}, \code{\link{getFileUID}},
-  \code{\link{makeFileUID}}
+Other dbtools: \code{\link{correctName}},
+  \code{\link{formGenericPath}}, \code{\link{getFilePath}},
+  \code{\link{getFileUID}}, \code{\link{makeFileUID}}
 }
 

@@ -24,7 +24,8 @@ Combines peak in replicates
 Przemyslaw Stempor
 }
 \seealso{
-Other Peaks: \code{\link{callPeaksMACS}},
+Other Peaks: \code{\link{addMapq0Track}},
+  \code{\link{callPeaksMACS}},
   \code{\link{combinePeaksToBed}},
   \code{\link{enrichedRegionsCall}}
 }
