@@ -1,0 +1,56 @@
+---
+title: "Linear dependency in data vs. correlation coefficients"
+author: "Przemyslaw Stempor"
+date: "July 28, 2015"
+output: ioslides_presentation
+transition: 0
+---
+
+## Constructing the data {.build}
+
+This example illustrates influence of linear dependency in data on correlation coefficients.
+Lets construct two well correlated vectors with random noise:
+
+```{r}
+b <- 1:100+10*rnorm(100)
+a <- 1:100+10*rnorm(100)
+```
+
+```{r}
+summary(a)
+summary(b)
+
+```
+
+## Plotting daat as scatterplot
+
+```{r, echo=FALSE}
+plot(a,b)
+```
+
+## Calculating correlation coefficient
+
+```{r}
+cor(a,b)
+```
+
+## Transforming data with linear function y = a*x + b 
+
+```{r}
+aa <- 0.2*a + 3
+bb <- 20*b - 30
+```
+
+## Plotting both original and transformed data
+
+```{r, echo=FALSE}
+plot(c(a,aa),c(b,bb), col=c(rep("red",100), rep("blue",100)))
+```
+
+## Calculating Pearson's correaltion coefficients for both data set
+
+```{r}
+cor(aa,bb)
+cor(a,b)
+```
+
