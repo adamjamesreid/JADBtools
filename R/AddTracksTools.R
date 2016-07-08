@@ -86,23 +86,23 @@ addStrandedRNAseq <- function(ids) {
     ids  %>% sapply(getFilePath, format = "bam", eq=TRUE, processing = "aligned", scale = "NA", url = FALSE)  -> fls
     if (length(ids) != 1) stop('No or more than 1 BAM files.')
     
-    outnames_fwd <- sub(
-        '([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)', 
+    outnames_fwd <- sub('\\^.+', '', sub(
+        '([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)', 
         '\\1_\\2_\\3_\\4_\\5_FWDreadCoverage_RPM_1bp', 
         basename(fls)
-    )
+    ))
     
-    outnames_rev <- sub(
-        '([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)', 
+    outnames_rev <- sub('\\^.+', '', sub(
+        '([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+))', 
         '\\1_\\2_\\3_\\4_\\5_REVreadCoverage_RPM_1bp', 
         basename(fls)
-    )
+    ))
     
-    outnames_both <- sub(
-        '([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)', 
+    outnames_both <- sub('\\^.+', '', sub(
+        '([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)', 
         '\\1_\\2_\\3_\\4_\\5_readCoverage_RPM_1bp', 
         basename(fls)
-    )
+    ))
     
 
     prefix <- basename(fls) %>% substr(start=0, stop=nchar(.)-13)
@@ -125,9 +125,6 @@ addStrandedRNAseq <- function(ids) {
     )
     
     nf <- (length(grng)/1e6)
-    export.bw(coverage(grng[strand(grng)=="-"])/nf, outnames_fwd)
-    export.bw(coverage(grng[strand(grng)=="+"])/nf, outnames_rev)
-    export.bw(coverage(grng)/nf, outnames_both)
     
     Entry <- addGenericFile(
         ids,
@@ -139,6 +136,7 @@ addStrandedRNAseq <- function(ids) {
         prefix = 'P',
         comments = JADBtools::bamStats(basename(fls))
     )
+    export.bw(coverage(grng[strand(grng)=="-"])/nf, basename(Entry$path))
 
     Entry <- addGenericFile(
         ids,
@@ -150,6 +148,7 @@ addStrandedRNAseq <- function(ids) {
         prefix = 'P',
         comments = JADBtools::bamStats(basename(fls))
     )
+    export.bw(coverage(grng[strand(grng)=="+"])/nf, basename(Entry$path))
     
     Entry <- addGenericFile(
         ids,
@@ -161,8 +160,5 @@ addStrandedRNAseq <- function(ids) {
         prefix = 'P',
         comments = JADBtools::bamStats(basename(fls))
     )
-    
-    message("All ranges (200bp): ", length(grng))
-    export.bw(coverage(grng), basename(Entry$path))
-    
+    export.bw(coverage(grng)/nf, basename(Entry$path))
 }
