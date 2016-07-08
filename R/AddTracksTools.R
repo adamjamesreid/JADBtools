@@ -136,6 +136,7 @@ addStrandedRNAseq <- function(ids) {
         prefix = 'P',
         comments = JADBtools::bamStats(basename(fls))
     )
+    message('Exporting ', basename(Entry$path))
     export.bw(coverage(grng[strand(grng)=="-"])/nf, basename(Entry$path))
 
     Entry <- addGenericFile(
@@ -148,6 +149,7 @@ addStrandedRNAseq <- function(ids) {
         prefix = 'P',
         comments = JADBtools::bamStats(basename(fls))
     )
+    message('Exporting ', basename(Entry$path))
     export.bw(coverage(grng[strand(grng)=="+"])/nf, basename(Entry$path))
     
     Entry <- addGenericFile(
@@ -160,5 +162,6 @@ addStrandedRNAseq <- function(ids) {
         prefix = 'P',
         comments = JADBtools::bamStats(basename(fls))
     )
+    message('Exporting ', basename(Entry$path))
     export.bw(coverage(grng)/nf, basename(Entry$path))
 }
