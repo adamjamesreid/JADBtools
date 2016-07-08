@@ -72,6 +72,8 @@ addMapq0Track <- function(ids) {
 #' @export
 #' 
 #' @examples
+#' parallel::mclapply(sprintf('rAM%.3i', 47:56), addStrandedRNAseq)
+#'  addMapq0Track('rAM045')
 #' #addMapq0Track('AA001')
 addStrandedRNAseq <- function(ids) {
     require(magrittr)
@@ -93,6 +95,12 @@ addStrandedRNAseq <- function(ids) {
     outnames_rev <- sub(
         '([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)', 
         '\\1_\\2_\\3_\\4_\\5_REVreadCoverage_RPM_1bp', 
+        basename(fls)
+    )
+    
+    outnames_both <- sub(
+        '([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)', 
+        '\\1_\\2_\\3_\\4_\\5_readCoverage_RPM_1bp', 
         basename(fls)
     )
     
@@ -119,6 +127,7 @@ addStrandedRNAseq <- function(ids) {
     nf <- (length(grng)/1e6)
     export.bw(coverage(grng[strand(grng)=="-"])/nf, outnames_fwd)
     export.bw(coverage(grng[strand(grng)=="+"])/nf, outnames_rev)
+    export.bw(coverage(grng)/nf, outnames_both)
     
     Entry <- addGenericFile(
         ids,
@@ -135,6 +144,17 @@ addStrandedRNAseq <- function(ids) {
         ids,
         path = outnames_fwd, 
         Processing = 'REVreadCoverage', 
+        Scale = 'RPM', 
+        Resolution = '1bp',
+        filetype_format = 'bw', 
+        prefix = 'P',
+        comments = JADBtools::bamStats(basename(fls))
+    )
+    
+    Entry <- addGenericFile(
+        ids,
+        path = outnames_both, 
+        Processing = 'readCoverage', 
         Scale = 'RPM', 
         Resolution = '1bp',
         filetype_format = 'bw', 
