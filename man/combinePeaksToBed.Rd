@@ -25,6 +25,7 @@ Przemyslaw Stempor
 }
 \seealso{
 Other Peaks: \code{\link{addMapq0Track}},
+  \code{\link{addStrandedRNAseq}},
   \code{\link{callPeaksMACS}}, \code{\link{combinePeaks}},
   \code{\link{enrichedRegionsCall}}
 }
