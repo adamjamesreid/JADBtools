@@ -23,6 +23,18 @@ ALLpaths <- function(format='.', processing='.', scale='.', url=TRUE, eq=FALSE) 
 }
 all <- ALLpaths(format = 'bw', processing = 'NORM', scale = 'linear')
 fls <- all
+
+
+all <- ALLpaths(format = 'bam', processing = 'aligned', scale = 'NA')
+all <- all[-grep('totalRNA', all)]
+sapply(all, function(x) {
+    if( file.exists(basename(x)) ) {
+        message('Skipped: ', basename(x))
+    } else {
+        try(download.file(x, destfile = basename(x)))
+    }
+})
+
 data <- lapply(fls, function(f) {
     message(f)
     try({
