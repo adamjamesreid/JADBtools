@@ -102,8 +102,24 @@ names(modencodetfbs) <- nn
 
 elementLengths(modencodetfbs[grep('HPL-2', nn)])
 
-peak <- lapply(dir(), ChIPseeker::readPeakFile, header=FALSE)
-names(peak) <- gsub('.narrowPeak', '', dir())
+#macs2 callpeak -t TOFU5^AB290_TOFU5-GFP^NA^NA^NA_aligned^NA^NA_AK004^F0f32716.bam -c antiGFP^GFP-trap_em01^E^N2^youngAdult_aligned^NA^NA_AA243^F1b05732.bam --nomodel --extsize 150 -f BAM -g ce -n TOFU5_AB290_TOFU5-GFP_AK004 -q 0.01
+
+##PEAKS
+peak <- lapply(dir(pattern = 'narrowPeak'), function(x) {
+    message(x)
+    ChIPseeker::readPeakFile(x, header=FALSE)
+})
+names(peak) <- gsub('.narrowPeak', '', dir(pattern = 'narrowPeak'))
 peaks <- GRangesList(peak)
 grangeslist2fa(peaks)
+
+##SUMMITS
+summits <- lapply(dir(pattern = 'bed'), function(x) {
+    message(x); resize(import.bed(x), 200, fix = 'center')
+})
+names(summits) <- gsub('.bed', '', dir(pattern = 'bed'))
+grangeslist2fa(summits)
+
+
+oneLines = memeOutput[grep("^MOTIF \\d+", memeOutput)]
 
