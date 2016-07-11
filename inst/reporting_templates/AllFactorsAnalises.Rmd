@@ -1,0 +1,93 @@
+---
+title: "ChIP profiles enrichment of repetitive elements in C. elegans"
+author: "Przemyslaw Stempor"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+params:
+    res: !r iris
+    input_array: m
+    file_names: experiment_names
+    cores: 12
+output: 
+  html_document: 
+    fig_caption: yes
+    number_sections: no
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+    code_folding: hide
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+library(DT)
+library(JADBtools)
+#library(rtracklayer)
+library(GenomicRanges)
+library(parallel)
+#library(seqplots)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+<hr \>
+
+Methods
+=======
+
+Repeats annotation
+------------------
+
+The annotation commes from Dfam 2.0 (September 2015, 4150 entries)
+
+The Dfam database is a collection of Repetitive DNA element sequence alignments, hidden Markov models (HMMs) and matches lists for complete Eukaryote genomes.
+Transposable elements (or interspersed repeats) account for a substantial portion of eukaryotic genomes. Accurate annotation of TEs enables research into their biology and can shed light on the evolutionary processes that shape genomes. Dfam represents a collection of alignments and HMMs of such transposable elements and other repetitive DNA elements. The Dfam website gives information about each model, and provides genome annotations for a collection of core genomes. The models may also be downloaded from the ftp site, for example to mask repeats in new genomes.
+
+
+```{r class-info, cache=FALSE}
+data(repeatModel, package = 'JADBtools')
+urm <- unlist(repeatModel)
+positions <- paste0(seqnames(urm),'-',start(urm),':',end(urm))
+
+dat <- data.frame('Class_name' = names(repeatModel), 'Number_of_repeats_in_class'= elementLengths(repeatModel), 'Total_width_in_kb' = round(sum(width(repeatModel))/1000, 2))
+datatable(dat, rownames = FALSE)
+```
+
+Data acquisition
+----------------
+
+ChIP-seq experiments are aligned to ce10 reference genome using BWA backtrack 
+algorithm. The ChIP enrichment profiles (BigWig files) are generated using unique 
+reads, with mapping quality cutoff >=10 and are normalised with BEADS algorithm.
+
+Each experiment is performed in 2 replicates. Final enrichment profile is
+obtained by combining (averaging) the signal from individual replicates.
+
+Finally, the rtracklayer package is used to extract the signal from profile 
+files - the signal on each individual repeat is summarized as numeric value 
+representing average signal on this repeat. See `Code` for exact implementation.
+
+```{r extarct_vector-fun}
+extarct_vector <- function(track, size, which = as(seqinfo(track), "GenomicRanges")) {
+    sum <- .Call(
+        'BWGFile_summary', path.expand(path(track)),
+        as.character(seqnames(which)), ranges(which), 
+        S4Vectors::recycleIntegerArg(size, "size", length(which)), 
+        "mean", as.numeric(NA_real_), PACKAGE = 'rtracklayer'
+    )
+    return(unlist(sum))
+}
+```
+
+Results
+=======
+
+
+Estimating enrichment significance for individual repeats
+---------------------------------------------------------
+Results for ` t=params$inputfile; paste0(strsplit(t, '_')[[1]][1], ' (', strsplit(t, '_')[[1]][7], ')')`
+
+```{r}
+means <- colMeans(m, na.rm = TRUE)
+rank <- order(means, decreasing = TRUE)
+```
+
