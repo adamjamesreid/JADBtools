@@ -69,21 +69,10 @@ addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.
         DBinsert <- DBrecords[i,]
         prID <- as.character( insert[['ProjectID']] )
         smplID <- as.character( insert[['SampleID']] )
-        #temp_dir <- file.path('files/temp', prID, smplID)
-        #dir.create(temp_dir, recursive = TRUE)
         
         if (any( grepl('_| |:|\\^|\\/', DBinsert[c('Factor', 'Antibody','ExtractID', 'Crosslinker', 'Strain', 'Stage')]) )) {
             stop('Not allowed character "_" or " " or ":" or "^" or "/" in name fileds.')
         }
-        
-        
-        #files <- ##from csv
-            
-            
-            
-            #File joining, takes time
-        #system( sprintf('cat %s > %s', paste(file.path(temp_dir, files$Path), collapse=' '), gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])), intern=TRUE)
-        #finalFilePath <- gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])
         
         
         finalFilePath <- insert['OryginalFileName']
@@ -110,7 +99,7 @@ addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.
         if( EXTABLE ==  'mydb.labexperiment' ) {
             
             EXPERIMENT <- 	dbGetQuery(con, paste("SELECT Factor, Antibody, ExtractID, Crosslinker, Strain, Stage FROM mydb.labexperimentview WHERE ContactExpID = '", id, "'", collapse="", sep=""))
-            dirPath <- file.path('files', EXPERIMENT[['Factor']], EXPERIMENT[['Strain']], paste(id, EXPERIMENT[['ExtractID']], EXPERIMENT[['Antibody']], sep='_'))
+            dirPath <- file.path(EXPERIMENT[['Factor']], EXPERIMENT[['Strain']], paste(id, EXPERIMENT[['ExtractID']], EXPERIMENT[['Antibody']], sep='_'))
             fileName <- paste(	paste(EXPERIMENT[['Factor']], EXPERIMENT[['Antibody']], sep='^'), 
                                paste(EXPERIMENT[['ExtractID']], EXPERIMENT[['Crosslinker']], EXPERIMENT[['Strain']], EXPERIMENT[['Stage']], sep='^'), 
                                paste('raw', 'NA', 'NA', sep='^'), id, sep='_')
@@ -121,9 +110,9 @@ addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.
             }
             fileName <- sprintf('%s^%s.%s', fileName, fileUID, 'txt.gz')
             
-            dir.success <- dir.create(gsub('files', root, dirPath), recursive = TRUE)
+            dir.success <- dir.create(file.path(root, dirPath), recursive = TRUE)
             if ( !file.exists(finalFilePath) ) {dbDisconnect(con); stop(paste('Temp file do not exists', insert['OryginalFileName']))}
-            file.copy( finalFilePath, file.path(gsub('files', root, dirPath), fileName) )
+            file.copy( finalFilePath, file.path(file.path(root, dirPath), fileName) )
             
             fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", TABLE))
             PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', TABLE) ))[['Column_name']]
@@ -134,7 +123,7 @@ addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.
             INSERT[['ContactExpID']] 	<- as.character( id	)
             INSERT[['UID']] 			<- as.character( fileUID )
             INSERT[['filetype_format']] <- as.character( 'txt.gz'	)
-            INSERT[['path']] 			<- as.character( file.path(dirPath, fileName) )
+            INSERT[['path']] 			<- as.character( file.path('files', dirPath, fileName) )
             INSERT[['dateCreated']] 	<- paste(Sys.Date())
             INSERT[['dateUpdated']] 	<- paste(Sys.Date())
             INSERT[['uniq']]			<- NA
@@ -167,13 +156,13 @@ addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.
             }
             fileName <- sprintf('%s_%s.%s', fileName, fileUID, 'txt.gz')
             dirPath <- file.path(
-                'files', toupper(gsub('mydb.lab', '', EXTABLE)), 
+                toupper(gsub('mydb.lab', '', EXTABLE)), 
                 EXPERIMENT[['CellFraction']], EXPERIMENT[['LibraryType']], id
             )
             
-            dir.success <- dir.create(gsub('files', root, dirPath), recursive = TRUE)
+            dir.success <- dir.create(file.path(root, dirPath), recursive = TRUE)
             if ( !file.exists(finalFilePath) ) {dbDisconnect(con); stop(paste('Temp file do not exists', insert['OryginalFileName']))}
-            file.copy( finalFilePath, file.path(gsub('files', root, dirPath), fileName) )
+            file.copy( finalFilePath, file.path(file.path(root, dirPath), fileName) )
             
             INSERT <- list()
             INSERT[['Processing']]    <- as.character( 'raw' 		)
@@ -181,7 +170,7 @@ addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.
             INSERT[['ContactExpID']] 	<- as.character( id	)
             INSERT[['UID']] 			    <- as.character( fileUID )
             INSERT[['filetype_format']] <- as.character( 'txt.gz'	)
-            INSERT[['path']] 			    <- as.character( file.path(dirPath, fileName) )
+            INSERT[['path']] 			    <- as.character( file.path("files", dirPath, fileName) )
             INSERT[['dateCreated']] 	<- paste(Sys.Date())
             INSERT[['dateUpdated']] 	<- paste(Sys.Date())
             INSERT[['uniq']]			    <- NA
@@ -219,12 +208,14 @@ addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.
 addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.labexperiment', gsheet=TRUE, subset=NULL) {
     if (system('whoami', intern = TRUE) != 'www-data') stop('Run as web server user!', call. = TRUE)	
 	
-        setwd( root )	
+    #version 2.0
+    
+    setwd( root )	
 
-        library(RJSONIO)
-        library(DBI)
-        library(RMySQL)
-        library(digest)
+    library(RJSONIO)
+    library(DBI)
+    library(RMySQL)
+    library(digest)
     
         library(BaseSpaceR)
         app_access_token <- "f58a0ccf1599418d8b4b09034a56bdd5"
@@ -250,9 +241,9 @@ addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE=
                 key <- stringr::str_extract(csv, "[[:alnum:]_-]{30,}")
                 address <- paste0("https://docs.google.com/spreadsheets/d/",key,"/export?exportFormat=", 'csv')
                 myCsv <- RCurl::getURL(address)
-                con <- textConnection(myCsv)
-                data <- read.csv(con)
-                close(con)
+                conCsv <- textConnection(myCsv)
+                data <- read.csv(conCsv)
+                close(conCsv)
             }
             
         } else {
@@ -271,7 +262,7 @@ addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE=
             DBinsert <- DBrecords[i,]
             prID <- as.character( insert[['ProjectID']] )
             smplID <- as.character( insert[['SampleID']] )
-            temp_dir <- file.path('files/temp', prID, smplID)
+            temp_dir <- file.path('temp', prID, smplID)
             dir.create(temp_dir, recursive = TRUE)
             
             if (any( grepl('_| |:|\\^|\\/', DBinsert[c('Factor', 'Antibody','ExtractID', 'Crosslinker', 'Strain', 'Stage')]) )) {
@@ -331,7 +322,7 @@ addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE=
             if( EXTABLE ==  'mydb.labexperiment' ) {
                 
                 EXPERIMENT <- 	dbGetQuery(con, paste("SELECT Factor, Antibody, ExtractID, Crosslinker, Strain, Stage FROM mydb.labexperimentview WHERE ContactExpID = '", id, "'", collapse="", sep=""))
-                dirPath <- file.path('files', EXPERIMENT[['Factor']], EXPERIMENT[['Strain']], paste(id, EXPERIMENT[['ExtractID']], EXPERIMENT[['Antibody']], sep='_'))
+                dirPath <- file.path(EXPERIMENT[['Factor']], EXPERIMENT[['Strain']], paste(id, EXPERIMENT[['ExtractID']], EXPERIMENT[['Antibody']], sep='_'))
                 fileName <- paste(	paste(EXPERIMENT[['Factor']], EXPERIMENT[['Antibody']], sep='^'), 
                                    paste(EXPERIMENT[['ExtractID']], EXPERIMENT[['Crosslinker']], EXPERIMENT[['Strain']], EXPERIMENT[['Stage']], sep='^'), 
                                    paste('raw', 'NA', 'NA', sep='^'), id, sep='_')
@@ -355,7 +346,7 @@ addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE=
                 INSERT[['ContactExpID']] 	<- as.character( id	)
                 INSERT[['UID']] 			<- as.character( fileUID )
                 INSERT[['filetype_format']] <- as.character( 'txt.gz'	)
-                INSERT[['path']] 			<- as.character( file.path(dirPath, fileName) )
+                INSERT[['path']] 			<- as.character( file.path('files', dirPath, fileName) )
                 INSERT[['dateCreated']] 	<- paste(Sys.Date())
                 INSERT[['dateUpdated']] 	<- paste(Sys.Date())
                 INSERT[['uniq']]			<- NA
@@ -388,7 +379,7 @@ addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE=
                 }
                 fileName <- sprintf('%s_%s.%s', fileName, fileUID, 'txt.gz')
                 dirPath <- file.path(
-                    'files', toupper(gsub('mydb.lab', '', EXTABLE)), 
+                    toupper(gsub('mydb.lab', '', EXTABLE)), 
                     EXPERIMENT[['CellFraction']], EXPERIMENT[['LibraryType']], id
                 )
                 
@@ -402,7 +393,7 @@ addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE=
                 INSERT[['ContactExpID']] 	<- as.character( id	)
                 INSERT[['UID']] 			    <- as.character( fileUID )
                 INSERT[['filetype_format']] <- as.character( 'txt.gz'	)
-                INSERT[['path']] 			    <- as.character( file.path(dirPath, fileName) )
+                INSERT[['path']] 			    <- as.character( file.path('files', dirPath, fileName) )
                 INSERT[['dateCreated']] 	<- paste(Sys.Date())
                 INSERT[['dateUpdated']] 	<- paste(Sys.Date())
                 INSERT[['uniq']]			    <- NA
@@ -418,9 +409,6 @@ addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE=
         }
         
         dbDisconnect(con)
-        
-        pb <- list(success=TRUE, progress=1, text=insert[['SampleID']], toptext='Finalizing')
-        cat( RJSONIO::toJSON(pb), file=paste('files/temp/', UID, '.json', sep='') )
         
         message <- paste(	'<br /> <i>Experiments</i>: ',  paste(unique(data$ProjectID), collapse=' '),
                           '<br />	<i>SampleID:</i><br /> ', paste(data$SampleID, collapse=' '),
@@ -528,15 +516,11 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
         DBinsert <- DBrecords[i,]
         prID <- as.character( insert[['ProjectID']] )
         smplID <- as.character( insert[['SampleID']] )
-        #temp_dir <- file.path('files/temp', prID, smplID)
-        #dir.create(temp_dir, recursive = TRUE)
         
         if (any( grepl('_| |:|\\^|\\/', DBinsert[fld]) )) {
             stop('FATAL: Not allowed character "_" or " " or ":" or "^" or "/" in file name fileds:\n', paste(fld, collapse=', '))
         }
         
-        
-        #files <- ##from csv
         
         mySmpl <- listSamples(aAuth, projectId=subset(PrAno, Name == prID, Id, drop = TRUE), Limit=1000)
         SmAno <- data.frame(Name = Name(mySmpl), Id = Id(mySmpl))

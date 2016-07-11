@@ -264,3 +264,4 @@ enrichedRegionsCall <- function(file, bedoutput=NULL) {
         }
         
 }
+

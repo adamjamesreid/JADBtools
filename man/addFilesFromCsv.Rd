@@ -22,4 +22,8 @@ Accepts regular expressions.
 \author{
 Przemyslaw Stempor
 }
+\seealso{
+Other FSops: \code{\link{addFilesFromBaseSpace}},
+  \code{\link{validateFilesFromBaseSpace}}
+}
 

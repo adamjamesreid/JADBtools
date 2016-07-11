@@ -24,8 +24,9 @@ Combines peak in replicates and exports to bed file
 Przemyslaw Stempor
 }
 \seealso{
-Other Peaks: \code{\link{callPeaksMACS}},
-  \code{\link{combinePeaks}},
+Other Peaks: \code{\link{addMapq0Track}},
+  \code{\link{addStrandedRNAseq}},
+  \code{\link{callPeaksMACS}}, \code{\link{combinePeaks}},
   \code{\link{enrichedRegionsCall}}
 }
 

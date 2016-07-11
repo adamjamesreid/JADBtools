@@ -193,6 +193,47 @@ formGenericPath <- function(
     return(fileName)
 }
 
+
+#' Make generic file name
+#' 
+#' @param ContactExpID experiment ID string
+#' @param EXTABLE experiment table in db schema
+#' @param scale file name parameter
+#' @param processing file name parameter
+#' @param format file name parameter
+#'   
+#'   
+#' @return name string
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family dbtools
+#' @export
+#' 
+correctName <- function( 
+    ContactExpID, EXTABLE='labrnaseq', Processing=NA, Resolution=NA, Scale=NA
+    
+){
+    oldpath <- getFilePath(ContactExpID, url = FALSE)
+    
+    getFileUID(ContactExpID)
+    newpath <- paste0(
+        formGenericPath(ContactExpID, EXTABLE='labrnaseq', Processing='raw'),
+        substr(oldpath, nchar(oldpath)-15, nchar(oldpath))
+    )
+    newpath <- file.path(dirname(oldpath), newpath)
+    
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
+    
+    EXPERIMENT <-   dbGetQuery(
+        con, sprintf('UPDATE labfiles SET path = "%s" WHERE UID = "%s"', newpath, getFileUID(ContactExpID))
+    )
+    dbDisconnect(con)
+    cat('mv', sub('^files/', '', oldpath), sub('^files/', '',newpath), '\n\n')
+ 
+}
+
+
 getTrackSummary <- function(ID, bin=1000, processing='NORM', scale='linear', chr=NULL, numeric=TRUE) {
     
     addr <- getFilePath(ID, processing=processing, scale=scale, format = 'bw')

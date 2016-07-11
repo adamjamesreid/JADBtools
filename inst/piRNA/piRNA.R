@@ -1,3 +1,7 @@
+
+require(magrittr)
+fa <- readDNAStringSet('~/All_piRNAs_new_reference.fasta')
+
 vmatchPattern(fa[[4]], Celegans)
 
 lst <- pbapply::pblapply(fa[1:100], function(x) vmatchPattern(x, Celegans) )
@@ -21,14 +25,23 @@ chain <- import.chain(system.file('anno/WBcel235toCe10.chain', package='JADBtool
 ce10 <- unlist(liftOver(gr, chain))
 start(aln) - start(ce10[1:30]) #sanity check
 
-names(ce10) <- names(fa)
+names(ce10) <- sapply(strsplit(names(fa), ' '), '[[', 1) 
+names(ce10) <- NULL
 score(ce10) <- names(fa)  %>% gsub('.+_(.+)-(.+)_(.+)_(.+)', '\\4', .)  %>% as.numeric
 
 export.bed(ce10, 'All_piRNAs_ce10.bed')
 
+indi <- ce10[ce10$score < 0]
+dep <- ce10[ce10$score >= 0]
+
+export.bed(indi, 'indi_piRNAs_ce10.bed')
+export.bed(dep, 'dep_piRNAs_ce10.bed')
+
 names(ce10) <- NULL
 score(ce10) <- NULL
 export.bed(ce10, 'All_piRNAs_ce10_noAnno.bed')
+
+export.bed(ce10[order(ce10$score, decreasing = TRUE)], 'All_piRNAs_ordered_by_scorece10.bed')
 
 fa_out <- getSeq(Celegans, promoters(ce10, 200, 0))
 writeXStringSet(fa_out, 'All_piRNAs_200bp_upstream_e10.fa')

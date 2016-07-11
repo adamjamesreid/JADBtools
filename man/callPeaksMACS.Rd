@@ -24,7 +24,9 @@ Run peak calls and optionally adds them to DB
 Przemyslaw Stempor
 }
 \seealso{
-Other Peaks: \code{\link{combinePeaksToBed}},
+Other Peaks: \code{\link{addMapq0Track}},
+  \code{\link{addStrandedRNAseq}},
+  \code{\link{combinePeaksToBed}},
   \code{\link{combinePeaks}},
   \code{\link{enrichedRegionsCall}}
 }

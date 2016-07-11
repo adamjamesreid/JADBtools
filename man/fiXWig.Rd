@@ -24,4 +24,7 @@ Fixes overlaps in bed files
 \author{
 Przemyslaw Stempor
 }
+\seealso{
+Other fix: \code{\link{fiXPath}}
+}
 

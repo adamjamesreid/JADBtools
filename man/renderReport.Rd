@@ -15,6 +15,10 @@ HTML file
 \description{
 ChIP profiles enrichment of repetitive elements in C. elegans raport
 }
+\examples{
+#final_out <- lapply(dir(pattern='*.bw'), renderReport)
+
+}
 \author{
 Przemyslaw Stempor
 }

@@ -39,3 +39,25 @@ fiXWig <- function(x, gnm = BSgenome.Celegans.UCSC.ce10::Celegans, pth = sub('wi
     cov <- cov/correction
     export.bw(cov, pth);
 }    
+
+#' Fixes names
+#' 
+#' @param ID ContactExpID of fixed entry
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family fix
+#' @export
+#' 
+#' @examples
+#' #sapply(sprintf('rML%.3i', 3:24) , fiXPath)
+#' 
+fiXPath <- function(ID) {
+    message('fixing: ', ID)
+    p <- dbGetQuery(con, sprintf("SELECT path, UID FROM labfiles WHERE ContactExpID = '%s'", ID))
+    p$path <- file.path('files', p$path)
+    rownames(p) <- p$UID
+    sapply( rownames(p), function(x) {
+        dbGetQuery(con, sprintf("UPDATE labfiles SET path = '%s' WHERE UID = '%s'", p[x,]$path, x))
+    })
+}

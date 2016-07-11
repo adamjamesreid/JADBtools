@@ -22,7 +22,7 @@ Przemyslaw Stempor
 }
 \seealso{
 Other dbtools: \code{\link{addGenericFile}},
-  \code{\link{formGenericPath}}, \code{\link{getFilePath}},
-  \code{\link{getFileUID}}
+  \code{\link{correctName}}, \code{\link{formGenericPath}},
+  \code{\link{getFilePath}}, \code{\link{getFileUID}}
 }
 
