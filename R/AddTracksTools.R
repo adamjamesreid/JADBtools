@@ -141,7 +141,7 @@ addStrandedRNAseq <- function(ids) {
 
     Entry <- addGenericFile(
         ids,
-        path = file.path('files', exp_dir, outnames_fwd), 
+        path = file.path('files', exp_dir, outnames_rev), 
         Processing = 'REVreadCoverage', 
         Scale = 'RPM', 
         Resolution = '1bp',
