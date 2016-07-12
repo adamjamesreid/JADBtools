@@ -72,7 +72,7 @@ addMapq0Track <- function(ids) {
 #' @export
 #' 
 #' @examples
-#' parallel::mclapply(sprintf('rAM%.3i', 47:56), addStrandedRNAseq)
+#' parallel::mclapply(sprintf('rAM%.3i', 47:56), addStrandedRNAseq, )
 #'  addMapq0Track('rAM045')
 #' #addMapq0Track('AA001')
 addStrandedRNAseq <- function(ids) {
@@ -93,7 +93,7 @@ addStrandedRNAseq <- function(ids) {
     ))
     
     outnames_rev <- sub('\\^.+', '', sub(
-        '([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+))', 
+        '([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)', 
         '\\1_\\2_\\3_\\4_\\5_REVreadCoverage_RPM_1bp', 
         basename(fls)
     ))
