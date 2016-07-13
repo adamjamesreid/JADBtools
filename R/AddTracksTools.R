@@ -72,7 +72,7 @@ addMapq0Track <- function(ids) {
 #' @export
 #' 
 #' @examples
-#' parallel::mclapply(sprintf('rAM%.3i', 47:56), addStrandedRNAseq)
+#' parallel::mclapply(sprintf('rAM%.3i', 47:56), addStrandedRNAseq, )
 #'  addMapq0Track('rAM045')
 #' #addMapq0Track('AA001')
 addStrandedRNAseq <- function(ids) {
