@@ -135,6 +135,6 @@ QQ <- function(f, PE=TRUE, type=c('insert', 'read', 'tag'), stranded=TRUE, expor
 
 # sum(unlist(mclapply(as.list(GRanges(seqinfo(b))), function(chr) countBam(b, param=ScanBamParam(which = chr))$records,  mc.cores = detectCores())))
 
-# ST <- mclapply(dir(pattern='.bam$'), QQ, PE=FALSE, stats=TRUE, mc.cores = parallel::detectCores())
+# ST <- parallel::mclapply(dir(pattern='.bam$'),  JADBtools:::QQ, PE=FALSE, stats=TRUE, mc.cores = parallel::detectCores())
 # names(ST) <- dir(pattern='.bam$')
-# R <- do.call(rbind, lapply(st, function(stst) c(stat[1,], '%'=stat[2,-1])) )
+# R <- do.call(rbind, lapply(st, function(stst) c(stat[1,], '%'=stat[2,-1])) ); write.csv(R, 'stats.csv')
