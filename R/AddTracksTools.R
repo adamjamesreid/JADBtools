@@ -31,29 +31,30 @@ addMapq0Beads <- function(ids) {
 
     crosslink <- JADBtools::getAnno(ids, anno = 'Crosslinker', EXTABLE = 'labexperimentview')
     if(grepl('^e', crosslink, ignore.case = TRUE)) {
-        input <- 'Input/SummedInputs/HISeq_EGS_map0_NOTuniq_SummedInput_linear_25bp_SummedInput_linear_25bp.bw'
+        input <- file.path(base_dir, 'Input/SummedInputs/HISeq_EGS_map0_NOTuniq_SummedInput_linear_25bp_SummedInput_linear_25bp.bw')
     }  else {
-        input <- 'Input/SummedInputs/HISeq_FRM_map0_NOTuniq_SummedInput_linear_25bp_SummedInput_linear_25bp.bw'
+        input <- file.path(base_dir, 'Input/SummedInputs/HISeq_FRM_map0_NOTuniq_SummedInput_linear_25bp_SummedInput_linear_25bp.bw')
     }
 
     message('File: ', basename(fls), '\n vs. ', basename(input))
     
+    message(getwd())
     NRM0 <- beads(
         basename(fls), 
         input, 
-        'Input/SummedInputs/map1.bw', 'ce10', 
+        file.path(base_dir, 'Input/SummedInputs/map1.bw'), 'ce10', 
         uniq = FALSE, insert = 200L, mapq_cutoff = 0, export = "BEADS", 
         rdata = FALSE, export_er = TRUE, quickMap = TRUE
     )
     
     
-    final.path <- file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'mapq0^BEADS^1bp', prefix))
-    out <- file.rename(basename(path(NRM0), basename(final.path)))
+    final.path <- file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'BEADSmapq0^linear^1bp', prefix))
+    out <- file.rename(basename(path(NRM0)), basename(final.path))
     
     Entry <- addGenericFile(
         ids,
         path = final.path, 
-        Processing = 'mapq0', 
+        Processing = 'BEADSmapq0', 
         Scale = 'linear', 
         Resolution = '1bp',
         filetype_format = 'bw', 
