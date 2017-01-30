@@ -38,17 +38,21 @@ addMapq0Beads <- function(ids) {
 
     message('File: ', basename(fls), '\n vs. ', basename(input))
     
-    beads(
+    NRM0 <- beads(
         basename(fls), 
         input, 
-        '../../BEADS/map1.bw', 'ce10', 
+        'Input/SummedInputs/map1.bw', 'ce10', 
         uniq = FALSE, insert = 200L, mapq_cutoff = 0, export = "BEADS", 
         rdata = FALSE, export_er = TRUE, quickMap = TRUE
     )
     
+    
+    final.path <- file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'mapq0^BEADS^1bp', prefix))
+    out <- file.rename(basename(path(NRM0), basename(final.path)))
+    
     Entry <- addGenericFile(
         ids,
-        path = file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'mapq0^linear^1bp', prefix)), 
+        path = final.path, 
         Processing = 'mapq0', 
         Scale = 'linear', 
         Resolution = '1bp',
@@ -56,6 +60,8 @@ addMapq0Beads <- function(ids) {
         prefix = 'P',
         comments = JADBtools::bamStats(basename(fls))
     )
+    
+    message("Done!")
     
 }
 

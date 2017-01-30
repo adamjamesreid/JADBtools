@@ -24,7 +24,8 @@ Combines peak in replicates
 Przemyslaw Stempor
 }
 \seealso{
-Other Peaks: \code{\link{addMapq0Track}},
+Other Peaks: \code{\link{addMapq0TrackZcs}},
+  \code{\link{addMapq0Track}},
   \code{\link{addStrandedRNAseq}},
   \code{\link{callPeaksMACS}},
   \code{\link{combinePeaksToBed}},
