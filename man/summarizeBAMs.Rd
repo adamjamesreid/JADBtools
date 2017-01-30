@@ -4,7 +4,7 @@
 \alias{summarizeBAMs}
 \title{Get counts from bam files using embended gene meodel}
 \usage{
-summarizeBAMs(fls, model = "gnmodel")
+summarizeBAMs(fls, model = "gnmodel", ignore.strand = TRUE)
 }
 \arguments{
 \item{fls}{file names vector}
