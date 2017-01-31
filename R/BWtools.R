@@ -307,7 +307,7 @@ addIDRtoJADB <- function(IDs, res=100L) {
     
     
     cmd <- sprintf(
-        'export PATH=/home/ps562/software/bin:$PATH; /home/ps562/anaconda/bin/ipython ~/TEST/macs2_idr.ipy -- %s %s -c %s -p ./IDR/idr',
+        'export PATH=/home/ps562/software/bin:$PATH; /home/ps562/anaconda2/bin/ipython ~/TEST/macs2_idr.ipy -- %s %s -c %s -p ./IDR/idr',
         gsub('^files', '/mnt/jadb/DBfile/DBfiles', BAM[1]), 
         gsub('^files', '/mnt/jadb/DBfile/DBfiles', BAM[2]), 
         if( grepl('^E', anno$Crosslinker[[1]]) ) {
