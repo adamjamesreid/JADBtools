@@ -49,7 +49,6 @@ addMapq0Beads <- function(ids) {
     
     
     final.path <- file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'BEADSmapq0^linear^1bp', prefix))
-    out <- file.rename(basename(path(NRM0)), basename(final.path))
     
     Entry <- addGenericFile(
         ids,
@@ -61,6 +60,9 @@ addMapq0Beads <- function(ids) {
         prefix = 'P',
         comments = JADBtools::bamStats(basename(fls))
     )
+    
+    out <- file.rename(basename(path(NRM0)), basename(Entry$path))
+    
     
     message("Done!")
     
