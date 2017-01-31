@@ -11,6 +11,47 @@
 #' 
 #' @examples
 #' #addMapq0Beads('AA001')
+addMapq0BeadsRep <- function(ids) {
+    require(magrittr)
+    
+    base_dir  <- getwd()
+    on.exit(setwd(base_dir))
+    
+    ids  %>% sapply(getFilePath, format = "bw", eq=TRUE, processing = "NORM", scale = "linear", url = FALSE)  -> fls
+    sub('\\^', '|', strsplit(fls, '_')[[1]][[7]]) -> ind_ids
+    
+    ind_ids  %>% sapply(getFilePath, format = "bw", processing = "BEADSmapq0", scale = "linear", url = FALSE)  -> ind_fls
+    message(ind_fls[[1]], '\n', ind_fls[[2]])
+    
+    ##anno <- as.data.frame(t(sapply(basename(ind_fls[[1]]), rbeads:::ParseName)))
+    out <- combineReps(strsplit(ind_ids, '\\|')[[1]], processing = 'BEADSmapq0', outdir = gsub('files/', '', dirname(fls)), res = 100)
+    addGenericFile(
+        ids, 
+        path = file.path('files', out$out), 
+        Processing = 'BEADSmapq0', 
+        Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', 
+        prefix = 'R', repPath = TRUE
+    )
+    
+    message('Done :)')
+    
+}
+
+
+
+#' addMapq0Beads
+#' 
+#' @param IDs Vector of JADB ContactExpIDs
+#'   
+#' @return List 
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family tracks
+#' @export
+#' 
+#' @examples
+#' #addMapq0Beads('AA001')
 addMapq0Beads <- function(ids) {
     require(magrittr)
     require(Rsamtools)
