@@ -242,6 +242,67 @@ addMapq0TrackZcs <- function(ids) {
     
 }
 
+
+
+#' addBEADSmapq0Track and z-score it
+#' 
+#' @param IDs Vector of JADB ContactExpIDs
+#'   
+#' @return List 
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family Peaks
+#' @export
+#' 
+#' @examples
+#' #parallel::mclapply(sprintf('REP%.3i', 36:42)[-6], addBEADSmapq0TrackZcs), mc.cores = 8)
+#' # sapply(sprintf('REP%.3i', 3:24), addBEADSmapq0TrackZcs)
+addBEADSmapq0TrackZcs <- function(ids) {
+    require(magrittr)
+    require(Rsamtools)
+    require(BSgenome)
+    
+    base_dir  <- getwd()
+    on.exit(setwd(base_dir))
+    
+    fls <- getFilePath(ids, processing = 'BEADSmapq0', format = 'bw', scale = 'linear', url = FALSE, eq=TRUE)
+    
+    outnames <- sapply(basename(fls), rbeads:::reName, proccesing = 'BEADSmapq0', scale = 'zscore', resolution = '1bp', ext='.bw')
+    prefix <- basename(fls) %>% substr(start=0, stop=nchar(.)-13)
+    
+    exp_dir <- gsub('files/', '', dirname(fls))
+    message(exp_dir)
+    setwd(exp_dir)
+    
+    
+    Entry <- addGenericFile(
+        ids,
+        path = file.path('files', exp_dir, gsub('BEADSmapq0^linear^1bp', 'BEADSmapq0^zscore^1bp', prefix)), 
+        Processing = 'BEADSmapq0', 
+        Scale = 'zscore', 
+        Resolution = '1bp',
+        filetype_format = 'bw', 
+        prefix = 'P',
+        comments = ''
+    )
+    
+    message(basename(fls))
+    cov <- import.bw(basename(fls), as='RleList')
+    ucov <- unlist(cov)
+    
+    mi <- mean(ucov)
+    mu <- sd(ucov)
+    zsc <- (cov-mi)/mu
+    
+    
+    message(paste(names(mean(zsc)), '\t', mean(zsc), '\n' ))
+    export.bw(zsc, basename(Entry$path))
+    
+    message('Done.')
+    
+}
+
 #' addStrandedRNAseq
 #' 
 #' @param IDs Vector of JADB ContactExpIDs
