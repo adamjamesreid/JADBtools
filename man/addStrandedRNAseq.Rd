@@ -22,7 +22,8 @@ addStrandedRNAseq
 Przemyslaw Stempor
 }
 \seealso{
-Other Peaks: \code{\link{addMapq0TrackZcs}},
+Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
+  \code{\link{addMapq0TrackZcs}},
   \code{\link{addMapq0Track}}, \code{\link{callPeaksMACS}},
   \code{\link{combinePeaksToBed}},
   \code{\link{combinePeaks}},

@@ -278,7 +278,7 @@ addBEADSmapq0TrackZcs <- function(ids) {
     
     Entry <- addGenericFile(
         ids,
-        path = file.path('files', exp_dir, gsub('BEADSmapq0^linear^1bp', 'BEADSmapq0^zscore^1bp', prefix)), 
+        path = file.path('files', exp_dir, gsub('linear', 'zscore', prefix)), 
         Processing = 'BEADSmapq0', 
         Scale = 'zscore', 
         Resolution = '1bp',
