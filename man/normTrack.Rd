@@ -16,10 +16,9 @@ normalized track in BW format (connection)
 \description{
 The function produces normalized track using \code{\link{getRatio}} value.
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other spikeIn: \code{\link{getRatio}}
 }
-
+\author{
+Przemyslaw Stempor
+}

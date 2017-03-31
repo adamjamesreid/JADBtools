@@ -20,9 +20,6 @@ Combines peak in replicates and exports to bed file
 \examples{
 #combinePeaksToBed(IDs)
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
   \code{\link{addMapq0TrackZcs}},
@@ -31,4 +28,6 @@ Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
   \code{\link{callPeaksMACS}}, \code{\link{combinePeaks}},
   \code{\link{enrichedRegionsCall}}
 }
-
+\author{
+Przemyslaw Stempor
+}

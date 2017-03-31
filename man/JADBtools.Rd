@@ -11,4 +11,3 @@ Tools for retrive and manipulate data in JADB.
 \author{
 Przemyslaw Stempor
 }
-

@@ -18,9 +18,6 @@ addMapq0Track and z-score it
 \examples{
 #addMapq0Track('AA001')
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
   \code{\link{addMapq0Track}},
@@ -30,4 +27,6 @@ Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
   \code{\link{combinePeaks}},
   \code{\link{enrichedRegionsCall}}
 }
-
+\author{
+Przemyslaw Stempor
+}

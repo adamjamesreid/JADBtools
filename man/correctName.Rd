@@ -24,12 +24,11 @@ name string
 \description{
 Make generic file name
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other dbtools: \code{\link{addGenericFile}},
   \code{\link{formGenericPath}}, \code{\link{getFilePath}},
   \code{\link{getFileUID}}, \code{\link{makeFileUID}}
 }
-
+\author{
+Przemyslaw Stempor
+}

@@ -20,9 +20,6 @@ Combines peak in replicates
 \examples{
 #combinePeaks(IDs)
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
   \code{\link{addMapq0TrackZcs}},
@@ -32,4 +29,6 @@ Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
   \code{\link{combinePeaksToBed}},
   \code{\link{enrichedRegionsCall}}
 }
-
+\author{
+Przemyslaw Stempor
+}

@@ -16,10 +16,9 @@ Fixes names
 #sapply(sprintf('rML\%.3i', 3:24) , fiXPath)
 
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other fix: \code{\link{fiXWig}}
 }
-
+\author{
+Przemyslaw Stempor
+}

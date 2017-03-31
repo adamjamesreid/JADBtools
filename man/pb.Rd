@@ -12,10 +12,9 @@ message or error
 \description{
 Print progress bar JSON
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other dbutils: \code{\link{testConnection}}
 }
-
+\author{
+Przemyslaw Stempor
+}

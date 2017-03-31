@@ -15,10 +15,9 @@ NULL; creates 2 FASTQ file in the dirname of file
 \description{
 Extract 21U and 22G short RNA specied from FASTQ file
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other shortRNA: \code{\link{get21Uand22GfromIDs}}
 }
-
+\author{
+Przemyslaw Stempor
+}

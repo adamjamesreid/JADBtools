@@ -24,9 +24,6 @@ Calculates delation candidates and outputs them as BAM
 #d2 <- bam2del('RC037')
 #export.bed(intersect(d1, d2), 'RC025andRC037_del_more100)intersect.bed')
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other RNAseq: \code{\link{doDiffExpr}},
   \code{\link{downloadSummarizedEperiment}},
@@ -39,4 +36,6 @@ Other RNAseq: \code{\link{doDiffExpr}},
   \code{\link{spikeINsummary}},
   \code{\link{summarizeBAMs}}, \code{\link{wigs2SE}}
 }
-
+\author{
+Przemyslaw Stempor
+}

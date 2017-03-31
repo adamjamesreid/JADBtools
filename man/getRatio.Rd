@@ -15,10 +15,9 @@ named \code{\link[base]{numeric}} value
 \description{
 This ratio can be used as global normalizing parameter for sipke in.
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other spikeIn: \code{\link{normTrack}}
 }
-
+\author{
+Przemyslaw Stempor
+}

@@ -23,9 +23,6 @@ Run full differential expression pipeline
 ID=c("AM004","FB006","FB013merge","FB008","FB014merge","FB009","FB015merge","AA103p","AA076","AA186","AA378","BC137","BC131","AA077","AA078","BC138","BC132","AA089","AA079")
 
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other RNAseq: \code{\link{bam2del}},
   \code{\link{doDiffExpr}},
@@ -38,4 +35,6 @@ Other RNAseq: \code{\link{bam2del}},
   \code{\link{ids2SE}}, \code{\link{ids2diffExpr}},
   \code{\link{spikeINsummary}}, \code{\link{summarizeBAMs}}
 }
-
+\author{
+Przemyslaw Stempor
+}

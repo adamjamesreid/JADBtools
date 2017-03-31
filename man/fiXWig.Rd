@@ -21,10 +21,9 @@ Fixes overlaps in bed files
 #sapply(dir(pattern='wig') , fiXWig)
 
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other fix: \code{\link{fiXPath}}
 }
-
+\author{
+Przemyslaw Stempor
+}

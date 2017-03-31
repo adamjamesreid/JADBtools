@@ -17,9 +17,6 @@ list
 \description{
 Run DEseq2 and output results
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other RNAseq: \code{\link{bam2del}},
   \code{\link{downloadSummarizedEperiment}},
@@ -32,4 +29,6 @@ Other RNAseq: \code{\link{bam2del}},
   \code{\link{spikeINsummary}},
   \code{\link{summarizeBAMs}}, \code{\link{wigs2SE}}
 }
-
+\author{
+Przemyslaw Stempor
+}

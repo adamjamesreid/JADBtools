@@ -15,9 +15,6 @@ SummarizedEperiment
 \description{
 Get spikeIN summary from IDs
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other RNAseq: \code{\link{bam2del}},
   \code{\link{doDiffExpr}},
@@ -30,4 +27,6 @@ Other RNAseq: \code{\link{bam2del}},
   \code{\link{ids2SE}}, \code{\link{ids2diffExpr}},
   \code{\link{summarizeBAMs}}, \code{\link{wigs2SE}}
 }
-
+\author{
+Przemyslaw Stempor
+}

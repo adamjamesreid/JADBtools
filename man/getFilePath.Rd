@@ -26,12 +26,11 @@ URL string
 \description{
 Accepts regular expressions.
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other dbtools: \code{\link{addGenericFile}},
   \code{\link{correctName}}, \code{\link{formGenericPath}},
   \code{\link{getFileUID}}, \code{\link{makeFileUID}}
 }
-
+\author{
+Przemyslaw Stempor
+}

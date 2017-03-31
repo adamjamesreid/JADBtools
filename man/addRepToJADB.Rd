@@ -19,11 +19,10 @@ Adds replicates to database
 \examples{
 #combineReps(IDs)
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other BW: \code{\link{addIDRtoJADB}},
   \code{\link{combineReps}}
 }
-
+\author{
+Przemyslaw Stempor
+}

@@ -49,4 +49,3 @@ export.bw(H3K27me3_N2, 'H3K27me3_N2.bw')
 \author{
 Przemyslaw Stempor
 }
-

@@ -17,12 +17,11 @@ IUD string
 \description{
 Make UID
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other dbtools: \code{\link{addGenericFile}},
   \code{\link{correctName}}, \code{\link{formGenericPath}},
   \code{\link{getFilePath}}, \code{\link{getFileUID}}
 }
-
+\author{
+Przemyslaw Stempor
+}

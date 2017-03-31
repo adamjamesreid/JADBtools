@@ -2,7 +2,7 @@
 % Please edit documentation in R/AddTracksTools.R
 \name{addMapq0BeadsRep}
 \alias{addMapq0BeadsRep}
-\title{addMapq0Beads}
+\title{addMapq0BeadsRep}
 \usage{
 addMapq0BeadsRep(ids)
 }
@@ -13,15 +13,15 @@ addMapq0BeadsRep(ids)
 List
 }
 \description{
-addMapq0Beads
+addMapq0BeadsRep
 }
 \examples{
 #addMapq0Beads('AA001')
 }
+\seealso{
+Other tracks: \code{\link{addMapq0Beads}},
+  \code{\link{addNonUniqueQ10Beads}}
+}
 \author{
 Przemyslaw Stempor
 }
-\seealso{
-Other tracks: \code{\link{addMapq0Beads}}
-}
-

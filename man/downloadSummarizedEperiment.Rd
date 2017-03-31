@@ -15,9 +15,6 @@ SummarizedEperiment
 \description{
 Get SummarizedEperiments as Rdata from IDs
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other RNAseq: \code{\link{bam2del}},
   \code{\link{doDiffExpr}}, \code{\link{getAnno}},
@@ -30,4 +27,6 @@ Other RNAseq: \code{\link{bam2del}},
   \code{\link{spikeINsummary}},
   \code{\link{summarizeBAMs}}, \code{\link{wigs2SE}}
 }
-
+\author{
+Przemyslaw Stempor
+}

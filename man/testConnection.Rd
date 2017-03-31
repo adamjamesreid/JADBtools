@@ -12,10 +12,9 @@ message or error
 \description{
 Test connection to JADB
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other dbutils: \code{\link{pb}}
 }
-
+\author{
+Przemyslaw Stempor
+}

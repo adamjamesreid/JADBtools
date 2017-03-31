@@ -19,4 +19,3 @@ all=%d, aligned=%d[%.2f%%], mapq10=%d[%.2f%%], unique10=%d[%.2f%%]
 \author{
 Przemyslaw Stempor
 }
-

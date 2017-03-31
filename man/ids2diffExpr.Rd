@@ -17,9 +17,6 @@ stats string
 \description{
 Run full differential expression pipeline
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other RNAseq: \code{\link{bam2del}},
   \code{\link{doDiffExpr}},
@@ -32,4 +29,6 @@ Other RNAseq: \code{\link{bam2del}},
   \code{\link{ids2SE}}, \code{\link{spikeINsummary}},
   \code{\link{summarizeBAMs}}, \code{\link{wigs2SE}}
 }
-
+\author{
+Przemyslaw Stempor
+}

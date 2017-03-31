@@ -25,11 +25,10 @@ Combine big wiggle files in the database into replicate track
 \examples{
 #combineReps(IDs)
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other BW: \code{\link{addIDRtoJADB}},
   \code{\link{addRepToJADB}}
 }
-
+\author{
+Przemyslaw Stempor
+}

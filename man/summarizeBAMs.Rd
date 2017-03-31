@@ -16,9 +16,6 @@ eset
 File URLs can be obtained like this:
 fls <- sapply(c('rAM001', 'rAM002', 'rAM003', 'rAM004'), getFilePath, processing='aligned', format='bam')
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other RNAseq: \code{\link{bam2del}},
   \code{\link{doDiffExpr}},
@@ -31,4 +28,6 @@ Other RNAseq: \code{\link{bam2del}},
   \code{\link{ids2SE}}, \code{\link{ids2diffExpr}},
   \code{\link{spikeINsummary}}, \code{\link{wigs2SE}}
 }
-
+\author{
+Przemyslaw Stempor
+}

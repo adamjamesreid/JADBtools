@@ -20,9 +20,6 @@ Calls enriched regions from BigWig file
 \examples{
 #combinePeaksToBed(IDs)
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
   \code{\link{addMapq0TrackZcs}},
@@ -32,4 +29,6 @@ Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
   \code{\link{combinePeaksToBed}},
   \code{\link{combinePeaks}}
 }
-
+\author{
+Przemyslaw Stempor
+}

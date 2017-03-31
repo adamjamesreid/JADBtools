@@ -17,9 +17,6 @@ list
 \description{
 Get DEseq2 redult from DB
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other RNAseq: \code{\link{bam2del}},
   \code{\link{doDiffExpr}},
@@ -33,4 +30,6 @@ Other RNAseq: \code{\link{bam2del}},
   \code{\link{spikeINsummary}},
   \code{\link{summarizeBAMs}}, \code{\link{wigs2SE}}
 }
-
+\author{
+Przemyslaw Stempor
+}

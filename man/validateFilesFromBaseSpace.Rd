@@ -19,11 +19,10 @@ validateFilesFromBaseSpace(csv, EXTABLE = "mydb.labexperiment",
 \description{
 Accepts regular expressions.
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other FSops: \code{\link{addFilesFromBaseSpace}},
   \code{\link{addFilesFromCsv}}
 }
-
+\author{
+Przemyslaw Stempor
+}

@@ -20,12 +20,11 @@ entry list
 \description{
 Add file to database
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other dbtools: \code{\link{correctName}},
   \code{\link{formGenericPath}}, \code{\link{getFilePath}},
   \code{\link{getFileUID}}, \code{\link{makeFileUID}}
 }
-
+\author{
+Przemyslaw Stempor
+}

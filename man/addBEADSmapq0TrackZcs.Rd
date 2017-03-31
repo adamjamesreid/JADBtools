@@ -19,9 +19,6 @@ addBEADSmapq0Track and z-score it
 #parallel::mclapply(sprintf('REP\%.3i', 36:42)[-6], addBEADSmapq0TrackZcs), mc.cores = 8)
 # sapply(sprintf('REP\%.3i', 3:24), addBEADSmapq0TrackZcs)
 }
-\author{
-Przemyslaw Stempor
-}
 \seealso{
 Other Peaks: \code{\link{addMapq0TrackZcs}},
   \code{\link{addMapq0Track}},
@@ -31,4 +28,6 @@ Other Peaks: \code{\link{addMapq0TrackZcs}},
   \code{\link{combinePeaks}},
   \code{\link{enrichedRegionsCall}}
 }
-
+\author{
+Przemyslaw Stempor
+}
