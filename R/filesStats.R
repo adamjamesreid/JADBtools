@@ -12,15 +12,19 @@
 #' @family stats
 #' @export
 #' 
-bamStats <- function(f) {
+bamStats <- function(f, aln=NULL) {
     
     data(rrnamodel)
     
-    what <- c("rname", "strand", "pos", "mapq", "qwidth")
-    flag <- scanBamFlag(isUnmappedQuery = FALSE)
-    param <- ScanBamParam(flag = flag, simpleCigar = FALSE, what = what)
+    if(!is.list(a)) {
+        what <- c("rname", "strand", "pos", "mapq", "qwidth")
+        flag <- scanBamFlag(isUnmappedQuery = FALSE)
+        param <- ScanBamParam(flag = flag, simpleCigar = FALSE, what = what)
+        a <- scanBam(f, param = param)[[1]]
+    } esle {
+        a <- aln
+    }
     
-    a <- scanBam(f, param = param)[[1]]
     lg <- (a$mapq >= 10L)
     
     grng <- GRanges(

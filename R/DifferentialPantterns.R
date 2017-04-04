@@ -21,7 +21,7 @@ getAnno <- function( ContactExpID, anno='Factor', EXTABLE='labrnaseq'){
     })
     
     dbDisconnect(con)
-    if( any(elementLengths(strain) != 1) ) stop('Multiple annotation for singe ID')
+    if( any(lengths(strain) != 1) ) stop('Multiple annotation for singe ID')
     return(unlist(strain))
 }
 
