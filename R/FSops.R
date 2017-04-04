@@ -206,7 +206,8 @@ addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.
 #' @export
 #'
 addFilesFromBaseSpace <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.labexperiment', gsheet=TRUE, subset=NULL) {
-    if (system('whoami', intern = TRUE) != 'www-data') stop('Run as web server user!', call. = TRUE)	
+    
+    if (!grepl(Sys.info()[['user']], "www-data|jarun")) stop('Run as web server user!', call. = TRUE)	
 	
     #version 2.0
     
