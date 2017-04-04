@@ -16,7 +16,7 @@ bamStats <- function(f, aln=NULL) {
     
     data(rrnamodel)
     
-    if(!is.list(a)) {
+    if(!is.list(aln)) {
         what <- c("rname", "strand", "pos", "mapq", "qwidth")
         flag <- scanBamFlag(isUnmappedQuery = FALSE)
         param <- ScanBamParam(flag = flag, simpleCigar = FALSE, what = what)
