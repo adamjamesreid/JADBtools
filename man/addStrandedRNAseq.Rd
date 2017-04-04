@@ -24,7 +24,8 @@ Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
   \code{\link{addMapq0Track}}, \code{\link{callPeaksMACS}},
   \code{\link{combinePeaksToBed}},
   \code{\link{combinePeaks}},
-  \code{\link{enrichedRegionsCall}}
+  \code{\link{enrichedRegionsCall}},
+  \code{\link{jadb_addTracksFromBAM}}
 }
 \author{
 Przemyslaw Stempor

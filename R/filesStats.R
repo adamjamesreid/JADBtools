@@ -21,7 +21,7 @@ bamStats <- function(f, aln=NULL) {
         flag <- scanBamFlag(isUnmappedQuery = FALSE)
         param <- ScanBamParam(flag = flag, simpleCigar = FALSE, what = what)
         a <- scanBam(f, param = param)[[1]]
-    } esle {
+    } else {
         a <- aln
     }
     

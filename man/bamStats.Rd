@@ -4,7 +4,7 @@
 \alias{bamStats}
 \title{Returms bam file stats}
 \usage{
-bamStats(f)
+bamStats(f, aln = NULL)
 }
 \arguments{
 \item{f}{URL or path to BAM file}

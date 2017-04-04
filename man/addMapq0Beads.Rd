@@ -20,7 +20,8 @@ addMapq0Beads
 }
 \seealso{
 Other tracks: \code{\link{addMapq0BeadsRep}},
-  \code{\link{addNonUniqueQ10Beads}}
+  \code{\link{addNonUniqueQ10Beads}},
+  \code{\link{jadb_addAlignedBAM}}
 }
 \author{
 Przemyslaw Stempor

@@ -27,7 +27,8 @@ Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
   \code{\link{addStrandedRNAseq}},
   \code{\link{callPeaksMACS}},
   \code{\link{combinePeaksToBed}},
-  \code{\link{combinePeaks}}
+  \code{\link{combinePeaks}},
+  \code{\link{jadb_addTracksFromBAM}}
 }
 \author{
 Przemyslaw Stempor
