@@ -27,6 +27,7 @@ Other Peaks: \code{\link{addMapq0TrackZcs}},
   \code{\link{combinePeaksToBed}},
   \code{\link{combinePeaks}},
   \code{\link{enrichedRegionsCall}},
+  \code{\link{jadb_addScaledTrack}},
   \code{\link{jadb_addTracksFromBAM}}
 }
 \author{

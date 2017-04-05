@@ -78,8 +78,7 @@ jadb_addTracksFromBAM <- function(ids) {
     
 }
 
-
-#' jadb_addNonUniqueQ10Beads
+#' jadb_addScaledTrack
 #' 
 #' @param IDs Vector of JADB ContactExpIDs
 #'   
@@ -87,12 +86,13 @@ jadb_addTracksFromBAM <- function(ids) {
 #' 
 #' @author Przemyslaw Stempor
 #' 
-#' @family tracks
+#' @family Peaks
 #' @export
 #' 
 #' @examples
-#' #jadb_addNonUniqueQ10Beads('AA001')
-jadb_addNonUniqueQ10Beads <- function(ids) {
+#' #parallel::mclapply(sprintf('REP%.3i', 36:42)[-6], addBEADSmapq0TrackZcs), mc.cores = 8)
+#' # sapply(sprintf('REP%.3i', 3:24), addBEADSmapq0TrackZcs)
+jadb_addScaledTrack <- function(ids, scale='zscore', input='BEADSQ10NU') {
     require(magrittr)
     require(Rsamtools)
     require(BSgenome)
@@ -100,53 +100,43 @@ jadb_addNonUniqueQ10Beads <- function(ids) {
     base_dir  <- getwd()
     on.exit(setwd(base_dir))
     
-    ids  %>% sapply(getFilePath, format = "bam", eq=TRUE, processing = "aligned", scale = "NA", url = FALSE)  -> fls
-    if (length(ids) != 1) stop('No or more than 1 BAM files.')
-    
-    outnames <- sapply(basename(fls), rbeads:::reName, proccesing = 'mapq0', scale = 'linear', resolution = '1bp', ext='.bw')
-    prefix <- basename(fls) %>% substr(start=0, stop=nchar(.)-13)
+    fls <- getFilePath(ids, processing = input, format = 'bw', scale = 'linear', url = FALSE, eq=TRUE)
+    prefix <- gsub("\\^[^\\^]+$", '', basename(fls))
     
     exp_dir <- gsub('files/', '', dirname(fls))
     message(exp_dir)
     setwd(exp_dir)
     
-    crosslink <- JADBtools::getAnno(ids, anno = 'Crosslinker', EXTABLE = 'labexperimentview')
-    if(grepl('^e', crosslink, ignore.case = TRUE)) {
-        input <- file.path(base_dir, 'Input/SummedInputs/Ce10_HiSeqEGSInput_UNIQ_bin25bp.bw')
-    }  else {
-        input <- file.path(base_dir, 'Input/SummedInputs/Ce10_HiSeqFRMInput_UNIQ_bin25bp.bw')
-    }
     
-    message('File: ', basename(fls), '\n vs. ', basename(input))
-    
-    message(getwd())
-    NRM0 <- beads(
-        basename(fls), 
-        input, 
-        file.path(base_dir, "_mappability_files_/MappabilityCe10.bw"), 'ce10', 
-        uniq = FALSE, insert = 200L, mapq_cutoff = 10, export = "BEADS", 
-        rdata = FALSE, export_er = TRUE, quickMap = TRUE
-    )
-    
-    
-    final.path <- file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'BEADSQ10NU^linear^1bp', prefix))
-    
-    stats <- JADBtools::bamStats(basename(fls))
     Entry <- addGenericFile(
         ids,
-        path = final.path, 
-        Processing = 'BEADSQ10NU', 
-        Scale = 'linear', 
+        path = file.path('files', exp_dir, gsub('linear', 'zscore', prefix)), 
+        Processing = input, 
+        Scale = scale, 
         Resolution = '1bp',
         filetype_format = 'bw', 
-        prefix = 'P',
-        comments = stats
+        prefix = 'P'
     )
     
-    out <- file.rename(basename(path(NRM0)), basename(Entry$path))
+    message(basename(fls))
+    cov <- import.bw(basename(fls), as='RleList')
+
+    
+    if (scale=='zscore') {
+        ucov <- unlist(cov)
+        mi <- mean(ucov)
+        mu <- sd(ucov)
+        zsc <- (cov-mi)/mu
+        message(paste(names(mean(zsc)), '\t', mean(zsc), '\n' ))
+        export.bw(zsc, basename(Entry$path))
+    } else {
+        stop(scale, ' not yet supported!')
+    }
     
     
-    message("Done!")
+    message('Done.')
     
 }
+
+
 
