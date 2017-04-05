@@ -92,14 +92,14 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE) {
         if(summedinput) {
             dwnlme <- !file.exists(basename(unique(inputs)))
             download.file(
-                file.path('http://jadb.gurdon.private.cam.ac.uk/db4/files', unique(inputs)[dwnlme]),
+                file.path('http://ja-db.gurdon.private.cam.ac.uk/db4/files', unique(inputs)[dwnlme]),
                 basename(unique(inputs)[dwnlme])
             )
         } else {
             download.file(inputs, basename(inputs))
         }
         
-        command <- '~/anaconda/envs/py27/bin/macs2 callpeak -t %s -c %s -f BAM -g ce -n %s -q 0.01 2>&1 | tee %s'
+        command <- 'macs2 callpeak -t %s -c %s -f BAM -g ce -n %s -q 0.01 2>&1 | tee %s'
         
         cmd <- sprintf(
             command,
@@ -122,11 +122,11 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE) {
         if(is.numeric(extsize)) {
             message('Extsize set to ', extsize)
             command <- paste0(
-                '/home/ps562/anaconda2/bin/macs2 callpeak -t %s -c %s --nomodel --extsize ',
+                'macs2 callpeak -t %s -c %s --nomodel --extsize ',
                 extsize, ' -f BAM -g ce -n %s -q 0.01 2>&1 | tee %s'
             )
         } else {
-            command <- '/home/ps562/anaconda2/bin/macs2 callpeak -t %s -c %s -f BAM -g ce -n %s -q 0.01 2>&1 | tee %s'
+            command <- 'macs2 callpeak -t %s -c %s -f BAM -g ce -n %s -q 0.01 2>&1 | tee %s'
         }
         
         cmd <- sprintf(
