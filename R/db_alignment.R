@@ -12,7 +12,7 @@
 #' @examples
 #' #jadb_addAlignedBAM('AA001')
 #' #parallel::mclapply(sprintf('REP%.3i', 36:42)[-6], jadb_addAlignedBAM), mc.cores = 8)
-jadb_addAlignedBAM <- function(ids) {
+jadb_addAlignedBAM <- function(ids, processing='raw', format="txt.gz") {
     require(magrittr)
     require(Rsamtools)
     require(BSgenome)
@@ -20,7 +20,7 @@ jadb_addAlignedBAM <- function(ids) {
     base_dir  <- getwd()
     on.exit(setwd(base_dir))
     
-    ids  %>% sapply(getFilePath, format = "txt.gz", eq=TRUE, processing = "raw", scale = "NA", url = FALSE)  -> fls
+    ids  %>% sapply(getFilePath, format = format, eq=TRUE, processing = processing, scale = "NA", url = FALSE)  -> fls
     if (length(ids) != 1) stop('No or more than 1 BAM files.')
     
     prefix <- gsub("\\^[^\\^]+$", '', basename(fls)) 

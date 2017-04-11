@@ -4,7 +4,7 @@
 \alias{jadb_ChIPseq}
 \title{jadb_ChIPseq}
 \usage{
-jadb_ChIPseq(ids)
+jadb_ChIPseq(ids, steps = c("aln", "tracks", "norm", "fastqc", "macs"))
 }
 \arguments{
 \item{IDs}{Vector of JADB ContactExpIDs}

@@ -20,7 +20,8 @@ validateFilesFromBaseSpace(csv, EXTABLE = "mydb.labexperiment",
 Accepts regular expressions.
 }
 \seealso{
-Other FSops: \code{\link{addFilesFromBaseSpace}},
+Other FSops: \code{\link{addExtractIDs}},
+  \code{\link{addFilesFromBaseSpace}},
   \code{\link{addFilesFromCsv}}
 }
 \author{
