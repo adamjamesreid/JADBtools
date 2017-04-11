@@ -62,3 +62,63 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'macs'
     
 
 }
+
+
+#' jadb_RNAseq
+#' 
+#' @param IDs Vector of JADB ContactExpIDs
+#'   
+#' @return List 
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family pipelines
+#' @export
+#' 
+#' @examples
+#' #
+jadb_RNAseq <- function( ids, steps=c('trim', 'aln', 'tracks', 'rpm', 'fastqc') ) {
+    
+    setwd('/mnt/jadb/DBfile/DBfiles')
+    
+    if('trim' %in% steps) {
+        message('\t => \t Trimming')
+        jadb_trimm_fq(ids)
+    }
+    
+    jadb_trimm_fq
+    if('aln' %in% steps) {
+        message('\t => \t Performing alignment')
+        jadb_align_rnaseq(ids)
+    }
+    
+    if('tracks' %in% steps) {
+        message('\t => \t Exporting tracks')
+        db_mran_seq_align_process(ids)
+    }
+    
+    if('rpm' %in% steps) {
+        db_mran_rpm_track(ids)
+    }
+    
+    if('fastqc' %in% steps) {
+        message('\t => \t Ruinning FASTQC')
+        jadb_processs_sceleton(
+            ids, FUN = run_fastqc, 
+            Processing = 'FastQC', Scale = 'NA', Resolution = 'NA', filetype_format = 'html',
+            format = "bam", processing = "aligned", scale = "NA", resolution='NA'
+        )
+    }
+    
+ 
+    
+    #fastq Screen 
+    
+    # strand specific
+    
+    
+    
+    
+    
+    
+}

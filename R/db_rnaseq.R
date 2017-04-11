@@ -1,3 +1,14 @@
+#' jadb_trimm_fq
+#' 
+#' @param IDs Vector of JADB ContactExpIDs
+#'   
+#' @return null 
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family db_rnaseq
+#' @export
+#' 
 jadb_trimm_fq <- function(ids) {
     
     library(JADBtools)
@@ -35,7 +46,17 @@ jadb_trimm_fq <- function(ids) {
     message('Trimming done!')
 }
 
-
+#' jadb_align_rnaseq
+#' 
+#' @param IDs Vector of JADB ContactExpIDs
+#'   
+#' @return null 
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family db_rnaseq
+#' @export
+#' 
 jadb_align_rnaseq <- function(ids) {
     
     library(JADBtools)
@@ -85,6 +106,17 @@ jadb_align_rnaseq <- function(ids) {
     message("Alignment done")
 }
 
+#' db_mran_seq_align_process
+#' 
+#' @param IDs Vector of JADB ContactExpIDs
+#'   
+#' @return null 
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family db_rnaseq
+#' @export
+#' 
 db_mran_seq_align_process <- function(ids) {
     
     base_dir  <- getwd()
@@ -103,7 +135,7 @@ db_mran_seq_align_process <- function(ids) {
     
     f <- basename(basename(fls))
     ID <- ids
-    fq.dir <- exp_dir
+    fq.dir <- file.path('files', exp_dir)
     bam_stats <- JADBtools::bamStats(f)
     
     require(Rsamtools)
@@ -183,6 +215,74 @@ db_mran_seq_align_process <- function(ids) {
     write.csv(out, basename(entry$path))
     
     message('Pipeline complete.')
+}
+
+
+#' db_mran_rpm_track
+#' 
+#' @param IDs Vector of JADB ContactExpIDs
+#'   
+#' @return null 
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family db_rnaseq
+#' @export
+#' 
+db_mran_rpm_track <- function(ids) {
+    require(magrittr)
+    require(Rsamtools)
+    require(BSgenome)
+    
+    base_dir  <- getwd()
+    on.exit(setwd(base_dir))
+    
+    ids  %>% sapply(getFilePath, format = "bam", eq=TRUE, processing = "aligned", scale = "NA", url = FALSE)  -> fls
+    if (length(ids) != 1) stop('No or more than 1 BAM files.')
     
     
+    outnames_both <- sub('\\^.+', '', sub(
+        '([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)_([^_]+)', 
+        '\\1_\\2_\\3_\\4_\\5_readCoverage_RPM_1bp', 
+        basename(fls)
+    ))
+    
+    
+    prefix <- basename(fls) %>% substr(start=0, stop=nchar(.)-13)
+    
+    exp_dir <- gsub('files/', '', dirname(fls))
+    message(exp_dir)
+    setwd(exp_dir)
+    
+    ref.genome.version <- 'WS220/ce10'
+    
+    
+    what <- c("rname", "strand", "pos", "qwidth")
+    flag <- scanBamFlag(isUnmappedQuery = FALSE)
+    param <- ScanBamParam(flag = flag, simpleCigar = FALSE, what = what)
+    
+    message('File: ', basename(fls))
+    
+    a <- scanBam(basename(fls), param = param)[[1]]
+    grng <- GRanges(
+        seqnames = a$rname, ranges = IRanges(a$pos, width = a$qwidth), 
+        strand = a$strand, seqinfo=SeqinfoForBSGenome('ce10')
+    )
+    
+    nf <- (length(grng)/1e6)
+    
+    Entry <- addGenericFile(
+        ids,
+        path = file.path('files', exp_dir, outnames_both), 
+        Processing = 'readCoverage', 
+        Scale = 'RPM', 
+        Resolution = '1bp',
+        filetype_format = 'bw', 
+        prefix = 'P',
+        comments = JADBtools::bamStats(basename(fls)),
+        genome =  ref.genome.version
+    )
+    message('Exporting ', basename(Entry$path))
+    export.bw(coverage(grng)/nf, basename(Entry$path))
+    message('Done!')
 }
