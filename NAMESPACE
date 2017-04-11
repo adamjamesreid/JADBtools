@@ -2,6 +2,7 @@
 
 export(GEOarray2bw)
 export(addBEADSmapq0TrackZcs)
+export(addExtractIDs)
 export(addFilesFromBaseSpace)
 export(addFilesFromCsv)
 export(addGenericFile)

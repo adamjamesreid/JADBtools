@@ -31,7 +31,7 @@ mergeLanesFQ <- function() {
 #' @export
 #'
 addFilesFromCsv <- function(csv, root='/mnt/jadb/DBfile/DBfiles', EXTABLE='mydb.labexperiment', gsheet=TRUE) {
-    if (system('whoami', intern = TRUE) != 'www-data') stop('Run as web server user!', call. = TRUE)	
+    if (!grepl(Sys.info()[['user']], "www-data|jarun")) stop('Run as web server user!', call. = TRUE)	
     
     library(DBI)
     library(RMySQL)
@@ -555,4 +555,60 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
     
     
     } 
+}
+
+#' Add extract to database using local CSV or google spreadsheet
+#' 
+#' Accepts regular expressions.
+#' 
+#' @param csv path to CSV or url to gsheet
+#' @param gsheet is the source gsheet or local
+#'   
+#' @return NULL
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family FSops
+#' @export
+#'
+addExtractIDs <- function(csv, gsheet=TRUE) {
+    library(DBI)
+    library(RMySQL)
+    library(digest)
+    library(gsheet)
+    require(dplyr)
+    
+    if (gsheet == TRUE) {
+        data <- gsheet2tbl(csv)
+    } else {
+        data <- read.csv(csv)
+    }
+    
+    data %>% select(ExtractID, Crosslinking, Strain, Stage) %>% unique -> ext
+    
+    TABLE <- 'labextract'
+
+    mysql <- dbDriver("MySQL")
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
+    ALL <- dbReadTable(con, TABLE)
+     
+    fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", TABLE))
+    PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', TABLE) ))[['Column_name']]
+    
+    for(i in 1:nrow(ext)) {
+        
+        if(ext$ExtractID[i] %in% ALL$ExtractID) next()
+        
+        INSERT <- list()
+        INSERT[['ExtractID']] 	<- as.character( ext$ExtractID[i] )
+        INSERT[['Crosslinker']] <- as.character( ext$Crosslinking[i] )
+        INSERT[['Strain']]      <- as.character( ext$Strain[i]	)
+        INSERT[['Stage']] 		<- as.character( ext$Stage[i] )
+        
+        sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
+        
+        rs <- dbSendQuery(con, sql )
+    }
+    
+    dbDisconnect(con)
 }

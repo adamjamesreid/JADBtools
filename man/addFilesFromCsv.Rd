@@ -20,7 +20,8 @@ addFilesFromCsv(csv, root = "/mnt/jadb/DBfile/DBfiles",
 Accepts regular expressions.
 }
 \seealso{
-Other FSops: \code{\link{addFilesFromBaseSpace}},
+Other FSops: \code{\link{addExtractIDs}},
+  \code{\link{addFilesFromBaseSpace}},
   \code{\link{validateFilesFromBaseSpace}}
 }
 \author{
