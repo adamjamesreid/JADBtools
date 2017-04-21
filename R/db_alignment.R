@@ -77,7 +77,7 @@ run_bwa <- function(file, genome, ncore=8, interperor='bash') {
             "bwa samse %s <(bwa aln -t %i %s %s) %s | samtools view -@ %i -bSu - | samtools sort -@ %i -m 44294967296 - %s",
             genome, ncore, genome, file, file, ncore, ncore, output
         )
-    } esle {
+    } else {
         message('using BWA MEM')
         cmd <- sprintf(
             "bwa mem -t %i %s %s | samtools view -@ %i -bSu - | samtools sort -@ %i -m 44294967296 - %s",
