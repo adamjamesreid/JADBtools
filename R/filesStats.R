@@ -14,7 +14,15 @@
 #' 
 bamStats <- function(f, aln=NULL) {
     
-    data(rrnamodel)
+    data(rrnamodel, package = 'JADBtools')
+    
+    if(system('which samtools') | (!file.exists(paste0(f, '.bai'))) ) {
+        all <- countBam(f)
+        r <- all$records
+    } else {
+        pip <- pipe(paste('samtools idxstats', f))
+        r <- sum(read.table(pip)[-1:-2])
+    }
     
     if(!is.list(aln)) {
         what <- c("rname", "strand", "pos", "mapq", "qwidth")
@@ -32,13 +40,7 @@ bamStats <- function(f, aln=NULL) {
         strand = a$strand
     )
     
-    if(system('which samtools')) {
-        all <- countBam(f)
-        r <- all$records
-    } else {
-        pip <- pipe(paste('samtools idxstats', f))
-        r <- sum(read.table(pip)[-1:-2])
-    }
+   
     #all <- countBam(f)
 
     

@@ -14,6 +14,27 @@ mergeLanesFQ <- function() {
     sapply(cmds, function(x) { message('Joining: ', x); system(x)  })
 }
 
+jadb_purge_exp <- function(ids) {
+    
+    sapply(ids, getFilePath, processing = 'raw', scale = "NA", url = FALSE)  -> fls
+    if (length(ids) != 1) stop('No or more than 1 FQ files.')
+    
+    rm_file <- dir(gsub('files/', '/mnt/jadb/DBfile/DBfiles/', dirname(fls)), full.names = TRUE)
+    rm_file <- rm_file[!basename(rm_file) %in% basename(fls)]
+    file.remove(rm_file)
+    
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
+    dbGetQuery(
+        con, paste0(
+            "DELETE FROM labfiles WHERE ContactExpID = '", ids, "' AND  Processing != 'raw' "
+        ) 
+    )
+    dbDisconnect(con)
+    
+    message(ids, ' cleaned up!')
+    
+}
+
 #' Add files to database using local CSV or google spreadsheet
 #' 
 #' Accepts regular expressions.
