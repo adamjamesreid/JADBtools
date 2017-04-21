@@ -32,8 +32,16 @@ bamStats <- function(f, aln=NULL) {
         strand = a$strand
     )
     
-    all <- countBam(f)
-    r <- all$records
+    if(system('which samtools')) {
+        all <- countBam(f)
+        r <- all$records
+    } else {
+        pip <- pipe(paste('samtools idxstats', f))
+        r <- sum(read.table(pip)[-1:-2])
+    }
+    #all <- countBam(f)
+
+    
     a <- length(grng)
     q <- sum(lg)
     u <- length(unique(grng[lg]))

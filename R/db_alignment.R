@@ -68,10 +68,23 @@ run_bwa <- function(file, genome, ncore=8, interperor='bash') {
     output <- gsub('\\..+$', '', basename(file))
     #parallel echo ...  ::: *.fastq
     # ref=/mnt/home1/ahringer/ps562/_ref_genomes_/ce10.fa
-    cmd <- sprintf(
-        "bwa samse %s <(bwa aln -t %i %s %s) %s | samtools view -@ %i -Su - | samtools sort -@ %i - %s",
-        genome, ncore, genome, file, file, ncore, ncore, output
-    )
+    # bwa mem -t 24 /mnt/jadb/DBfile/DBfiles/_ref_genomes_/ce10.fa LEM2^Novus48540002_GSM1911031^FALSE^N2^EE_raw^NA^NA_GSM1911031^Cfd37769.txt.gz >
+    read_length <- fastq.geometry(file, 10)[2]
+    if(read_length < 70) {
+        message('using BWA backtrack')
+        cmd <- sprintf(
+            #"bwa samse %s <(bwa aln -t %i %s %s) %s | samtools view -@ %i -Su -  | samtools sort -@ %i - %s",
+            "bwa samse %s <(bwa aln -t %i %s %s) %s | samtools view -@ %i -bSu - | samtools sort -@ %i -m 44294967296 - %s",
+            genome, ncore, genome, file, file, ncore, ncore, output
+        )
+    } esle {
+        message('using BWA MEM')
+        cmd <- sprintf(
+            "bwa mem -t %i %s %s | samtools view -@ %i -bSu - | samtools sort -@ %i -m 44294967296 - %s",
+            ncore, genome, file, ncore, ncore, output
+        )
+    }
+    
     cmd2 <- sprintf('echo "%s" | %s', cmd, interperor)
     message(cmd2)
     system(cmd2)
