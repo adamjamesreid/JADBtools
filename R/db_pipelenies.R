@@ -11,7 +11,7 @@
 #' 
 #' @examples
 #' #
-jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'macs') ) {
+jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastqscreen', 'macs') ) {
     
     setwd('/mnt/jadb/DBfile/DBfiles')
     library('rbeads')
@@ -44,6 +44,15 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'macs'
             ids, FUN = run_fastqc, 
             Processing = 'FastQC', Scale = 'NA', Resolution = 'NA', filetype_format = 'html',
             format = "bam", processing = "aligned", scale = "NA", resolution='NA'
+        )
+    }
+    
+    if('fastqscreen' %in% steps) {
+        message('\t => \t Ruinning fastqscreen')
+        jadb_processs_sceleton(
+            ids, FUN = run_fastq_screen, 
+            Processing = 'fastqSCREEN', Scale = 'NA', Resolution = 'NA', filetype_format = 'html',
+            format = "txt.gz", processing = "raw", scale = "NA", resolution='NA'
         )
     }
     

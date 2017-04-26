@@ -105,6 +105,18 @@ run_fastqc <- function(file, interperor='bash') {
     return(paste0(output, '_fastqc.html'))
 }
 
+run_fastq_screen <- function(file, interperor='bash') {
+    
+    output <- gsub('\\..+$', '', basename(file))
+    cmd <- sprintf(
+        "fastq_screen --aligner bwa %s", file
+    )
+    cmd2 <- sprintf('echo "%s" | %s', cmd, interperor)
+    message(cmd2)
+    system(cmd2)
+    return(paste0(output, '_screen.html'))
+}
+
 
 #' jadb_processs_sceleton
 #' 
