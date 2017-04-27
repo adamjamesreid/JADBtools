@@ -16,38 +16,29 @@ bamStats <- function(f, aln=NULL) {
     
     data(rrnamodel, package = 'JADBtools')
     
-    if(system('which samtools') | (!file.exists(paste0(f, '.bai'))) ) {
-        all <- countBam(f)
-        r <- all$records
-    } else {
-        pip <- pipe(paste('samtools idxstats', f))
-        r <- sum(read.table(pip)[-1:-2])
-    }
-    
     if(!is.list(aln)) {
         what <- c("rname", "strand", "pos", "mapq", "qwidth")
-        flag <- scanBamFlag(isUnmappedQuery = FALSE)
-        param <- ScanBamParam(flag = flag, simpleCigar = FALSE, what = what)
+        param <- ScanBamParam(what = what)
         a <- scanBam(f, param = param)[[1]]
     } else {
         a <- aln
     }
     
-    lg <- (a$mapq >= 10L)
+    r <- length(a[[1]])
+    align <- !is.na(a$pos)
+    
+    lg <- (a$mapq >= 10L & align)
     
     grng <- GRanges(
-        seqnames = a$rname, ranges = IRanges(a$pos, width = a$qwidth), 
-        strand = a$strand
+        seqnames = a$rname[align], 
+        ranges = IRanges(a$pos[align], width = a$qwidth[align]), 
+        strand = a$strand[align]
     )
-    
-   
-    #all <- countBam(f)
-
     
     a <- length(grng)
     q <- sum(lg)
     u <- length(unique(grng[lg]))
-    rr <- sum(grng %over% rrnamodel)
+    rr <- sum(overlapsAny(grng, rrnamodel, ignore.strand=TRUE))
     
     out <- sprintf(
         'all=%.2fM, aligned=%.2fM[%.0f%%], mapq10=%.2fM[%.0f%%], unique10=%.2fM[%.0f%%], rRNA=%.2fM[%.0f%%]',
