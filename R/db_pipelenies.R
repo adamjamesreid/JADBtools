@@ -61,6 +61,15 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
         callPeaksMACS(ids, local = FALSE)
     }
 
+    if('meme' %in% steps) {
+        message('\t => \t Ruinning fastqscreen')
+        jadb_processs_sceleton(
+            ids, FUN = run_meme_chip, 
+            Processing = 'MEMEchip', Scale = 'NA', Resolution = 'NA', filetype_format = 'html',
+            format = "bed", processing = "summits", scale = "MACS", resolution='q01'
+        )
+    }
+    
     #fastq Screen 
     
     #meme-chip
