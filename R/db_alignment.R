@@ -34,7 +34,7 @@ jadb_addAlignedBAM <- function(ids, processing='raw', format="txt.gz") {
     
     ALN <- run_bwa(
         basename(fls), 
-        file.path(base_dir, '_ref_genomes_/ce10.fa')
+        file.path(base_dir, '_ref_genomes_/ce11/ce11.fa')
     )
     message('Aligned!')
     
@@ -51,7 +51,8 @@ jadb_addAlignedBAM <- function(ids, processing='raw', format="txt.gz") {
         Resolution = 'NA',
         filetype_format = 'bam', 
         prefix = 'P',
-        comments = stats
+        comments = stats,
+        genome = 'ce11'
     )
     
     out <- file.rename(basename(ALN), basename(Entry$path))
