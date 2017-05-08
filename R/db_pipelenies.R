@@ -11,7 +11,7 @@
 #' 
 #' @examples
 #' #
-jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastqscreen', 'macs') ) {
+jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastqscreen', 'macs', 'meme') ) {
     
     setwd('/mnt/jadb/DBfile/DBfiles')
     library('rbeads')

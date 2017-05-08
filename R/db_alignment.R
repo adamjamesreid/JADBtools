@@ -117,26 +117,6 @@ run_fastq_screen <- function(file, interperor='bash') {
     return(paste0(output, '_screen.html'))
 }
 
-run_meme_chip <- function(file, interperor='bash') {
-    
-    summits <- import.bed(file)
-    seqinfo(summits) <- seqinfo(Celegans)[seqlevels(summits)]
-    
-    seq <- getSeq(Celegans, trim(resize(summits, 1000, fix = 'center')))
-    seq <- seq[width(seq)==1000]
-    writeXStringSet(seq, 'summit_sequence.fa')
-    message('FASTA saved to: ', getwd(), '/summit_sequence.fa')
-    
-    output <- gsub('\\..+$', '', basename(file))
-    cmd <- sprintf(
-        "meme-chip summit_sequence.fa"
-    )
-    cmd2 <- sprintf('echo "%s" | %s', cmd, interperor)
-    message(cmd2)
-    system(cmd2)
-    return(paste0(output, '_screen.html'))
-}
-
 
 #' jadb_processs_sceleton
 #' 

@@ -1,3 +1,45 @@
+run_meme_chip <- function(file, interperor='bash') {
+    
+    summits <- import.bed(file)
+    seqinfo(summits) <- seqinfo(Celegans)[seqlevels(summits)]
+    
+    seq <- getSeq(Celegans, trim(resize(summits, 500, fix = 'center')))
+    names(seq) <- paste(summits)
+    seq <- seq[width(seq)==500]
+    writeXStringSet(seq, 'summit_sequence_500bp.fa')
+    message('FASTA saved to: ', getwd(), '/summit_sequence_500bp.fa')
+    
+    
+    databases <- paste(
+        "-db ~/meme/db/motif_databases/WORM/uniprobe_worm.meme",
+        "-db ~/meme/db/motif_databases/EUKARYOTE/hallikas2006.meme",
+        "-db ~/meme/db/motif_databases/EUKARYOTE/homeodomain.meme",
+        "-db ~/meme/db/motif_databases/EUKARYOTE/jolma2010.meme",
+        "-db ~/meme/db/motif_databases/EUKARYOTE/jolma2013.meme",
+        "-db ~/meme/db/motif_databases/EUKARYOTE/macisaac_theme.v1.meme",
+        "-db ~/meme/db/motif_databases/EUKARYOTE/prodoric.meme", 
+        "-db ~/meme/db/motif_databases/EUKARYOTE/regtransbase.meme",
+        "-db ~/meme/db/motif_databases/EUKARYOTE/SwissRegulon_human_and_mouse.meme",
+        "-db ~/meme/db/motif_databases/EUKARYOTE/wei2010_human_mws.meme",
+        "-db ~/meme/db/motif_databases/EUKARYOTE/wei2010_mouse_mws.meme",
+        "-db ~/meme/db/motif_databases/EUKARYOTE/wei2010_mouse_pbm.meme",
+        "-db ~/meme/db/motif_databases/EUKARYOTE/zhao2011.meme"
+    )
+    
+    cmd <- sprintf(
+        "meme-chip -meme-p 8 -oc meme_chip %s %s",
+        databases, 'summit_sequence_500bp.fa'
+    )
+    
+    #output <- gsub('\\..+$', '', basename(file))
+ 
+    cmd2 <- sprintf('echo "%s" | %s', cmd, interperor)
+    message(cmd2)
+    system(cmd2)
+    return(paste0('meme_chip/meme-chip.html'))
+}
+
+
 #' jadb_addTracksFromBAM
 #' 
 #' @param IDs Vector of JADB ContactExpIDs
@@ -24,8 +66,6 @@ jadb_addTracksFromBAM <- function(ids) {
     prefix <- gsub("\\^[^\\^]+$", '', basename(fls))
     
     exp_dir <- gsub('files/', '', dirname(fls))
-    message(exp_dir)
-    setwd(exp_dir)
     
     con <- url(fls)
     summits <- import.bed(con)
@@ -41,9 +81,21 @@ jadb_addTracksFromBAM <- function(ids) {
     
     seqinfo(summits) <- seqinfo(Celegans)[seqlevels(summits)]
     
-    seq <- getSeq(Celegans, trim(resize(summits, 1000, fix = 'center')))
-    seq <- seq[width(seq)==1000]
+    seq <- getSeq(Celegans, trim(resize(summits, 100, fix = 'center')))
+    names(seq) <- paste(summits)
+    seq <- seq[width(seq)==100]
+
     writeXStringSet(seq, 'summit_sequence.fa')
+    #writeXStringSet(seq[1:25], 'summit_sequence_25_100bp.fa')
+    
+    output <- gsub('\\..+$', '', basename(fls))
+    cmd <- sprintf(
+        "meme-chip -meme-p 8 -oc meme_test_100_r -db ~/meme/db/motif_databases/WORM/uniprobe_worm.meme -db ~/meme/db/motif_databases/EUKARYOTE/hallikas2006.meme -db ~/meme/db/motif_databases/EUKARYOTE/homeodomain.meme -db ~/meme/db/motif_databases/EUKARYOTE/jolma2010.meme -db ~/meme/db/motif_databases/EUKARYOTE/jolma2013.meme -db ~/meme/db/motif_databases/EUKARYOTE/macisaac_theme.v1.meme -db ~/meme/db/motif_databases/EUKARYOTE/prodoric.meme -db ~/meme/db/motif_databases/EUKARYOTE/regtransbase.meme -db ~/meme/db/motif_databases/EUKARYOTE/SwissRegulon_human_and_mouse.meme -db ~/meme/db/motif_databases/EUKARYOTE/wei2010_human_mws.meme -db ~/meme/db/motif_databases/EUKARYOTE/wei2010_mouse_mws.meme -db ~/meme/db/motif_databases/EUKARYOTE/wei2010_mouse_pbm.meme -db ~/meme/db/motif_databases/EUKARYOTE/zhao2011.meme summit_sequence_25_100bp.fa"
+    )
+    cmd2 <- sprintf('echo "%s" | %s', cmd, interperor)
+    message(cmd2)
+    system(cmd2)
+    return(paste0(output, '_screen.html'))
     
 
     
