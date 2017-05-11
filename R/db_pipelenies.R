@@ -11,10 +11,12 @@
 #' 
 #' @examples
 #' #
-jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastqscreen', 'macs', 'meme'), genome='ce11' ) {
+jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastqscreen', 'macs', 'meme'), genome='ce11', purge=TRUE ) {
     
     setwd('/mnt/jadb/DBfile/DBfiles')
     library('rbeads')
+    
+    if(purge) jadb_purge_exp(ids)
     
     if (getAnno(ids, anno = 'Factor', EXTABLE='labexperiment') == 'Input') {
         steps <- c('aln', 'tracks', 'fastqc')
@@ -58,7 +60,7 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
     
     if('macs' %in% steps) {
         message('\t => \t Ruinning MACS')
-        callPeaksMACS(ids, local = FALSE)
+        callPeaksMACS(ids, local = FALSE, genome=genome)
     }
 
     if('meme' %in% steps) {
@@ -69,15 +71,6 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
             format = "bed", processing = "summits", scale = "MACS", resolution='q01'
         )
     }
-    
-    #fastq Screen 
-    
-    #meme-chip
-    
-
-    
-
-    
 
 }
 
