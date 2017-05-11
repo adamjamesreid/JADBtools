@@ -21,7 +21,7 @@ jadb_purge_exp <- function(ids) {
     
     rm_file <- dir(gsub('files/', '/mnt/jadb/DBfile/DBfiles/', dirname(fls)), full.names = TRUE)
     rm_file <- rm_file[!basename(rm_file) %in% basename(fls)]
-    file.remove(rm_file)
+    unlink(rm_file, recursive=TRUE)
     
     con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     dbGetQuery(
