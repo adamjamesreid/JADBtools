@@ -1,4 +1,5 @@
 run_meme_chip <- function(file, interperor='bash') {
+    library(BSgenome.Celegans.UCSC.ce11)
     
     summits <- import.bed(file)
     seqinfo(summits) <- seqinfo(Celegans)[seqlevels(summits)]
@@ -7,7 +8,7 @@ run_meme_chip <- function(file, interperor='bash') {
     names(seq) <- paste(summits)
     seq <- seq[width(seq)==500]
     writeXStringSet(seq, 'summit_sequence_500bp.fa')
-    message('FASTA saved to: ', getwd(), '/summit_sequence_500bp.fa')
+    message('FASTA saved to: ', getwd(), '/summit_sequence_500bp.fa', ' [', length(seq), ' summits/sequences]')
     
     
     databases <- paste(
@@ -27,7 +28,7 @@ run_meme_chip <- function(file, interperor='bash') {
     )
     
     cmd <- sprintf(
-        "meme-chip -meme-p 8 -oc meme_chip %s %s",
+        "meme-chip -meme-p 8 -dreme-m 10 -spamo-skip -oc meme_chip %s %s",
         databases, 'summit_sequence_500bp.fa'
     )
     
@@ -36,7 +37,11 @@ run_meme_chip <- function(file, interperor='bash') {
     cmd2 <- sprintf('echo "%s" | %s', cmd, interperor)
     message(cmd2)
     system(cmd2)
-    return(paste0('meme_chip/meme-chip.html'))
+    
+    if(file.exists('meme_chip/meme-chip.html')) message('MEME html exists!')
+    file.link('meme_chip/meme-chip.html', 'meme.html')
+    
+    return('meme.html')
 }
 
 
@@ -53,7 +58,7 @@ run_meme_chip <- function(file, interperor='bash') {
 #' 
 #' @examples
 #' #jadb_addTracksFromBAM('AA001')
-jadb_addTracksFromBAM <- function(ids) {
+meme_chip_local <- function(ids) {
     library(BSgenome.Celegans.UCSC.ce11)
     library(rtracklayer)
     
