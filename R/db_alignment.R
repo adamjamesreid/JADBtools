@@ -12,7 +12,7 @@
 #' @examples
 #' #jadb_addAlignedBAM('AA001')
 #' #parallel::mclapply(sprintf('REP%.3i', 36:42)[-6], jadb_addAlignedBAM), mc.cores = 8)
-jadb_addAlignedBAM <- function(ids, processing='raw', format="txt.gz") {
+jadb_addAlignedBAM <- function(ids, processing='raw', format="txt.gz", genome='ce11') {
     require(magrittr)
     require(Rsamtools)
     require(BSgenome)
@@ -34,14 +34,14 @@ jadb_addAlignedBAM <- function(ids, processing='raw', format="txt.gz") {
     
     ALN <- run_bwa(
         basename(fls), 
-        file.path(base_dir, '_ref_genomes_/ce11/ce11.fa')
+        file.path(base_dir, sprintf('_ref_genomes_/%s/%s.fa', genome, genome))
     )
     message('Aligned!')
     
     stats <- JADBtools::bamStats(ALN)
     message(stats)
     
-    final.path <- file.path('files', exp_dir, gsub('raw\\^NA\\^NA', 'aligned^NA^NA', prefix))
+    final.path <- file.path('files', exp_dir, gsub('raw\\^NA\\^NA', pate0('aligned^NA^', genome), prefix))
     
     Entry <- addGenericFile(
         ids,
@@ -52,7 +52,7 @@ jadb_addAlignedBAM <- function(ids, processing='raw', format="txt.gz") {
         filetype_format = 'bam', 
         prefix = 'P',
         comments = stats,
-        genome = 'ce11'
+        genome = genome
     )
     
     out <- file.rename(basename(ALN), basename(Entry$path))

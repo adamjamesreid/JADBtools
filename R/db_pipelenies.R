@@ -11,7 +11,7 @@
 #' 
 #' @examples
 #' #
-jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastqscreen', 'macs', 'meme') ) {
+jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastqscreen', 'macs', 'meme'), genome='ce11' ) {
     
     setwd('/mnt/jadb/DBfile/DBfiles')
     library('rbeads')
@@ -22,12 +22,12 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
     
     if('aln' %in% steps) {
         message('\t => \t Performing alignment')
-        jadb_addAlignedBAM(ids)
+        jadb_addAlignedBAM(ids, genome=genome)
     }
 
     if('tracks' %in% steps) {
         message('\t => \t Exporting tracks')
-        jadb_addTracksFromBAM(ids)
+        jadb_addTracksFromBAM(ids, genome=genome)
     }
     
     if('norm' %in% steps) {

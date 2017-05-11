@@ -122,7 +122,7 @@ addMapq0Beads <- function(ids) {
 #' 
 #' @examples
 #' #addMapq0Beads('AA001')
-addNonUniqueQ10Beads <- function(ids) {
+addNonUniqueQ10Beads <- function(ids, genome='ce11') {
     require(magrittr)
     require(Rsamtools)
     require(BSgenome)

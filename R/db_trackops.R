@@ -11,7 +11,7 @@
 #' 
 #' @examples
 #' #jadb_addTracksFromBAM('AA001')
-jadb_addTracksFromBAM <- function(ids) {
+jadb_addTracksFromBAM <- function(ids, genome='ce11') {
     require(magrittr)
     require(Rsamtools)
     require(BSgenome)
@@ -38,7 +38,7 @@ jadb_addTracksFromBAM <- function(ids) {
     a <- scanBam(basename(fls), param = param)[[1]]
     grng <- GRanges(
         seqnames = a$rname, ranges = IRanges(a$pos, width = a$qwidth), 
-        strand = a$strand, seqinfo=SeqinfoForBSGenome('ce10'), mapq=a$mapq
+        strand = a$strand, seqinfo=SeqinfoForBSGenome(genome), mapq=a$mapq
     )
     grng <- trim(resize(grng, 200L))
     message('Aligned sequences: ', length(grng))
@@ -54,7 +54,8 @@ jadb_addTracksFromBAM <- function(ids) {
         Resolution = '1bp',
         filetype_format = 'bw', 
         prefix = 'P',
-        comments = stats
+        comments = stats,
+        genome = genome
     )
     
     message("All ranges (200bp): ", length(grng))
