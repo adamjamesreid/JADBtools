@@ -10,6 +10,8 @@
 testConnection <- function() {
     con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     ok <- dbExistsTable(con, 'labfiles')
+    message('Connection status:')
+    message(paste0('    ', names(dbGetInfo(con)), ': ', dbGetInfo(con), collapse = '\n'))
     dbDisconnect(con)
     if( ok ) {
         message('Connection OK')
