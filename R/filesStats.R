@@ -27,7 +27,7 @@ bamStats <- function(f, aln=NULL) {
     r <- length(a[[1]])
     align <- !is.na(a$pos)
     
-    lg <- (a$mapq >= 10L & align)
+    lg <- a$mapq[align] >= 10L
     
     grng <- GRanges(
         seqnames = a$rname[align], 
@@ -35,14 +35,14 @@ bamStats <- function(f, aln=NULL) {
         strand = a$strand[align]
     )
     
-    a <- length(grng)
+    aa <- length(grng)
     q <- sum(lg)
     u <- length(unique(grng[lg]))
     rr <- sum(overlapsAny(grng, rrnamodel, ignore.strand=TRUE))
     
     out <- sprintf(
         'all=%.2fM, aligned=%.2fM[%.0f%%], mapq10=%.2fM[%.0f%%], unique10=%.2fM[%.0f%%], rRNA=%.2fM[%.0f%%]',
-        r/10^6, a/10^6, (a/r)*100, q/10^6, (q/r)*100, u/10^6, (u/r)*100, rr/10^6, (rr/r)*100
+        r/10^6, aa/10^6, (aa/r)*100, q/10^6, (q/r)*100, u/10^6, (u/r)*100, rr/10^6, (rr/r)*100
     )
     
     return(out)
