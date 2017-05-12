@@ -15,7 +15,6 @@ run_meme_chip <- function(file, interperor='bash') {
         "-db ~/meme/db/motif_databases/WORM/uniprobe_worm.meme",
         "-db ~/meme/db/motif_databases/EUKARYOTE/hallikas2006.meme",
         "-db ~/meme/db/motif_databases/EUKARYOTE/homeodomain.meme",
-        "-db ~/meme/db/motif_databases/EUKARYOTE/jolma2010.meme",
         "-db ~/meme/db/motif_databases/EUKARYOTE/jolma2013.meme",
         "-db ~/meme/db/motif_databases/EUKARYOTE/macisaac_theme.v1.meme",
         "-db ~/meme/db/motif_databases/EUKARYOTE/prodoric.meme", 
@@ -24,7 +23,8 @@ run_meme_chip <- function(file, interperor='bash') {
         "-db ~/meme/db/motif_databases/EUKARYOTE/wei2010_human_mws.meme",
         "-db ~/meme/db/motif_databases/EUKARYOTE/wei2010_mouse_mws.meme",
         "-db ~/meme/db/motif_databases/EUKARYOTE/wei2010_mouse_pbm.meme",
-        "-db ~/meme/db/motif_databases/EUKARYOTE/zhao2011.meme"
+        "-db ~/meme/db/motif_databases/EUKARYOTE/zhao2011.meme",
+        "-db ~/meme/db/motif_databases/MOUSE/uniprobe_mouse.meme"
     )
     
     cmd <- sprintf(
@@ -129,7 +129,7 @@ meme_chip_local <- function(ids) {
         Resolution = '1bp',
         filetype_format = 'bw', 
         prefix = 'P',
-        comments = stats
+        comments = stats,]
     )
     
     message("All ranges (200bp): ", length(grng))
