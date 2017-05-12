@@ -70,7 +70,8 @@ jadb_addTracksFromBAM <- function(ids, genome='ce11') {
         Resolution = '1bp',
         filetype_format = 'bw', 
         prefix = 'P',
-        comments = stats
+        comments = stats,
+        genome = genome
     )
     
     grngQ10 <- grng[grng$mapq >= 10]
