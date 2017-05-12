@@ -52,7 +52,8 @@ jadb_addAlignedBAM <- function(ids, processing='raw', format="txt.gz", genome='c
         filetype_format = 'bam', 
         prefix = 'P',
         comments = stats,
-        genome = genome
+        genome = genome,
+        uniq = FALSE
     )
     
     out <- file.rename(basename(ALN), basename(Entry$path))

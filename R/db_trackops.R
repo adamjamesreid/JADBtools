@@ -55,7 +55,8 @@ jadb_addTracksFromBAM <- function(ids, genome='ce11') {
         filetype_format = 'bw', 
         prefix = 'P',
         comments = stats,
-        genome = genome
+        genome = genome,
+        uniq = FALSE
     )
     
     message("All ranges (200bp): ", length(grng))
@@ -71,7 +72,8 @@ jadb_addTracksFromBAM <- function(ids, genome='ce11') {
         filetype_format = 'bw', 
         prefix = 'P',
         comments = stats,
-        genome = genome
+        genome = genome,
+        uniq = FALSE
     )
     
     grngQ10 <- grng[grng$mapq >= 10]
@@ -118,7 +120,8 @@ jadb_addScaledTrack <- function(ids, scale='zscore', input='BEADSQ10NU', genome=
         Resolution = '1bp',
         filetype_format = 'bw', 
         prefix = 'P',
-        genome = genome
+        genome = genome,
+        uniq = FALSE
     )
     
     message(basename(fls))

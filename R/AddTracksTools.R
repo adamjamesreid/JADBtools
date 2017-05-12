@@ -175,7 +175,8 @@ addNonUniqueQ10Beads <- function(ids, genome='ce11') {
         filetype_format = 'bw', 
         prefix = 'P',
         genome = genome,
-        comments = JADBtools::bamStats(basename(fls))
+        comments = JADBtools::bamStats(basename(fls)),
+        uniq = FALSE
     )
     
     out <- file.rename(basename(path(NRM0)), basename(Entry$path))
