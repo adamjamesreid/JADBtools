@@ -41,7 +41,7 @@ jadb_addAlignedBAM <- function(ids, processing='raw', format="txt.gz", genome='c
     stats <- JADBtools::bamStats(ALN)
     message(stats)
     
-    final.path <- file.path('files', exp_dir, gsub('raw\\^NA\\^NA', pate0('aligned^NA^', genome), prefix))
+    final.path <- file.path('files', exp_dir, gsub('raw\\^NA\\^NA', paste0('aligned^NA^', genome), prefix))
     
     Entry <- addGenericFile(
         ids,
