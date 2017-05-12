@@ -133,7 +133,7 @@ addNonUniqueQ10Beads <- function(ids, genome='ce11') {
     ids  %>% sapply(getFilePath, format = "bam", eq=TRUE, processing = "aligned", scale = "NA", url = FALSE)  -> fls
     if (length(ids) != 1) stop('No or more than 1 BAM files.')
     
-    outnames <- sapply(basename(fls), rbeads:::reName, proccesing = 'mapq0', scale = 'linear', resolution = '1bp', ext='.bw')
+    outnames <- sapply(basename(fls), rbeads:::reName, proccesing = 'mapq0', scale = 'linear', resolution = genome, ext='.bw')
     prefix <- basename(fls) %>% substr(start=0, stop=nchar(.)-13)
     
     exp_dir <- gsub('files/', '', dirname(fls))
@@ -141,11 +141,15 @@ addNonUniqueQ10Beads <- function(ids, genome='ce11') {
     setwd(exp_dir)
     
     crosslink <- JADBtools::getAnno(ids, anno = 'Crosslinker', EXTABLE = 'labexperimentview')
+    input_suffix <- '_HiSeq_nonUNIQ_MAPQ10_200bp_SummedInput_bin25bp.bw'
     if(grepl('^e', crosslink, ignore.case = TRUE)) {
-        input <- file.path(base_dir, 'Input/SummedInputs/Ce10_HiSeqEGSInput_UNIQ_bin25bp.bw')
+        input <- file.path(base_dir, 'Input/SummedInputs', genome, paste0(genome, '_EGS', input_suffix))
     }  else {
-        input <- file.path(base_dir, 'Input/SummedInputs/Ce10_HiSeqFRMInput_UNIQ_bin25bp.bw')
+        input <- file.path(base_dir, 'Input/SummedInputs', base_dir, paste0(genome, '_FRM', input_suffix))
     }
+    
+    
+    mappability <- file.path(base_dir, paste0("_mappability_files_/", genome, "_gem-mappability_36bp.bw"))
     
     message('File: ', basename(fls), '\n vs. ', basename(input))
     
@@ -153,13 +157,14 @@ addNonUniqueQ10Beads <- function(ids, genome='ce11') {
     NRM0 <- beads(
         basename(fls), 
         input, 
-        file.path(base_dir, "_mappability_files_/MappabilityCe10.bw"), 'ce10', 
+        mappability,
+        genome, 
         uniq = FALSE, insert = 200L, mapq_cutoff = 10, export = "BEADS", 
         rdata = FALSE, export_er = TRUE, quickMap = TRUE
     )
     
     
-    final.path <- file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'BEADSQ10NU^linear^1bp', prefix))
+    final.path <- file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', paste0('BEADSQ10NU^linear^', genome), prefix))
     
     Entry <- addGenericFile(
         ids,
@@ -169,6 +174,7 @@ addNonUniqueQ10Beads <- function(ids, genome='ce11') {
         Resolution = '1bp',
         filetype_format = 'bw', 
         prefix = 'P',
+        genome = genome,
         comments = JADBtools::bamStats(basename(fls))
     )
     

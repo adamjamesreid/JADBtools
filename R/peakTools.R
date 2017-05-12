@@ -12,7 +12,7 @@
 #' 
 #' @examples
 #' #callPeaksMACS(IDs)
-callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE) {
+callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE, genome='ce11') {
     
     con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
     all_experiments <<- dbReadTable(con, "labexperimentview")
@@ -51,9 +51,9 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE) {
         inputs <- sapply(ids, function(x) {
             crosslink <- JADBtools::getAnno(x, anno = 'Crosslinker', EXTABLE = 'labexperimentview')
             if(grepl('^e', crosslink, ignore.case = TRUE)) {
-                'Input/SummedInputs/EGS_HiSeq_input.bam'
+                paste0('Input/SummedInputs/', genome, '/', genome, '_EGS_HiSeq_input.bam')
             }  else {
-                'Input/SummedInputs/FRM_HiSeq_input.bam'
+                paste0('Input/SummedInputs/', genome, '/', genome, '_FRM_HiSeq_input.bam')
             }
         })
     } else {
@@ -154,6 +154,7 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE) {
             Resolution = 'q01', 
             filetype_format = 'narrowPeak', 
             prefix = 'P',
+            genome = genome,
             comments=paste('input: ', inp)
         )
         
