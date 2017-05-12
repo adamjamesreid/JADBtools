@@ -39,9 +39,9 @@ run_meme_chip <- function(file, interperor='bash') {
     system(cmd2)
     
     if(file.exists('meme_chip/meme-chip.html')) message('MEME html exists!')
-    file.link('meme_chip/meme-chip.html', 'meme.html')
+    #file.link('meme_chip/meme-chip.html', 'meme.html')
     
-    return('meme.html')
+    return('meme_chip/meme-chip.html')
 }
 
 

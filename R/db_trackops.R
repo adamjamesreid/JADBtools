@@ -49,7 +49,7 @@ jadb_addTracksFromBAM <- function(ids, genome='ce11') {
     Entry <- addGenericFile(
         ids,
         path = file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', paste0('alnNQNU^linear^', genome), prefix)), 
-        Processing = 'alnNU', 
+        Processing = 'alnNQNU', 
         Scale = 'linear', 
         Resolution = '1bp',
         filetype_format = 'bw', 

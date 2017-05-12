@@ -140,7 +140,8 @@ run_fastq_screen <- function(file, interperor='bash') {
 jadb_processs_sceleton <- function(
     ids, FUN, 
     Processing = 'TETS', Scale = 'NA', Resolution = 'NA', filetype_format = 'unknown',
-    format = "bam", processing = "aligned", scale = "NA", resolution='NA', ...
+    format = "bam", processing = "aligned", scale = "NA", resolution='NA', 
+    genome = "NA", uniq='NA', rename_output=TRUE, ...
 ) {
     require(magrittr)
     require(Rsamtools)
@@ -170,16 +171,20 @@ jadb_processs_sceleton <- function(
 
     Entry <- addGenericFile(
         ids,
-        path = final.path, 
+        path = if(rename_output) final.path else OUT, 
         Processing = Processing, 
         Scale = Scale, 
         Resolution = Resolution,
         filetype_format = filetype_format, 
         prefix = 'P',
-        comments = ''
+        comments = '',
+        genome = genome,
+        uniq = uniq
     )
+    if(rename_output) {
+        out <- file.rename(basename(OUT), basename(Entry$path))
+    }
     
-    out <- file.rename(basename(OUT), basename(Entry$path))
     
     message("Done!")
     

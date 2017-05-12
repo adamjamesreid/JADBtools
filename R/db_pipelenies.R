@@ -67,8 +67,9 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
         message('\t => \t Ruinning MEME')
         jadb_processs_sceleton(
             ids, FUN = run_meme_chip, 
-            Processing = 'MEMEchip', Scale = 'NA', Resolution = 'NA', filetype_format = 'html',
-            format = "bed", processing = "summits", scale = "MACS", resolution='q01'
+            Processing = 'MEMEchip', Scale = 'NA', Resolution = '500bp', filetype_format = 'html',
+            format = "bed", processing = "summits", scale = "MACS", resolution='q01',
+            genome = genome, uniq='NA', rename_output=FALSE
         )
     }
 
