@@ -48,7 +48,7 @@ jadb_addTracksFromBAM <- function(ids, genome='ce11') {
     
     Entry <- addGenericFile(
         ids,
-        path = file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', paste0('alnNQNU^linear^', genome), prefix)), 
+        path = file.path('files', exp_dir, gsub('aligned\\^[A-Za-z0-9]+\\^[A-Za-z0-9]+', paste0('alnNQNU^linear^', genome), prefix)), 
         Processing = 'alnNQNU', 
         Scale = 'linear', 
         Resolution = '1bp',
@@ -65,7 +65,7 @@ jadb_addTracksFromBAM <- function(ids, genome='ce11') {
     
     EntryQ10 <- addGenericFile(
         ids,
-        path = file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', paste0('alnQ10NU^linear^', genome), prefix)), 
+        path = file.path('files', exp_dir, gsub('aligned\\^[A-Za-z0-9]+\\^[A-Za-z0-9]+', paste0('alnQ10NU^linear^', genome), prefix)), 
         Processing = 'alnQ10NU', 
         Scale = 'linear', 
         Resolution = '1bp',

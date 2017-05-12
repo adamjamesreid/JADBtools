@@ -155,7 +155,7 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE, genome
         
         peakEntry <- addGenericFile(
             ids, 
-            path = file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'PeakCalls^MACS^q01', prefix)), 
+            path = file.path('files', exp_dir, gsub('aligned\\^[A-Za-z0-9]+\\^[A-Za-z0-9]+', 'PeakCalls^MACS^q01', prefix)), 
             Processing = 'PeakCalls', 
             Scale = 'MACS', 
             Resolution = 'q01', 
@@ -167,7 +167,7 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE, genome
         
         summitEntry <- addGenericFile(
             ids, 
-            path = file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'summits^MACS^q01', prefix)), 
+            path = file.path('files', exp_dir, gsub('aligned\\^[A-Za-z0-9]+\\^[A-Za-z0-9]+', 'summits^MACS^q01', prefix)), 
             Processing = 'summits', 
             Scale = 'MACS', 
             Resolution = 'q01', 

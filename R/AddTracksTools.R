@@ -89,7 +89,7 @@ addMapq0Beads <- function(ids) {
     )
     
     
-    final.path <- file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'BEADSmapq0^linear^1bp', prefix))
+    final.path <- file.path('files', exp_dir, gsub('aligned\\^[A-Za-z0-9]+\\^[A-Za-z0-9]+', 'BEADSmapq0^linear^1bp', prefix))
     
     Entry <- addGenericFile(
         ids,
@@ -164,7 +164,7 @@ addNonUniqueQ10Beads <- function(ids, genome='ce11') {
     )
     
     
-    final.path <- file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', paste0('BEADSQ10NU^linear^', genome), prefix))
+    final.path <- file.path('files', exp_dir, gsub('aligned\\^[A-Za-z0-9]+\\^[A-Za-z0-9]+', paste0('BEADSQ10NU^linear^', genome), prefix))
     
     Entry <- addGenericFile(
         ids,
@@ -236,7 +236,7 @@ addMapq0Track <- function(ids) {
     
     Entry <- addGenericFile(
         ids,
-        path = file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'mapq0^linear^1bp', prefix)), 
+        path = file.path('files', exp_dir, gsub('aligned\\^[A-Za-z0-9]+\\^[A-Za-z0-9]+', 'mapq0^linear^1bp', prefix)), 
         Processing = 'mapq0', 
         Scale = 'linear', 
         Resolution = '1bp',
@@ -298,7 +298,7 @@ addMapq0TrackZcs <- function(ids) {
     
     Entry <- addGenericFile(
         ids,
-        path = file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'mapq0^zscore^1bp', prefix)), 
+        path = file.path('files', exp_dir, gsub('aligned\\^[A-Za-z0-9]+\\^[A-Za-z0-9]+', 'mapq0^zscore^1bp', prefix)), 
         Processing = 'mapq0', 
         Scale = 'zscore', 
         Resolution = '1bp',
