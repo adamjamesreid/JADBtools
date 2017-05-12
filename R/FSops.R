@@ -17,7 +17,9 @@ mergeLanesFQ <- function() {
 jadb_purge_exp <- function(ids) {
     
     sapply(ids, getFilePath, processing = 'raw', scale = "NA", url = FALSE)  -> fls
-    if (length(ids) != 1) stop('No or more than 1 FQ files.')
+    fls <- fls[!fls %in% sapply(ids, getFilePath, format='Rdata', url = FALSE)]
+    
+    if (length(fls) != 1) stop('No or more than 1 FQ files.')
     
     rm_file <- dir(gsub('files/', '/mnt/jadb/DBfile/DBfiles/', dirname(fls)), full.names = TRUE)
     rm_file <- rm_file[!basename(rm_file) %in% basename(fls)]
@@ -27,6 +29,11 @@ jadb_purge_exp <- function(ids) {
     dbGetQuery(
         con, paste0(
             "DELETE FROM labfiles WHERE ContactExpID = '", ids, "' AND  Processing != 'raw' "
+        ) 
+    )
+    dbGetQuery(
+        con, paste0(
+            "DELETE FROM labfiles WHERE ContactExpID = '", ids, "' AND  filetype_format = 'Rdata' "
         ) 
     )
     dbDisconnect(con)

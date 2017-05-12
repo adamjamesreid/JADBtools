@@ -146,6 +146,13 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE, genome
         if(!file.exists(paste0(prefix, '_peaks.narrowPeak'))) stop('No peaks created, see log for details')
         if(!length(readLines(paste0(prefix, '_peaks.narrowPeak')))) stop('No peaks created, [0 peaks in file], see log for details')
         
+        peaks_created <- import(
+            paste0(prefix, '_peaks.narrowPeak'), format = "BED", 
+            extraCols = c(singnalValue = "numeric", pValue = "numeric", qValue = "numeric", peak = "integer")
+        )
+        npeaks <- length(peaks_created)
+        medpeak <- median(width(peaks_created))
+        
         peakEntry <- addGenericFile(
             ids, 
             path = file.path('files', exp_dir, gsub('aligned\\^NA\\^NA', 'PeakCalls^MACS^q01', prefix)), 
@@ -155,7 +162,7 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE, genome
             filetype_format = 'narrowPeak', 
             prefix = 'P',
             genome = genome,
-            comments=paste('input: ', inp)
+            comments=paste('Npeaks: ', npeaks, '; MEDwidth: ', medpeak, '; Input: ', inp)
         )
         
         summitEntry <- addGenericFile(
@@ -166,7 +173,8 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE, genome
             Resolution = 'q01', 
             filetype_format = 'bed', 
             prefix = 'P',
-            comments=paste('input: ', inp)
+            genome = genome,
+            comments=paste('Npeaks: ', npeaks, '; MEDwidth: ', medpeak, '; Input: ', inp)
         )
         
         file.rename(paste0(prefix, '_peaks.narrowPeak'),  basename(peakEntry$path))

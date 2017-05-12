@@ -19,7 +19,7 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
     if(purge) jadb_purge_exp(ids)
     
     if (getAnno(ids, anno = 'Factor', EXTABLE='labexperiment') == 'Input') {
-        steps <- c('aln', 'tracks', 'fastqc')
+        steps <- c('aln', 'tracks', 'fastqc', 'fastqscreen')
     }
     
     if('aln' %in% steps) {
@@ -34,10 +34,10 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
     
     if('norm' %in% steps) {
         message('\t => \t Normalising NU')
-        addNonUniqueQ10Beads(ids)
+        addNonUniqueQ10Beads(ids, genome=genome)
         
         message('\t => \t Adding zscored track')
-        jadb_addScaledTrack(ids)
+        jadb_addScaledTrack(ids, genome=genome)
     }
     
     if('fastqc' %in% steps) {
@@ -64,7 +64,7 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
     }
 
     if('meme' %in% steps) {
-        message('\t => \t Ruinning fastqscreen')
+        message('\t => \t Ruinning MEME')
         jadb_processs_sceleton(
             ids, FUN = run_meme_chip, 
             Processing = 'MEMEchip', Scale = 'NA', Resolution = 'NA', filetype_format = 'html',

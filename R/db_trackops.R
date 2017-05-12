@@ -94,7 +94,7 @@ jadb_addTracksFromBAM <- function(ids, genome='ce11') {
 #' @examples
 #' #parallel::mclapply(sprintf('REP%.3i', 36:42)[-6], addBEADSmapq0TrackZcs), mc.cores = 8)
 #' # sapply(sprintf('REP%.3i', 3:24), addBEADSmapq0TrackZcs)
-jadb_addScaledTrack <- function(ids, scale='zscore', input='BEADSQ10NU') {
+jadb_addScaledTrack <- function(ids, scale='zscore', input='BEADSQ10NU', genome='ce11') {
     require(magrittr)
     require(Rsamtools)
     require(BSgenome)
@@ -117,7 +117,8 @@ jadb_addScaledTrack <- function(ids, scale='zscore', input='BEADSQ10NU') {
         Scale = scale, 
         Resolution = '1bp',
         filetype_format = 'bw', 
-        prefix = 'P'
+        prefix = 'P',
+        genome = genome
     )
     
     message(basename(fls))
