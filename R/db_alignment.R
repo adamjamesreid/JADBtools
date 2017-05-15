@@ -171,7 +171,7 @@ jadb_processs_sceleton <- function(
 
     Entry <- addGenericFile(
         ids,
-        path = if(rename_output) final.path else OUT, 
+        path = if(rename_output) final.path else file.path('files', exp_dir, OUT), 
         Processing = Processing, 
         Scale = Scale, 
         Resolution = Resolution,
@@ -183,6 +183,8 @@ jadb_processs_sceleton <- function(
     )
     if(rename_output) {
         out <- file.rename(basename(OUT), basename(Entry$path))
+    } else {
+        out <- file.rename(OUT, file.path(dirname(OUT), basename(Entry$path)))
     }
     
     
