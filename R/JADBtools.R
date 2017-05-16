@@ -23,7 +23,7 @@ getFilePath <- function(ID, format='.', processing='.', scale='.', url=TRUE, eq=
   
     exp_file <- unlist( dbGetQuery(
         con, paste(
-            "SELECT path FROM labfiles WHERE ContactExpID ",R," '", ID, 
+            "SELECT path FROM labfiles WHERE ContactExpID = '", ID, 
             "' AND Filetype_format ",R," '",format,"' AND  Processing ",R," '", processing,
             "'", "AND Scale ",R," '", scale, "'", collapse="", sep=""
         ) 
