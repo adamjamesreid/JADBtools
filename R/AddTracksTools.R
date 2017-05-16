@@ -145,7 +145,7 @@ addNonUniqueQ10Beads <- function(ids, genome='ce11') {
     if(grepl('^e', crosslink, ignore.case = TRUE)) {
         input <- file.path(base_dir, 'Input/SummedInputs', genome, paste0(genome, '_EGS', input_suffix))
     }  else {
-        input <- file.path(base_dir, 'Input/SummedInputs', base_dir, paste0(genome, '_FRM', input_suffix))
+        input <- file.path(base_dir, 'Input/SummedInputs', genome, paste0(genome, '_FRM', input_suffix))
     }
     
     
