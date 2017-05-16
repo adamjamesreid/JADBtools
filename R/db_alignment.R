@@ -71,7 +71,7 @@ run_bwa <- function(file, genome, ncore=8, interperor='bash') {
     #parallel echo ...  ::: *.fastq
     # ref=/mnt/home1/ahringer/ps562/_ref_genomes_/ce10.fa
     # bwa mem -t 24 /mnt/jadb/DBfile/DBfiles/_ref_genomes_/ce10.fa LEM2^Novus48540002_GSM1911031^FALSE^N2^EE_raw^NA^NA_GSM1911031^Cfd37769.txt.gz >
-    read_length <- fastq.geometry(file, 10)[2]
+    read_length <- median(nchar(readLines(file, 4000)[seq(2, 4000, by=4)]))
     if(read_length < 70) {
         message('using BWA backtrack')
         cmd <- sprintf(
