@@ -4,7 +4,7 @@
 \alias{addNonUniqueQ10Beads}
 \title{addNonUniqueQ10Beads}
 \usage{
-addNonUniqueQ10Beads(ids)
+addNonUniqueQ10Beads(ids, genome = "ce11")
 }
 \arguments{
 \item{IDs}{Vector of JADB ContactExpIDs}

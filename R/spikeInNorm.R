@@ -13,7 +13,7 @@
 #' 
 getRatio <- function(ID) {
     mysql <- dbDriver("MySQL")
-    con <- dbConnect(mysql, group = "jadb", default.file='~/.my.cnf')
+    con <- dbConnect(mysql, group = GROUP, default.file='~/.my.cnf')
     
     exp_file 	<- unlist( dbGetQuery(con, paste("SELECT path FROM labfiles WHERE ContactExpID = '", ID, "' AND Filetype_format='bam'; ", collapse="", sep="") ) )
     addr <- file.path("http://jadb.gurdon.private.cam.ac.uk/db4", dirname(exp_file), "mga/results.xml")
@@ -48,7 +48,7 @@ getRatio <- function(ID) {
 #' 
 normTrack <- function(nc) {
     mysql <- dbDriver("MySQL")
-    con <- dbConnect(mysql, group = "jadb", default.file='~/.my.cnf')
+    con <- dbConnect(mysql, group = GROUP, default.file='~/.my.cnf')
     
     
     ID <- names(nc)

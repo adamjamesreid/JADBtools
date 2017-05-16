@@ -4,7 +4,8 @@
 \alias{jadb_addScaledTrack}
 \title{jadb_addScaledTrack}
 \usage{
-jadb_addScaledTrack(ids, scale = "zscore", input = "BEADSQ10NU")
+jadb_addScaledTrack(ids, scale = "zscore", input = "BEADSQ10NU",
+  genome = "ce11")
 }
 \arguments{
 \item{IDs}{Vector of JADB ContactExpIDs}
@@ -28,7 +29,8 @@ Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
   \code{\link{combinePeaksToBed}},
   \code{\link{combinePeaks}},
   \code{\link{enrichedRegionsCall}},
-  \code{\link{jadb_addTracksFromBAM}}
+  \code{\link{jadb_addTracksFromBAM}},
+  \code{\link{meme_chip_local}}
 }
 \author{
 Przemyslaw Stempor

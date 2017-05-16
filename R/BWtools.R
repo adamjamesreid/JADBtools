@@ -1,6 +1,6 @@
 getBWarray <- function(IDs, res=1000L, processing = 'aligned') {
     
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
+    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
     dbListTables(con)
     all <- dbReadTable(con, "labexperimentview")
     
@@ -123,7 +123,7 @@ addRepToJADB <- function(IDs, res=100L) {
     
     
     ## get metatdata
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
+    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
     T <- dbReadTable(con, "labchipseqrep")
     CXID <- sprintf('REP%03.0f', max(as.numeric(gsub('REP', '', T$ContactExpID)))+1)
     
@@ -193,12 +193,12 @@ addRepToJADB <- function(IDs, res=100L) {
     
     cmd <- sprintf(
         'export PATH=/home/ps562/software/bin:$PATH; /home/ps562/anaconda/bin/ipython ~/TEST/macs2_idr.ipy -- %s %s -c %s -p ./IDR/idr',
-        gsub('^files', '/mnt/jadb/DBfile/DBfiles', BAM[1]), 
-        gsub('^files', '/mnt/jadb/DBfile/DBfiles', BAM[2]), 
+        gsub('^files', MOUNT, BAM[1]), 
+        gsub('^files', MOUNT, BAM[2]), 
         if( grepl('^E', anno$Crosslinker[[1]]) ) {
-            '/mnt/jadb/DBfile/DBfiles/Input/SummedInputs/EGS_HiSeq_input.bam'
+            file.path(MOUNT, 'Input/SummedInputs/EGS_HiSeq_input.bam')
         } else {
-            '/mnt/jadb/DBfile/DBfiles/Input/SummedInputs/FRM_HiSeq_input.bam'
+            file.path(MOUNT, 'Input/SummedInputs/FRM_HiSeq_input.bam')
         }
     )
     message('--> ', cmd)
@@ -238,7 +238,7 @@ addIDRtoJADB <- function(IDs, res=100L) {
     
     
     ## get metatdata
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
+    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
     T <- dbReadTable(con, "labchipseqrep")
     CXID <- sprintf('REP%03.0f', max(as.numeric(gsub('REP', '', T$ContactExpID)))+1)
     
@@ -308,12 +308,12 @@ addIDRtoJADB <- function(IDs, res=100L) {
     
     cmd <- sprintf(
         'export PATH=/home/ps562/software/bin:$PATH; /home/ps562/anaconda2/bin/ipython ~/TEST/macs2_idr.ipy -- %s %s -c %s -p ./IDR/idr',
-        gsub('^files', '/mnt/jadb/DBfile/DBfiles', BAM[1]), 
-        gsub('^files', '/mnt/jadb/DBfile/DBfiles', BAM[2]), 
+        gsub('^files', MOUNT, BAM[1]), 
+        gsub('^files', MOUNT, BAM[2]), 
         if( grepl('^E', anno$Crosslinker[[1]]) ) {
-            '/mnt/jadb/DBfile/DBfiles/Input/SummedInputs/EGS_HiSeq_input.bam'
+            file.path(MOUNT, 'Input/SummedInputs/EGS_HiSeq_input.bam')
         } else {
-            '/mnt/jadb/DBfile/DBfiles/Input/SummedInputs/FRM_HiSeq_input.bam'
+            file.path(MOUNT, 'Input/SummedInputs/FRM_HiSeq_input.bam')
         }
     )
     message('--> ', cmd)

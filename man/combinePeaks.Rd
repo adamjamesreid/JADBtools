@@ -29,7 +29,8 @@ Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
   \code{\link{combinePeaksToBed}},
   \code{\link{enrichedRegionsCall}},
   \code{\link{jadb_addScaledTrack}},
-  \code{\link{jadb_addTracksFromBAM}}
+  \code{\link{jadb_addTracksFromBAM}},
+  \code{\link{meme_chip_local}}
 }
 \author{
 Przemyslaw Stempor

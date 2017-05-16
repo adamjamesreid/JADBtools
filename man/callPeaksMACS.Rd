@@ -4,7 +4,8 @@
 \alias{callPeaksMACS}
 \title{Run peak calls and optionally adds them to DB}
 \usage{
-callPeaksMACS(ids, local = TRUE, extsize = 150, summedinput = TRUE)
+callPeaksMACS(ids, local = TRUE, extsize = 150, summedinput = TRUE,
+  genome = "ce11")
 }
 \arguments{
 \item{local}{should the job be run on local or remote FS}
@@ -29,7 +30,8 @@ Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
   \code{\link{combinePeaks}},
   \code{\link{enrichedRegionsCall}},
   \code{\link{jadb_addScaledTrack}},
-  \code{\link{jadb_addTracksFromBAM}}
+  \code{\link{jadb_addTracksFromBAM}},
+  \code{\link{meme_chip_local}}
 }
 \author{
 Przemyslaw Stempor

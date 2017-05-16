@@ -13,7 +13,7 @@
 #' #
 jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastqscreen', 'macs', 'meme'), genome='ce11', purge=TRUE ) {
     
-    setwd('/mnt/jadb/DBfile/DBfiles')
+    setwd(MOUNT)
     library('rbeads')
     
     if(purge) jadb_purge_exp(ids)
@@ -91,7 +91,7 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
 #' #
 jadb_RNAseq <- function( ids, steps=c('trim', 'aln', 'tracks', 'rpm', 'fastqc') ) {
     
-    setwd('/mnt/jadb/DBfile/DBfiles')
+    setwd(MOUNT)
     
     if('trim' %in% steps) {
         message('\t => \t Trimming')

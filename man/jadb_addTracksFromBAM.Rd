@@ -4,7 +4,7 @@
 \alias{jadb_addTracksFromBAM}
 \title{jadb_addTracksFromBAM}
 \usage{
-jadb_addTracksFromBAM(ids)
+jadb_addTracksFromBAM(ids, genome = "ce11")
 }
 \arguments{
 \item{IDs}{Vector of JADB ContactExpIDs}
@@ -27,7 +27,8 @@ Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
   \code{\link{combinePeaksToBed}},
   \code{\link{combinePeaks}},
   \code{\link{enrichedRegionsCall}},
-  \code{\link{jadb_addScaledTrack}}
+  \code{\link{jadb_addScaledTrack}},
+  \code{\link{meme_chip_local}}
 }
 \author{
 Przemyslaw Stempor

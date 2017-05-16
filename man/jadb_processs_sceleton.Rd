@@ -6,7 +6,8 @@
 \usage{
 jadb_processs_sceleton(ids, FUN, Processing = "TETS", Scale = "NA",
   Resolution = "NA", filetype_format = "unknown", format = "bam",
-  processing = "aligned", scale = "NA", resolution = "NA", ...)
+  processing = "aligned", scale = "NA", resolution = "NA",
+  genome = "NA", uniq = "NA", rename_output = TRUE, ...)
 }
 \arguments{
 \item{IDs}{Vector of JADB ContactExpIDs}

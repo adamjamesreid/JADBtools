@@ -14,7 +14,7 @@
 #' #callPeaksMACS(IDs)
 callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE, genome='ce11') {
     
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
+    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
     all_experiments <<- dbReadTable(con, "labexperimentview")
     dbDisconnect(con)
     
@@ -29,7 +29,7 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE, genome
         else {
             R <- "REGEXP"
         }
-        con <- dbConnect(dbDriver("MySQL"), group = "jadb")
+        con <- dbConnect(dbDriver("MySQL"), group = GROUP)
         exp_file <- unlist(dbGetQuery(con, paste("SELECT ", info, " FROM labfiles WHERE ContactExpID ",
                                                  '=', " '", ID, "' AND Filetype_format ", R, " '", format,
                                                  "' AND  Processing ", R, " '", processing, "'", "AND Scale ",
@@ -131,11 +131,11 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE, genome
         
         cmd <- sprintf(
             command,
-            gsub('files', '/mnt/jadb/DBfile/DBfiles', fls),
+            gsub('files', MOUNT, fls),
             if(summedinput) 
-                file.path('/mnt/jadb/DBfile/DBfiles', inputs) 
+                file.path(MOUNT, inputs) 
             else
-                gsub('files', '/mnt/jadb/DBfile/DBfiles', inputs),
+                gsub('files', MOUNT, inputs),
             basename(fls) %>% substr(start=0, stop=nchar(.)-13),
             paste0(basename(fls) %>% substr(start=0, stop=nchar(.)-13), '_log.txt')
         )

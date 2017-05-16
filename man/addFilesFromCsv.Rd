@@ -4,8 +4,8 @@
 \alias{addFilesFromCsv}
 \title{Add files to database using local CSV or google spreadsheet}
 \usage{
-addFilesFromCsv(csv, root = "/mnt/jadb/DBfile/DBfiles",
-  EXTABLE = "mydb.labexperiment", gsheet = TRUE)
+addFilesFromCsv(csv, root = MOUNT, EXTABLE = "mydb.labexperiment",
+  gsheet = TRUE)
 }
 \arguments{
 \item{csv}{path to CSV or url to gsheet}

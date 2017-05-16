@@ -4,8 +4,8 @@
 \alias{addFilesFromBaseSpace}
 \title{Add files to database using local CSV or google spreadsheet}
 \usage{
-addFilesFromBaseSpace(csv, root = "/mnt/jadb/DBfile/DBfiles",
-  EXTABLE = "mydb.labexperiment", gsheet = TRUE, subset = NULL)
+addFilesFromBaseSpace(csv, root = MOUNT, EXTABLE = "mydb.labexperiment",
+  gsheet = TRUE, subset = NULL)
 }
 \arguments{
 \item{csv}{path to CSV or url to gsheet}

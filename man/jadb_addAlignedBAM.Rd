@@ -4,7 +4,8 @@
 \alias{jadb_addAlignedBAM}
 \title{jadb_addAlignedBAM}
 \usage{
-jadb_addAlignedBAM(ids, processing = "raw", format = "txt.gz")
+jadb_addAlignedBAM(ids, processing = "raw", format = "txt.gz",
+  genome = "ce11")
 }
 \arguments{
 \item{IDs}{Vector of JADB ContactExpIDs}
