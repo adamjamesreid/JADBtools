@@ -2,7 +2,7 @@
 % Please edit documentation in R/db_motif_tools.R
 \name{meme_chip_local}
 \alias{meme_chip_local}
-\title{jadb_addTracksFromBAM}
+\title{meme_chip_local}
 \usage{
 meme_chip_local(ids)
 }
@@ -13,10 +13,10 @@ meme_chip_local(ids)
 List
 }
 \description{
-jadb_addTracksFromBAM
+meme_chip_local
 }
 \examples{
-#jadb_addTracksFromBAM('AA001')
+#meme_chip_local('AA001')
 }
 \seealso{
 Other Peaks: \code{\link{addBEADSmapq0TrackZcs}},
