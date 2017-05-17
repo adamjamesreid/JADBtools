@@ -456,6 +456,8 @@ addFilesFromBaseSpace <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment',
     
     message("Success")
     
+    return(data$ContactExpID)
+    
     
 } 
 
