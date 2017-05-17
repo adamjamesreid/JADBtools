@@ -45,7 +45,7 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
         jadb_processs_sceleton(
             ids, FUN = run_fastqc, 
             Processing = 'FastQC', Scale = 'NA', Resolution = 'NA', filetype_format = 'html',
-            format = "bam", processing = "aligned", scale = "NA", resolution='NA'
+            format = "bam", processing = "aligned", scale = "NA", resolution='NA', prefix_output = 'Q'
         )
     }
     
@@ -54,7 +54,7 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
         jadb_processs_sceleton(
             ids, FUN = run_fastq_screen, 
             Processing = 'fastqSCREEN', Scale = 'NA', Resolution = 'NA', filetype_format = 'html',
-            format = "txt.gz", processing = "raw", scale = "NA", resolution='NA'
+            format = "txt.gz", processing = "raw", scale = "NA", resolution='NA', prefix_output = 'Q'
         )
     }
     
@@ -69,7 +69,7 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
             ids, FUN = run_meme_chip, 
             Processing = 'MEMEchip', Scale = 'NA', Resolution = '500bp', filetype_format = 'html',
             format = "bed", processing = "summits", scale = "MACS", resolution='q01',
-            genome = genome, uniq='NA', rename_output=FALSE
+            genome = genome, uniq='NA', rename_output=FALSE, prefix_output = 'M'
         )
     }
 
