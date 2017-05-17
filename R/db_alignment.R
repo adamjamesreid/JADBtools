@@ -50,7 +50,7 @@ jadb_addAlignedBAM <- function(ids, processing='raw', format="txt.gz", genome='c
         Scale = 'NA', 
         Resolution = 'NA',
         filetype_format = 'bam', 
-        prefix = 'P',
+        prefix = 'A',
         comments = stats,
         genome = genome,
         uniq = FALSE
@@ -141,7 +141,7 @@ jadb_processs_sceleton <- function(
     ids, FUN, 
     Processing = 'TETS', Scale = 'NA', Resolution = 'NA', filetype_format = 'unknown',
     format = "bam", processing = "aligned", scale = "NA", resolution='NA', 
-    genome = "NA", uniq='NA', rename_output=TRUE, ...
+    genome = "NA", uniq='NA', rename_output=TRUE, prefix_output='P', ...
 ) {
     require(magrittr)
     require(Rsamtools)
@@ -176,7 +176,7 @@ jadb_processs_sceleton <- function(
         Scale = Scale, 
         Resolution = Resolution,
         filetype_format = filetype_format, 
-        prefix = 'P',
+        prefix = prefix_output,
         comments = '',
         genome = genome,
         uniq = uniq

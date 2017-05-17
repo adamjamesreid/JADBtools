@@ -160,7 +160,7 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE, genome
             Scale = 'MACS', 
             Resolution = 'q01', 
             filetype_format = 'narrowPeak', 
-            prefix = 'P',
+            prefix = 'M',
             genome = genome,
             comments=paste('Npeaks: ', npeaks, '; MEDwidth: ', medpeak, '; Input: ', inp)
         )
@@ -172,7 +172,7 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE, genome
             Scale = 'MACS', 
             Resolution = 'q01', 
             filetype_format = 'bed', 
-            prefix = 'P',
+            prefix = 'M',
             genome = genome,
             comments=paste('Npeaks: ', npeaks, '; MEDwidth: ', medpeak, '; Input: ', inp)
         )

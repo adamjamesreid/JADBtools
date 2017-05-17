@@ -45,7 +45,7 @@ run_meme_chip <- function(file, interperor='bash') {
 }
 
 
-#' jadb_addTracksFromBAM
+#' meme_chip_local
 #' 
 #' @param IDs Vector of JADB ContactExpIDs
 #'   
@@ -57,7 +57,7 @@ run_meme_chip <- function(file, interperor='bash') {
 #' @export
 #' 
 #' @examples
-#' #jadb_addTracksFromBAM('AA001')
+#' #meme_chip_local('AA001')
 meme_chip_local <- function(ids) {
     library(BSgenome.Celegans.UCSC.ce11)
     library(rtracklayer)

@@ -53,7 +53,7 @@ jadb_addTracksFromBAM <- function(ids, genome='ce11') {
         Scale = 'linear', 
         Resolution = '1bp',
         filetype_format = 'bw', 
-        prefix = 'P',
+        prefix = 'T',
         comments = stats,
         genome = genome,
         uniq = FALSE
@@ -70,7 +70,7 @@ jadb_addTracksFromBAM <- function(ids, genome='ce11') {
         Scale = 'linear', 
         Resolution = '1bp',
         filetype_format = 'bw', 
-        prefix = 'P',
+        prefix = 'T',
         comments = stats,
         genome = genome,
         uniq = FALSE
@@ -119,7 +119,7 @@ jadb_addScaledTrack <- function(ids, scale='zscore', input='BEADSQ10NU', genome=
         Scale = scale, 
         Resolution = '1bp',
         filetype_format = 'bw', 
-        prefix = 'P',
+        prefix = 'B',
         genome = genome,
         uniq = FALSE
     )

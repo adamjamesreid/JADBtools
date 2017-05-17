@@ -14,7 +14,7 @@
         MOUNT <<- '/mnt/jadb/DBfile/DBfiles'
     }
     message('Mount point:\n    ', MOUNT)
-    message('    Exists: ', file.exists('MOUNT'))
+    message('    Exists: ', file.exists(MOUNT))
     testConnection()
     
     

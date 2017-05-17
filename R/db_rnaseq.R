@@ -93,7 +93,7 @@ jadb_align_rnaseq <- function(ids) {
         Scale = 'NA', 
         Resolution = 'NA',
         filetype_format = 'bam', 
-        prefix = 'P',
+        prefix = 'R',
         comments = stats,
         parent1_uid=parent.uid,
         genome =  ref.genome.version
@@ -278,7 +278,7 @@ db_mran_rpm_track <- function(ids) {
         Scale = 'RPM', 
         Resolution = '1bp',
         filetype_format = 'bw', 
-        prefix = 'P',
+        prefix = 'R',
         comments = JADBtools::bamStats(basename(fls)),
         genome =  ref.genome.version
     )
