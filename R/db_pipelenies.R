@@ -134,3 +134,15 @@ jadb_RNAseq <- function( ids, steps=c('trim', 'aln', 'tracks', 'rpm', 'fastqc') 
     
     
 }
+
+
+
+jadb_dc <- function(gurl) {
+    
+    addExtractIDs(gurl)
+    validateFilesFromBaseSpace(gurl)
+    ids <- addFilesFromBaseSpace(gurl)
+    
+    setwd(file.path(MOUNT, 'log'))
+    sapply(ids, jacl_send_to_cluster)
+}
