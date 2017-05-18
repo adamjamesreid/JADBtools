@@ -98,11 +98,13 @@ jacl_send_to_cluster_ce10 <- function(ID) {
     
     cmd_lst <- c(
         "echo '#!/usr/bin/Rscript",
+        "logdir <- getwd()",
         "Sys.info();",
-        "Sys.setenv(GROUP=\"ja-db\")",
-        "Sys.setenv(MOUNT=\"/mnt/jadb2/DBfile/DBfiles\")",
+        "Sys.setenv(JADB_GROUP=\"ja-db\")",
+        "Sys.setenv(JADB_MOUNT=\"/mnt/jadb2/DBfile/DBfiles\")",
         "library(JADBtools);",
         sprintf("jadb_ChIPseq(\"%s\", genome = \"ce10\");", ID),
+        "setwd(logdir)",
         sprintf("file.rename(\"%s.out\", \"done/%s.out\");", ID, ID),
         "'"
     )
@@ -116,4 +118,5 @@ jacl_send_to_cluster_ce10 <- function(ID) {
 }
 
 
-
+# set nice
+# for i in $(squeue -u jarun -h -t PD -o %i) do; scontrol update jobid=$i nice=1000; done;

@@ -22,6 +22,8 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
         steps <- c('aln', 'tracks', 'fastqc', 'fastqscreen')
     }
     
+    ### ALN ###
+    
     if('aln' %in% steps) {
         message('\t => \t Performing alignment')
         jadb_addAlignedBAM(ids, genome=genome)
@@ -32,13 +34,7 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
         jadb_addTracksFromBAM(ids, genome=genome)
     }
     
-    if('norm' %in% steps) {
-        message('\t => \t Normalising NU')
-        addNonUniqueQ10Beads(ids, genome=genome)
-        
-        message('\t => \t Adding zscored track')
-        jadb_addScaledTrack(ids, genome=genome)
-    }
+    ### QC ###
     
     if('fastqc' %in% steps) {
         message('\t => \t Ruinning FASTQC')
@@ -57,6 +53,20 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
             format = "txt.gz", processing = "raw", scale = "NA", resolution='NA', prefix_output = 'Q'
         )
     }
+    
+    ### NORM ###
+    
+    if(genome == 'cb3ce11') genome <- 'ce11'
+    
+    if('norm' %in% steps) {
+        message('\t => \t Normalising NU')
+        addNonUniqueQ10Beads(ids, genome=genome)
+        
+        message('\t => \t Adding zscored track')
+        jadb_addScaledTrack(ids, genome=genome)
+    }
+    
+    ### TOOLS ###
     
     if('macs' %in% steps) {
         message('\t => \t Ruinning MACS')
@@ -143,6 +153,42 @@ jadb_dc <- function(gurl) {
     validateFilesFromBaseSpace(gurl)
     ids <- addFilesFromBaseSpace(gurl)
     
-    setwd(file.path(MOUNT, 'log'))
+    setwd(file.path(MOUNT, '_log'))
+    sapply(ids, jacl_send_to_cluster)
+}
+
+jadb_dc_cb3 <- function(gurl) {
+    
+    addExtractIDs(gurl)
+    validateFilesFromBaseSpace(gurl)
+    ids <- addFilesFromBaseSpace(gurl)
+    
+    setwd(file.path(MOUNT, '_log'))
+    sapply(ids, jacl_send_to_cluster)
+}
+
+
+jadb_dc_ce10 <- function(gurl) {
+    
+    detach("package:JADBtools", unload=TRUE)
+    Sys.setenv(JADB_GROUP="ja-db")
+    Sys.setenv(JADB_MOUNT="/mnt/jadb2/DBfile/DBfiles")
+    require(JADBtools)
+    
+    addExtractIDs(gurl)
+    validateFilesFromBaseSpace(gurl)
+    ids <- addFilesFromBaseSpace(gurl)
+    
+    setwd(file.path(MOUNT, '_log'))
+    sapply(ids, jacl_send_to_cluster_ce10)
+}
+
+jadb_dc <- function(gurl) {
+    
+    addExtractIDs(gurl)
+    validateFilesFromBaseSpace(gurl)
+    ids <- addFilesFromBaseSpace(gurl)
+    
+    setwd(file.path(MOUNT, '_log'))
     sapply(ids, jacl_send_to_cluster)
 }
