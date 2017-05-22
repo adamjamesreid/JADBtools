@@ -37,7 +37,6 @@ addNonUniqueQ10Beads <- function(ids, genome='ce11') {
         input <- file.path(base_dir, 'Input/SummedInputs', genome, paste0(genome, '_FRM', input_suffix))
     }
     
-    
     mappability <- file.path(base_dir, paste0("_mappability_files_/", genome, "_gem-mappability_36bp.bw"))
     
     message('File: ', basename(fls), '\n vs. ', basename(input))
@@ -47,7 +46,7 @@ addNonUniqueQ10Beads <- function(ids, genome='ce11') {
         basename(fls), 
         input, 
         mappability,
-        genome, 
+        if(genome == 'cb3ce11') file.path(base_dir, '_ref_genomes_/cb3ce11/cb3ce11.fa') else genome, 
         uniq = FALSE, insert = 200L, mapq_cutoff = 10, export = "BEADS", 
         rdata = FALSE, export_er = TRUE, quickMap = TRUE
     )
