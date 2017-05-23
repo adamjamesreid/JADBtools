@@ -56,8 +56,6 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
     
     ### NORM ###
     
-    if(genome == 'cb3ce11') genome <- 'ce11'
-    
     if('norm' %in% steps) {
         message('\t => \t Normalising NU')
         addNonUniqueQ10Beads(ids, genome=genome)
