@@ -18,7 +18,7 @@
 #' # ids <- jacl_mass_parallel(50)
 #' # sapply(ids, jacl_send_to_cluster)
 #' 
-jacl_send_to_cluster <- function(ID) {
+jacl_send_to_cluster <- function(ID, genome='ce11') {
     message(ID)
     
     cmd_lst <- c(
@@ -26,7 +26,7 @@ jacl_send_to_cluster <- function(ID) {
         "logdir <- getwd()",
         "Sys.info();",
         "library(JADBtools);",
-        sprintf("jadb_ChIPseq(\"%s\");", ID),
+        sprintf("jadb_ChIPseq(\"%s\", genome=\"%s\");", ID, genome),
         "setwd(logdir)",
         sprintf("file.rename(\"%s.out\", \"done/%s.out\");", ID, ID),
         "'"
