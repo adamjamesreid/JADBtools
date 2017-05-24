@@ -13,6 +13,9 @@
 #' #
 jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastqscreen', 'macs', 'meme'), genome='ce11', purge=TRUE ) {
     
+    owd <- getwd()
+    on.exit(setwd(owd))
+    
     setwd(MOUNT)
     library('rbeads')
     

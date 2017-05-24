@@ -21,7 +21,7 @@ jadb_purge_exp <- function(ids) {
     
     if (length(fls) != 1) stop('No or more than 1 FQ files.')
     
-    rm_file <- dir(gsub('files/', MOUNT, dirname(fls)), full.names = TRUE)
+    rm_file <- dir(gsub('^files', MOUNT, dirname(fls)), full.names = TRUE)
     rm_file <- rm_file[!basename(rm_file) %in% basename(fls)]
     unlink(rm_file, recursive=TRUE)
     
