@@ -119,4 +119,10 @@ jacl_send_to_cluster_ce10 <- function(ID) {
 
 
 # set nice
-# for i in $(squeue -u jarun -h -t PD -o %i) do; scontrol update jobid=$i nice=1000; done;
+# for i in $(squeue -u jarun -h -t PD -o %i); do; scontrol update jobid=$i nice=1000; done;
+# for i in $(squeue -u jarun -h -t R -o %i); do; scancel $i; done;
+
+
+# for i in $(squeue -u jarun -h -t R -o %i); do
+#    scancel $i
+# done
