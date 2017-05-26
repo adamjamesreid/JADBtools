@@ -21,6 +21,10 @@
 jacl_send_to_cluster <- function(ID, genome='ce11') {
     message(ID)
     
+    owd <- getwd()
+    on.exit(setwd(owd))
+    setwd(file.path(MOUNT, '_log'))
+    
     cmd_lst <- c(
         "echo '#!/usr/bin/Rscript",
         "logdir <- getwd()",
