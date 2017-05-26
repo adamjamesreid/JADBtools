@@ -80,7 +80,7 @@ jadb_align_rnaseq <- function(ids) {
     
     ALN <- JADBtools:::run_bwa(
         basename(fls), 
-        file.path(base_dir, '_ref_genomes_/ce10.fa')
+        file.path(base_dir, '_ref_genomes_/ce10/ce10.fa')
     )
     message('Aligned!')
     
