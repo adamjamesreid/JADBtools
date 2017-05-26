@@ -18,7 +18,7 @@
 #' # ids <- jacl_mass_parallel(50)
 #' # sapply(ids, jacl_send_to_cluster)
 #' 
-jacl_send_to_cluster <- function(ID, genome='ce11') {
+jacl_send_to_cluster <- function(ID, genome='ce11', ops='', out_sufix='chip_p2') {
     message(ID)
     
     owd <- getwd()
@@ -30,15 +30,15 @@ jacl_send_to_cluster <- function(ID, genome='ce11') {
         "logdir <- getwd()",
         "Sys.info();",
         "library(JADBtools);",
-        sprintf("jadb_ChIPseq(\"%s\", genome=\"%s\");", ID, genome),
+        sprintf("jadb_ChIPseq(\"%s\", genome=\"%s\"%s);", ID, genome, ops),
         "setwd(logdir)",
-        sprintf("file.rename(\"%s.out\", \"done/%s.out\");", ID, ID),
+        sprintf("file.rename(\"%s.%s\", \"done/%s.%s\");", ID, out_sufix, ID, out_sufix),
         "'"
     )
     
     cmd <- sprintf(
-        "%s | sbatch --job-name=%s --output=%s.out --ntasks-per-node=8", #--exclude=node9
-        paste0(cmd_lst, collapse = '\n'), ID, ID
+        "%s | sbatch --job-name=%s --output=%s.%s --ntasks-per-node=8", #--exclude=node9
+        paste0(cmd_lst, collapse = '\n'), ID, ID, out_sufix
     )
     system(cmd)
 }
