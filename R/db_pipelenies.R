@@ -11,7 +11,11 @@
 #' 
 #' @examples
 #' #
-jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastqscreen', 'macs', 'meme'), genome='ce11', purge=TRUE ) {
+jadb_ChIPseq <- function( 
+    ids, 
+    steps=c('aln', 'tracks', 'norm', 'log2_norm', 'map0_norm', 'log2_map0_norm', 'fastqc', 'fastqscreen', 'macs', 'meme'), 
+    genome='ce11', purge=TRUE 
+) {
     
     owd <- getwd()
     on.exit(setwd(owd))
@@ -67,6 +71,27 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
         jadb_addScaledTrack(ids, genome=genome)
     }
     
+    if('log2_norm' %in% steps) {
+        message('\t => \t Adding log2 track')
+        jadb_addScaledTrack(ids, genome=genome, scale = 'log2')
+    }
+    
+    ### NORM MAPQ0 ###
+    
+    if('map0_norm' %in% steps) {
+        message('\t => \t Normalising NU MAPQ0')
+        addNonUniqueNQBeads(ids, genome=genome)
+        
+        message('\t => \t Adding zscored track MAPQ0')
+        jadb_addScaledTrack(ids, genome=genome, input = 'BEADSNQNU')
+    }
+    
+    if('log2_map0_norm' %in% steps) {
+        message('\t => \t Adding log2 track MAPQ0')
+        jadb_addScaledTrack(ids, genome=genome, input = 'BEADSNQNU', scale = 'log2')
+    }
+    
+    
     ### TOOLS ###
     
     if('macs' %in% steps) {
@@ -102,6 +127,7 @@ jadb_ChIPseq <- function( ids, steps=c('aln', 'tracks', 'norm', 'fastqc', 'fastq
 #' #
 jadb_RNAseq <- function( ids, steps=c('trim', 'aln', 'tracks', 'rpm', 'fastqc') ) {
     
+    require(magrittr)
     setwd(MOUNT)
     
     if('trim' %in% steps) {
