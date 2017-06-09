@@ -125,7 +125,7 @@ jadb_ChIPseq <- function(
 #' 
 #' @examples
 #' #
-jadb_RNAseq <- function( ids, steps=c('trim', 'aln', 'tracks', 'rpm', 'fastqc') ) {
+jadb_RNAseq <- function( ids, steps=c('trim', 'aln', 'tracks', 'rpm', 'fastqc'), ... ) {
     
     require(magrittr)
     setwd(MOUNT)
@@ -210,12 +210,12 @@ jadb_dc_ce10 <- function(gurl) {
     sapply(ids, jacl_send_to_cluster_ce10)
 }
 
-jadb_dc <- function(gurl) {
+jadb_dc <- function(gurl, genome="ce11") {
     
     addExtractIDs(gurl)
     validateFilesFromBaseSpace(gurl)
     ids <- addFilesFromBaseSpace(gurl)
     
     setwd(file.path(MOUNT, '_log'))
-    sapply(ids, jacl_send_to_cluster)
+    sapply(ids, jacl_send_to_cluster, genome=genome)
 }
