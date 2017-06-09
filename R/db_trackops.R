@@ -114,7 +114,7 @@ jadb_addScaledTrack <- function(ids, scale='zscore', input='BEADSQ10NU', genome=
     
     Entry <- addGenericFile(
         ids,
-        path = file.path('files', exp_dir, gsub('linear', 'zscore', prefix)), 
+        path = file.path('files', exp_dir, gsub('linear', scale, prefix)), 
         Processing = input, 
         Scale = scale, 
         Resolution = '1bp',
@@ -135,6 +135,10 @@ jadb_addScaledTrack <- function(ids, scale='zscore', input='BEADSQ10NU', genome=
         zsc <- (cov-mi)/mu
         message(paste(names(mean(zsc)), '\t', mean(zsc), '\n' ))
         export.bw(zsc, basename(Entry$path))
+    } else if (scale=='log2') {
+        log2sc <- log2(cov)
+        message(paste(names(mean(log2sc)), '\t', mean(log2sc), '\n' ))
+        export.bw(log2sc, basename(Entry$path))
     } else {
         stop(scale, ' not yet supported!')
     }
