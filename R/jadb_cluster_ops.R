@@ -18,19 +18,23 @@
 #' # ids <- jacl_mass_parallel(50)
 #' # sapply(ids, jacl_send_to_cluster)
 #' 
-jacl_send_to_cluster <- function(ID, genome='ce11', ops='', out_sufix='chip_p2') {
+#' # jacl_send_to_cluster('AA007', ops=", steps=c(\"log2_norm\", \"map0_norm\", \"log2_map0_norm\"), purge=FALSE")
+#' 
+jacl_send_to_cluster <- function(ID, genome='ce11', ops='', out_sufix='chip', pipeline='jadb_ChIPseq') {
     message(ID)
     
     owd <- getwd()
     on.exit(setwd(owd))
     setwd(file.path(MOUNT, '_log'))
     
+    
+    
     cmd_lst <- c(
         "echo '#!/usr/bin/Rscript",
         "logdir <- getwd()",
         "Sys.info();",
         "library(JADBtools);",
-        sprintf("jadb_ChIPseq(\"%s\", genome=\"%s\"%s);", ID, genome, ops),
+        sprintf("%s(\"%s\", genome=\"%s\"%s);", pipeline, ID, genome, ops),
         "setwd(logdir)",
         sprintf("file.rename(\"%s.%s\", \"done/%s.%s\");", ID, out_sufix, ID, out_sufix),
         "'"
@@ -79,7 +83,7 @@ jacl_mass_parallel <- function(n=50) {
     tbl <- readr::read_table(pipe('squeue'))
     under_processing <- tbl$NAME
     
-    to_proc <- all_exp_to_proc %>% filter(genome!='ce11' | is.na(genome), !ContactExpID %in% has_no_fq, !ContactExpID %in% under_processing) %>% .$ContactExpID
+    to_proc <- all_exp_to_proc %>% filter(genome!='ce11' | genome!='cb3ce11' | is.na(genome), !ContactExpID %in% has_no_fq, !ContactExpID %in% under_processing) %>% .$ContactExpID
     head(to_proc, n)
 }
 
