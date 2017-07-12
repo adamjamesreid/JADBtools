@@ -4,7 +4,7 @@
 \alias{jadb_RNAseq}
 \title{jadb_RNAseq}
 \usage{
-jadb_RNAseq(ids, steps = c("trim", "aln", "tracks", "rpm", "fastqc"))
+jadb_RNAseq(ids, steps = c("trim", "aln", "tracks", "rpm", "fastqc"), ...)
 }
 \arguments{
 \item{IDs}{Vector of JADB ContactExpIDs}

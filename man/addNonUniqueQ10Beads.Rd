@@ -21,6 +21,7 @@ addNonUniqueQ10Beads
 \seealso{
 Other tracks: \code{\link{addMapq0BeadsRep}},
   \code{\link{addMapq0Beads}},
+  \code{\link{addNonUniqueNQBeads}},
   \code{\link{jadb_addAlignedBAM}}
 }
 \author{

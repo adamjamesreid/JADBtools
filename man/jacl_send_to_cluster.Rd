@@ -4,7 +4,8 @@
 \alias{jacl_send_to_cluster}
 \title{jacl_send_to_cluster}
 \usage{
-jacl_send_to_cluster(ID)
+jacl_send_to_cluster(ID, genome = "ce11", ops = "", out_sufix = "chip",
+  pipeline = "jadb_ChIPseq")
 }
 \arguments{
 \item{ID}{}
@@ -20,6 +21,8 @@ jacl_send_to_cluster
 
 # ids <- jacl_mass_parallel(50)
 # sapply(ids, jacl_send_to_cluster)
+
+# jacl_send_to_cluster('AA007', ops=", steps=c(\\"log2_norm\\", \\"map0_norm\\", \\"log2_map0_norm\\"), purge=FALSE")
 
 }
 \seealso{

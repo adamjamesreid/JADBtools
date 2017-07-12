@@ -20,6 +20,7 @@ addMapq0BeadsRep
 }
 \seealso{
 Other tracks: \code{\link{addMapq0Beads}},
+  \code{\link{addNonUniqueNQBeads}},
   \code{\link{addNonUniqueQ10Beads}},
   \code{\link{jadb_addAlignedBAM}}
 }
