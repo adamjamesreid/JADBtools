@@ -42,6 +42,34 @@ jadb_purge_exp <- function(ids) {
     
 }
 
+
+jadb_renove_exp <- function(ids) {
+    
+    sapply(ids, getFilePath, processing = 'raw', scale = "NA", url = FALSE)  -> fls
+    fls <- fls[!fls %in% sapply(ids, getFilePath, format='Rdata', url = FALSE)]
+    
+    if (length(fls) != 1) stop('No or more than 1 FQ files.')
+    
+    rm_file <- dir(gsub('^files', MOUNT, dirname(fls)), full.names = TRUE)
+    unlink(rm_file, recursive=TRUE)
+    
+    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    dbGetQuery(
+        con, paste0(
+            "DELETE FROM labfiles WHERE ContactExpID = '", ids, "'"
+        ) 
+    )
+    dbGetQuery(
+        con, paste0(
+            "DELETE FROM labexperiment WHERE ContactExpID = '", ids, "'"
+        ) 
+    )
+    dbDisconnect(con)
+    
+    message(ids, ' obliterated!')
+    
+}
+
 #' Add files to database using local CSV or google spreadsheet
 #' 
 #' Accepts regular expressions.

@@ -135,10 +135,16 @@ jadb_addScaledTrack <- function(ids, scale='zscore', input='BEADSQ10NU', genome=
         zsc <- (cov-mi)/mu
         message(paste(names(mean(zsc)), '\t', mean(zsc), '\n' ))
         export.bw(zsc, basename(Entry$path))
+        
     } else if (scale=='log2') {
         log2sc <- log2(cov)
-        message(paste(names(mean(log2sc)), '\t', mean(log2sc), '\n' ))
-        export.bw(log2sc, basename(Entry$path))
+        
+        log2sc_gr <- as(log2sc, 'GRanges')
+        log2sc_gr <- log2sc_gr[is.finite(log2sc_gr$score)] 
+        
+        message('Mean after log2: ', mean(log2sc_gr$score))
+        export.bw(log2sc_gr, basename(Entry$path))
+        
     } else {
         stop(scale, ' not yet supported!')
     }
