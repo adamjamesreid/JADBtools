@@ -139,8 +139,8 @@ addRepToJADB <- function(IDs, res=100L) {
     ## Add experiment to db
     INSERT <- out$anno[1,-c(3,7,8,9,10,11,12)]
     INSERT[['ContactExpID']]<- CXID
-    INSERT[['dateCreated']] <- paste(Sys.Date())
-    INSERT[['dateUpdated']] <- paste(Sys.Date())
+    INSERT[['Created']] <- paste(Sys.Date())
+    INSERT[['Updated']] <- paste(Sys.Date())
     INSERT[['Comments']] <- paste0('corA=', round(out$cor, 3), '; corN=', round(outNorm$cor, 3))
     INSERT[['ExtractID']] <- paste0(unlist(out$anno$ExtractID), collapse='|')
     INSERT[['Experiments']] <- paste0(unlist(out$anno$ContactExpID), collapse='|')
@@ -254,8 +254,8 @@ addIDRtoJADB <- function(IDs, res=100L) {
     ## Add experiment to db
     INSERT <- out$anno[1,-c(3,7,8,9,10,11,12)]
     INSERT[['ContactExpID']]<- CXID
-    INSERT[['dateCreated']] <- paste(Sys.Date())
-    INSERT[['dateUpdated']] <- paste(Sys.Date())
+    INSERT[['Created']] <- paste(Sys.Date())
+    INSERT[['Updated']] <- paste(Sys.Date())
     INSERT[['Comments']] <- paste0('corA=', round(out$cor, 3), '; corN=', round(outNorm$cor, 3))
     INSERT[['ExtractID']] <- paste0(unlist(out$anno$ExtractID), collapse='|')
     INSERT[['Experiments']] <- paste0(unlist(out$anno$ContactExpID), collapse='|')

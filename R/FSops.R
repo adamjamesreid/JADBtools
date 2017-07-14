@@ -136,8 +136,8 @@ addFilesFromCsv <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment', gshee
         
         #DATABASE: Add experiment entry
         
-        DBinsert[['dateCreated']] 	<- paste(Sys.Date())
-        DBinsert[['dateUpdated']] 	<- paste(Sys.Date())
+        DBinsert[['Created']] 	<- paste(Sys.Date())
+        DBinsert[['Updated']] 	<- paste(Sys.Date())
         DBinsert[['OryginalFileName']]   <- basename(finalFilePath)
         fields <- names(DBinsert)
         
@@ -180,8 +180,8 @@ addFilesFromCsv <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment', gshee
             INSERT[['UID']] 			<- as.character( fileUID )
             INSERT[['filetype_format']] <- as.character( 'txt.gz'	)
             INSERT[['path']] 			<- as.character( file.path('files', dirPath, fileName) )
-            INSERT[['dateCreated']] 	<- paste(Sys.Date())
-            INSERT[['dateUpdated']] 	<- paste(Sys.Date())
+            INSERT[['Created']] 	<- paste(Sys.Date())
+            INSERT[['Updated']] 	<- paste(Sys.Date())
             INSERT[['uniq']]			<- NA
             sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
             
@@ -227,8 +227,8 @@ addFilesFromCsv <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment', gshee
             INSERT[['UID']] 			    <- as.character( fileUID )
             INSERT[['filetype_format']] <- as.character( 'txt.gz'	)
             INSERT[['path']] 			    <- as.character( file.path("files", dirPath, fileName) )
-            INSERT[['dateCreated']] 	<- paste(Sys.Date())
-            INSERT[['dateUpdated']] 	<- paste(Sys.Date())
+            INSERT[['Created']] 	<- paste(Sys.Date())
+            INSERT[['Updated']] 	<- paste(Sys.Date())
             INSERT[['uniq']]			    <- NA
             sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
             
@@ -357,8 +357,8 @@ addFilesFromBaseSpace <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment',
             
             #DATABASE: Add experiment entry
             
-            DBinsert[['dateCreated']] 	<- paste(Sys.Date())
-            DBinsert[['dateUpdated']] 	<- paste(Sys.Date())
+            DBinsert[['Created']] 	<- paste(Sys.Date())
+            DBinsert[['Updated']] 	<- paste(Sys.Date())
             DBinsert[['OryginalFileName']]   <- basename(finalFilePath)
             fields <- names(DBinsert)
             
@@ -404,8 +404,8 @@ addFilesFromBaseSpace <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment',
                 INSERT[['UID']] 			<- as.character( fileUID )
                 INSERT[['filetype_format']] <- as.character( 'txt.gz'	)
                 INSERT[['path']] 			<- as.character( file.path('files', dirPath, fileName) )
-                INSERT[['dateCreated']] 	<- paste(Sys.Date())
-                INSERT[['dateUpdated']] 	<- paste(Sys.Date())
+                INSERT[['Created']] 	<- paste(Sys.Date())
+                INSERT[['Updated']] 	<- paste(Sys.Date())
                 INSERT[['uniq']]			<- NA
                 sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
                 
@@ -451,8 +451,8 @@ addFilesFromBaseSpace <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment',
                 INSERT[['UID']] 			    <- as.character( fileUID )
                 INSERT[['filetype_format']] <- as.character( 'txt.gz'	)
                 INSERT[['path']] 			    <- as.character( file.path('files', dirPath, fileName) )
-                INSERT[['dateCreated']] 	<- paste(Sys.Date())
-                INSERT[['dateUpdated']] 	<- paste(Sys.Date())
+                INSERT[['Created']] 	<- paste(Sys.Date())
+                INSERT[['Updated']] 	<- paste(Sys.Date())
                 INSERT[['uniq']]			    <- NA
                 sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
                 
