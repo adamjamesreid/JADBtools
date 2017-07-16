@@ -138,8 +138,8 @@ addGenericFile <- function(
                 UID, filetype_format
             )
         },     
-        dateCreated=paste(Sys.Date()),
-        dateUpdated=paste(Sys.Date()),
+        Created=paste(Sys.Date()),
+        Updated=paste(Sys.Date()),
         comments=comments,
         userID=userID,
         parent1_uid=parent1_uid,
