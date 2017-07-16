@@ -76,13 +76,13 @@ run_bwa <- function(file, genome, ncore=8, interperor='bash') {
         message('using BWA backtrack')
         cmd <- sprintf(
             #"bwa samse %s <(bwa aln -t %i %s %s) %s | samtools view -@ %i -Su -  | samtools sort -@ %i - %s",
-            "bwa samse %s <(bwa aln -t %i %s %s) %s | samtools view -@ %i -bSu - | samtools sort -@ %i -m 44294967296 - %s",
+            "bwa samse %s <(bwa aln -t %i %s %s) %s | samtools view -@ %i -bSu - | samtools sort -@ %i -m 44294967296 - -o %s.bam",
             genome, ncore, genome, file, file, ncore, ncore, output
         )
     } else {
         message('using BWA MEM')
         cmd <- sprintf(
-            "bwa mem -t %i %s %s | samtools view -@ %i -bSu - | samtools sort -@ %i -m 44294967296 - %s",
+            "bwa mem -t %i %s %s | samtools view -@ %i -bSu - | samtools sort -@ %i -m 44294967296 - -o %s.bam",
             ncore, genome, file, ncore, ncore, output
         )
     }
