@@ -1,3 +1,53 @@
+
+jadb_dc <- function(gurl) {
+    
+    addExtractIDs(gurl)
+    validateFilesFromBaseSpace(gurl)
+    ids <- addFilesFromBaseSpace(gurl)
+    
+    setwd(file.path(MOUNT, '_log'))
+    sapply(ids, jacl_send_to_cluster)
+}
+
+jadb_dc_cb3 <- function(gurl) {
+    
+    addExtractIDs(gurl)
+    validateFilesFromBaseSpace(gurl)
+    ids <- addFilesFromBaseSpace(gurl)
+    
+    setwd(file.path(MOUNT, '_log'))
+    sapply(ids, jacl_send_to_cluster)
+}
+
+
+jadb_dc_ce10 <- function(gurl) {
+    
+    detach("package:JADBtools", unload=TRUE)
+    Sys.setenv(JADB_GROUP="ja-db")
+    Sys.setenv(JADB_MOUNT="/mnt/jadb2/DBfile/DBfiles")
+    require(JADBtools)
+    
+    addExtractIDs(gurl)
+    validateFilesFromBaseSpace(gurl)
+    ids <- addFilesFromBaseSpace(gurl)
+    
+    setwd(file.path(MOUNT, '_log'))
+    sapply(ids, jacl_send_to_cluster_ce10)
+}
+
+jadb_dc <- function(gurl, genome="ce11") {
+    
+    addExtractIDs(gurl)
+    validateFilesFromBaseSpace(gurl)
+    ids <- addFilesFromBaseSpace(gurl)
+    
+    setwd(file.path(MOUNT, '_log'))
+    sapply(ids, jacl_send_to_cluster, genome=genome)
+}
+
+
+
+
 #' jacl_send_to_cluster
 #' 
 #' @param ID
