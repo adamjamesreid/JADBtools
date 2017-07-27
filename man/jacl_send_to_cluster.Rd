@@ -5,7 +5,7 @@
 \title{jacl_send_to_cluster}
 \usage{
 jacl_send_to_cluster(ID, genome = "ce11", ops = "", out_sufix = "chip",
-  pipeline = "jadb_ChIPseq")
+  pipeline = "jadb_ChIPseq", basespace_addr = "")
 }
 \arguments{
 \item{ID}{}

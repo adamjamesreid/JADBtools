@@ -81,6 +81,7 @@ jacl_send_to_cluster <- function(ID, genome='ce11', ops='', out_sufix='chip', pi
         "logdir <- getwd()",
         "Sys.info();",
         "library(JADBtools);",
+        if(nchar(basespace_addr)) sprintf("jadb_basespace(\"%s\", select_id=\"%s\");", basespace_addr, ID) else '',
         sprintf("%s(\"%s\", genome=\"%s\"%s);", pipeline, ID, genome, ops),
         "setwd(logdir)",
         sprintf("file.rename(\"%s.%s\", \"done/%s.%s\");", ID, out_sufix, ID, out_sufix),
