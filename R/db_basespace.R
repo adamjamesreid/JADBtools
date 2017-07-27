@@ -358,6 +358,12 @@ jadb_basespace <- function(addr, EXTABLE='mydb.labexperiment', ignore.exist = FA
     
     # JADBtools:::jadb_renove_exp("AA690")
     
+    owd <- getwd()
+    on.exit(setwd(owd))
+    setwd(file.path(MOUNT))
+    
+    message(getwd())
+    
     dat <- get_tab_from_google(addr)
     
     if(nchar(select_id)) {
