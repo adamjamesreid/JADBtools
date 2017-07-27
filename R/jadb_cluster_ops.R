@@ -1,41 +1,17 @@
-
-jadb_dc <- function(gurl) {
+#' jadb_dc - direct submission to JADB
+#'
+#' @param gurl - Google Docs URL
+#' @param genome - reference genome
+#' @param legacy_ce10 - add entries to ce10 database
+#'
+#' @return NULL
+#' @export
+#'
+jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11'), legacy_ce10=TRUE) {
     
-    addExtractIDs(gurl)
-    validateFilesFromBaseSpace(gurl)
-    ids <- addFilesFromBaseSpace(gurl)
+    genome <- match.arg(genome)
+    message('Processing experiments: ', genome, ' reference version', if(legacy_ce10) ' with legacy ce10 database processing')
     
-    setwd(file.path(MOUNT, '_log'))
-    sapply(ids, jacl_send_to_cluster)
-}
-
-jadb_dc_cb3 <- function(gurl) {
-    
-    addExtractIDs(gurl)
-    validateFilesFromBaseSpace(gurl)
-    ids <- addFilesFromBaseSpace(gurl)
-    
-    setwd(file.path(MOUNT, '_log'))
-    sapply(ids, jacl_send_to_cluster)
-}
-
-
-jadb_dc_ce10 <- function(gurl) {
-    
-    detach("package:JADBtools", unload=TRUE)
-    Sys.setenv(JADB_GROUP="ja-db")
-    Sys.setenv(JADB_MOUNT="/mnt/jadb2/DBfile/DBfiles")
-    require(JADBtools)
-    
-    addExtractIDs(gurl)
-    validateFilesFromBaseSpace(gurl)
-    ids <- addFilesFromBaseSpace(gurl)
-    
-    setwd(file.path(MOUNT, '_log'))
-    sapply(ids, jacl_send_to_cluster_ce10)
-}
-
-jadb_dc <- function(gurl, genome="ce11") {
     
     addExtractIDs(gurl)
     validateFilesFromBaseSpace(gurl)
@@ -43,10 +19,31 @@ jadb_dc <- function(gurl, genome="ce11") {
     
     setwd(file.path(MOUNT, '_log'))
     sapply(ids, jacl_send_to_cluster, genome=genome)
+    
+    message('Processing done for ', genome)
+    
+
+    if(legacy_ce10) {
+        detach("package:JADBtools", unload=TRUE)
+        Sys.setenv(JADB_GROUP="ja-db")
+        Sys.setenv(JADB_MOUNT="/mnt/jadb2/DBfile/DBfiles")
+        require(JADBtools)
+        
+        addExtractIDs(gurl)
+        validateFilesFromBaseSpace(gurl)
+        ids <- addFilesFromBaseSpace(gurl)
+        
+        setwd(file.path(MOUNT, '_log'))
+        sapply(ids, jacl_send_to_cluster_ce10)
+        
+        message('Processing done for ce10')
+        
+        detach("package:JADBtools", unload=TRUE)
+        Sys.setenv(JADB_GROUP="")
+        Sys.setenv(JADB_MOUNT="")
+        require(JADBtools)
+    }
 }
-
-
-
 
 #' jacl_send_to_cluster
 #' 
@@ -70,7 +67,7 @@ jadb_dc <- function(gurl, genome="ce11") {
 #' 
 #' # jacl_send_to_cluster('AA007', ops=", steps=c(\"log2_norm\", \"map0_norm\", \"log2_map0_norm\"), purge=FALSE")
 #' 
-jacl_send_to_cluster <- function(ID, genome='ce11', ops='', out_sufix='chip', pipeline='jadb_ChIPseq') {
+jacl_send_to_cluster <- function(ID, genome='ce11', ops='', out_sufix='chip', pipeline='jadb_ChIPseq', basespace_addr='') {
     message(ID)
     
     owd <- getwd()
