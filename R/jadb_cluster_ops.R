@@ -7,7 +7,7 @@
 #' @return NULL
 #' @export
 #'
-jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11'), legacy_ce10=TRUE) {
+jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11'), legacy_ce10=TRUE, wipeout = FALSE) {
     
     genome <- match.arg(genome)
     message('Processing experiments: ', genome, ' reference version', if(legacy_ce10) ' with legacy ce10 database processing')
@@ -15,10 +15,8 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11'), legacy_ce10=TRUE) {
     
     addExtractIDs(gurl)
     validateFilesFromBaseSpace(gurl)
-    ids <- addFilesFromBaseSpace(gurl)
     
-    setwd(file.path(MOUNT, '_log'))
-    sapply(ids, jacl_send_to_cluster, genome=genome)
+    sapply(ids, jacl_send_to_cluster, genome=genome, basespace_addr=gurl, remote = 'jarun@cb-head2.gurdon.private.cam.ac.uk', wipeout = wipeout)
     
     message('Processing done for ', genome)
     
@@ -31,10 +29,10 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11'), legacy_ce10=TRUE) {
         
         addExtractIDs(gurl)
         validateFilesFromBaseSpace(gurl)
-        ids <- addFilesFromBaseSpace(gurl)
         
-        setwd(file.path(MOUNT, '_log'))
-        sapply(ids, jacl_send_to_cluster_ce10)
+        
+        sapply(ids, jacl_send_to_cluster, genome='ce10', basespace_addr=gurl, remote = 'jarun@cb-head2.gurdon.private.cam.ac.uk', wipeout = wipeout)
+        
         
         message('Processing done for ce10')
         
@@ -67,32 +65,43 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11'), legacy_ce10=TRUE) {
 #' 
 #' # jacl_send_to_cluster('AA007', ops=", steps=c(\"log2_norm\", \"map0_norm\", \"log2_map0_norm\"), purge=FALSE")
 #' 
-jacl_send_to_cluster <- function(ID, genome='ce11', ops='', out_sufix='chip', pipeline='jadb_ChIPseq', basespace_addr='') {
+#' 
+#' # jadb_renove_exp("AA691")
+#' # jacl_send_to_cluster("AA691", basespace_addr="https://docs.google.com/spreadsheets/d/1QpWQxl3WDL1hRHfJLOlql5qsGWPyFTosCBmJQWTQiQU/edit?usp=sharing")
+jacl_send_to_cluster <- function(ID, genome='ce11', ops='', out_sufix='chip', pipeline='jadb_ChIPseq', basespace_addr='', remote='', wipeout=FALSE) {
     message(ID)
-    
-    owd <- getwd()
-    on.exit(setwd(owd))
-    setwd(file.path(MOUNT, '_log'))
-    
-    
     
     cmd_lst <- c(
         "echo '#!/usr/bin/Rscript",
-        "logdir <- getwd()",
-        "Sys.info();",
-        "library(JADBtools);",
-        if(nchar(basespace_addr)) sprintf("jadb_basespace(\"%s\", select_id=\"%s\");", basespace_addr, ID) else '',
-        sprintf("%s(\"%s\", genome=\"%s\"%s);", pipeline, ID, genome, ops),
-        "setwd(logdir)",
-        sprintf("file.rename(\"%s.%s\", \"done/%s.%s\");", ID, out_sufix, ID, out_sufix),
+        'Sys.info();',
+        if(genome=='ce10') 'Sys.setenv(JADB_GROUP=\\"ja-db\\")' else '',
+        if(genome=='ce10') 'Sys.setenv(JADB_MOUNT=\\"/mnt/jadb2/DBfile/DBfiles\\")' else '',
+        'library(JADBtools);',
+        'logdir <- file.path(MOUNT, \\"_log\\");',
+        
+        if(wipeout) sprintf('JADBtools:::jadb_renove_exp(\\"%s\\");', ID) else '',
+        if(nchar(basespace_addr)) sprintf('jadb_basespace(\\"%s\\", select_id=\\"%s\\");', basespace_addr, ID) else '',
+        sprintf('%s(\\"%s\\", genome=\\"%s\\"%s);', pipeline, ID, genome, ops),
+        
+        'setwd(logdir);',
+        sprintf('file.rename(\\"%s.%s\\", \\"done/%s.%s\\");', ID, out_sufix, ID, out_sufix),
         "'"
     )
     
+    
+
+    
+    
     cmd <- sprintf(
-        "%s | sbatch --job-name=%s --output=%s.%s --ntasks-per-node=8", #--exclude=node9
-        paste0(cmd_lst, collapse = '\n'), ID, ID, out_sufix
+        "%s | sbatch --job-name=%s --output=%s/%s.%s --ntasks-per-node=8", #--exclude=node9
+        paste0(cmd_lst, collapse = '\n'), ID, file.path(MOUNT, '_log'), ID, out_sufix
     )
-    system(cmd)
+    z <- ssh.utils::run.remote(cmd, remote, verbose = TRUE)
+    message(z$cmd.out)
+    
+    
+    
+    
 }
 
 #' jacl_mass_parallel
@@ -152,18 +161,7 @@ jacl_mass_parallel <- function(n=50) {
 jacl_send_to_cluster_ce10 <- function(ID) {
     message(ID)
     
-    cmd_lst <- c(
-        "echo '#!/usr/bin/Rscript",
-        "logdir <- getwd()",
-        "Sys.info();",
-        "Sys.setenv(JADB_GROUP=\"ja-db\")",
-        "Sys.setenv(JADB_MOUNT=\"/mnt/jadb2/DBfile/DBfiles\")",
-        "library(JADBtools);",
-        sprintf("jadb_ChIPseq(\"%s\", genome = \"ce10\");", ID),
-        "setwd(logdir)",
-        sprintf("file.rename(\"%s.out\", \"done/%s.out\");", ID, ID),
-        "'"
-    )
+ 
  
     
     cmd <- sprintf(

@@ -373,6 +373,8 @@ jadb_basespace <- function(addr, EXTABLE='mydb.labexperiment', ignore.exist = FA
     lst <- apply(dat, 1, as.list)
     out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE, ignore.exist = ignore.exist)
     
+    if(any(lengths(out)==1)) stop('Validation finished with error!')
+    
     res <- lapply(out, function(x) {
         temp_file <- download_fastq_from_basespace(x)
         insert_entry_to_jadb(x,temp_file)
