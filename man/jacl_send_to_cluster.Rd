@@ -5,7 +5,8 @@
 \title{jacl_send_to_cluster}
 \usage{
 jacl_send_to_cluster(ID, genome = "ce11", ops = "", out_sufix = "chip",
-  pipeline = "jadb_ChIPseq", basespace_addr = "")
+  pipeline = "jadb_ChIPseq", basespace_addr = "", remote = "",
+  wipeout = FALSE)
 }
 \arguments{
 \item{ID}{}
@@ -24,6 +25,9 @@ jacl_send_to_cluster
 
 # jacl_send_to_cluster('AA007', ops=", steps=c(\\"log2_norm\\", \\"map0_norm\\", \\"log2_map0_norm\\"), purge=FALSE")
 
+
+# jadb_renove_exp("AA691")
+# jacl_send_to_cluster("AA691", basespace_addr="https://docs.google.com/spreadsheets/d/1QpWQxl3WDL1hRHfJLOlql5qsGWPyFTosCBmJQWTQiQU/edit?usp=sharing")
 }
 \seealso{
 Other cluster: \code{\link{jacl_mass_parallel}},
