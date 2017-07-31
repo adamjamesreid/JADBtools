@@ -123,7 +123,7 @@ validate_jadb_submission_entry <- function(
     SmAno <- data.frame(Name = Name(mySmpl), Id = Id(mySmpl))
     files <- listFiles(
         aAuth, 
-        sampleId = subset(SmAno, Name == smplID, Id, drop = TRUE)
+        sampleId = subset(SmAno, Name == smplID, Id, drop = TRUE)[[1]]
     )
     
     if (!any(SmAno$Name == smplID)) {
