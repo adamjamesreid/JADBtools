@@ -4,7 +4,7 @@
 \alias{jar_squeue}
 \title{jar_squeue}
 \usage{
-jar_squeue()
+jar_squeue(tbl = TRUE, remote = "jarun@cb-head2.gurdon.private.cam.ac.uk")
 }
 \description{
 jar_squeue

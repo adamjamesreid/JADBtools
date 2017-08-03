@@ -5,7 +5,7 @@
 \title{jadb_dc - direct submission to JADB}
 \usage{
 jadb_dc(gurl, genome = c("ce11", "cb3ce11"), legacy_ce10 = TRUE,
-  wipeout = FALSE)
+  wipeout = FALSE, EXTABLE = "labexperiment")
 }
 \arguments{
 \item{gurl}{- Google Docs URL}

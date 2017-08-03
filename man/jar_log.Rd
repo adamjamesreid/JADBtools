@@ -4,7 +4,8 @@
 \alias{jar_log}
 \title{Title}
 \usage{
-jar_log(p = ".chip", n = 3, db = "jadb")
+jar_log(p = ".chip", n = 3, db = "jadb",
+  remote = "jarun@cb-head2.gurdon.private.cam.ac.uk")
 }
 \arguments{
 \item{p}{- pattern to match}
