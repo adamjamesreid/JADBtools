@@ -7,23 +7,23 @@
 #' @return NULL
 #' @export
 #'
-jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11'), legacy_ce10=TRUE, wipeout = FALSE) {
+jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11'), legacy_ce10=TRUE, wipeout = FALSE, EXTABLE='labexperiment') {
     
     genome <- match.arg(genome)
     message('Processing experiments: ', genome, ' reference version', if(legacy_ce10) ' with legacy ce10 database processing')
     
     message(getwd())
     
-    addExtractIDs(gurl)
     
-    dat <- get_tab_from_google(addr)
     
+    dat <- get_tab_from_google(gurl)
+    lst <- apply(dat, 1, as.list)
     #if(nchar(select_id)) {
     #    dat <-  dat[dat$ContactExpID==select_id,]
     #}
     
-    lst <- apply(dat, 1, as.list)
-    out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE, ignore.exist = ignore.exist)
+    addExtractIDs(gurl)
+    out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE)#, ignore.exist = ignore.exist)
     if(any(lengths(out)==1)) stop('Validation finished with error!')
     
     ids <- sapply(lapply(out, '[[', 'insert'), '[[', 'ContactExpID')
@@ -43,7 +43,7 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11'), legacy_ce10=TRUE, wipeout
         
         addExtractIDs(gurl)
         
-        out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE, ignore.exist = ignore.exist)
+        out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE)#, ignore.exist = ignore.exist)
         if(any(lengths(out)==1)) stop('Validation finished with error!')
         
         ids <- sapply(lapply(out, '[[', 'insert'), '[[', 'ContactExpID')
