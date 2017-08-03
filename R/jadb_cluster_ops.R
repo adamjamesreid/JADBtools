@@ -112,7 +112,9 @@ jacl_send_to_cluster <- function(ID, genome='ce11', ops='', out_sufix='chip', pi
     
     cmd <- sprintf(
         "%s | sbatch --job-name=%s --output=%s/%s.%s --ntasks-per-node=8", #--exclude=node9
-        paste0(cmd_lst, collapse = '\n'), ID, file.path(MOUNT, '_log'), ID, out_sufix
+        paste0(cmd_lst, collapse = '\n'), ID, 
+        file.path(if(genome=='ce10') sub('jadb', 'jadb2', MOUNT) else MOUNT, '_log'), 
+        ID, out_sufix
     )
     z <- ssh.utils::run.remote(cmd, remote, verbose = TRUE)
     message(z$cmd.out)
