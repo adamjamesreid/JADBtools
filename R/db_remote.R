@@ -36,10 +36,14 @@ jar_process_exp <- function(IDS, genome='ce11') {
 #' @return NULL
 #' @export
 #'
-jar_squeue <- function() {
+jar_squeue <- function(tbl=TRUE, remote='jarun@cb-head2.gurdon.private.cam.ac.uk') {
     cmd <- 'squeue -u jarun'
     z <- ssh.utils::run.remote(cmd, remote, verbose = F)
-    cat(z$cmd.out, sep='\n')
+    if(tbl) {
+        read.table(textConnection(z$cmd.out), header = TRUE, stringsAsFactors = FALSE) %>% tbl_df()
+    } else {
+        cat(z$cmd.out, sep='\n')
+    }
 }
 
 #' Title
@@ -51,7 +55,7 @@ jar_squeue <- function() {
 #' @return NULL
 #' @export
 #'
-jar_log <- function(p='.chip', n=3, db='jadb') {
+jar_log <- function(p='.chip', n=3, db='jadb', remote='jarun@cb-head2.gurdon.private.cam.ac.uk') {
     cmd <- sprintf('cd /mnt/%s/DBfile/DBfiles/_log && tail -n %i *%s*', db, n, p)
     z <- ssh.utils::run.remote(cmd, remote, verbose = F)
     cat(z$cmd.out, sep='\n')
