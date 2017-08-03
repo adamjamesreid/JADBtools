@@ -636,11 +636,13 @@ addExtractIDs <- function(csv, gsheet=TRUE) {
     library(gsheet)
     require(dplyr)
     
-    if (gsheet == TRUE) {
-        data <- gsheet2tbl(csv)
-    } else {
-        data <- read.csv(csv)
-    }
+    #if (gsheet == TRUE) {
+    #    data <- gsheet2tbl(csv)
+    #} else {
+    #    data <- read.csv(csv)
+    #}
+    
+    data <- tbl_df(get_tab_from_google(csv))
     
     data %>% select(ExtractID, Crosslinking, Strain, Stage) %>% unique -> ext
     
