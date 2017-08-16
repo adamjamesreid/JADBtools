@@ -123,8 +123,8 @@ addFilesFromCsv <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment', gshee
         #set yp variables
         insert <- records[i,]
         DBinsert <- DBrecords[i,]
-        prID <- as.character( insert[['ProjectID']] )
-        smplID <- as.character( insert[['SampleID']] )
+        #prID <- as.character( insert[['ProjectID']] )
+       # smplID <- as.character( insert[['SampleID']] )
         
         if (any( grepl('_| |:|\\^|\\/', DBinsert[c('Factor', 'Antibody','ExtractID', 'Crosslinker', 'Strain', 'Stage')]) )) {
             stop('Not allowed character "_" or " " or ":" or "^" or "/" in name fileds.')

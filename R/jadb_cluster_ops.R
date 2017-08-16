@@ -7,7 +7,7 @@
 #' @return NULL
 #' @export
 #'
-jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11'), legacy_ce10=TRUE, wipeout = FALSE, EXTABLE='labexperiment') {
+jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11', 'legacy_only'), legacy_ce10=TRUE, wipeout = FALSE, EXTABLE='labexperiment', cherry_pick=NULL) {
     
     genome <- match.arg(genome)
     message('Processing experiments: ', genome, ' reference version', if(legacy_ce10) ' with legacy ce10 database processing')
@@ -17,22 +17,26 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11'), legacy_ce10=TRUE, wipeout
     
     
     dat <- get_tab_from_google(gurl)
+    if(length(cherry_pick)) dat <- dat[dat$ContactExpID %in% cherry_pick,]
     lst <- apply(dat, 1, as.list)
+    
     #if(nchar(select_id)) {
     #    dat <-  dat[dat$ContactExpID==select_id,]
     #}
     
-    addExtractIDs(gurl)
-    out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE)#, ignore.exist = ignore.exist)
-    if(any(lengths(out)==1)) stop('Validation finished with error!')
+    if(genome != 'legacy_only') {
+        addExtractIDs(gurl)
+        out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE)#, ignore.exist = ignore.exist)
+        if(any(lengths(out)==1)) stop('Validation finished with error!')
+        
+        ids <- sapply(lapply(out, '[[', 'insert'), '[[', 'ContactExpID')
+        message("ContactExpID: ", paste(ids, collapse =', '), ' valideted, sending to cluseter')
+        
+        sapply(ids, jacl_send_to_cluster, genome=genome, basespace_addr=gurl, remote = 'jarun@cb-head2.gurdon.private.cam.ac.uk', wipeout = wipeout)
+        
+        message('Processing done for ', genome)
+    }
     
-    ids <- sapply(lapply(out, '[[', 'insert'), '[[', 'ContactExpID')
-    message("ContactExpID: ", paste(ids, collapse =', '), ' valideted, sending to cluseter')
-    
-    
-    sapply(ids, jacl_send_to_cluster, genome=genome, basespace_addr=gurl, remote = 'jarun@cb-head2.gurdon.private.cam.ac.uk', wipeout = wipeout)
-    
-    message('Processing done for ', genome)
     
 
     if(legacy_ce10) {
@@ -113,7 +117,7 @@ jacl_send_to_cluster <- function(ID, genome='ce11', ops='', out_sufix='chip', pi
     cmd <- sprintf(
         "%s | sbatch --job-name=%s --output=%s/%s.%s --ntasks-per-node=8", #--exclude=node9
         paste0(cmd_lst, collapse = '\n'), ID, 
-        file.path(if(genome=='ce10') sub('jadb', 'jadb2', MOUNT) else MOUNT, '_log'), 
+        file.path(MOUNT, '_log'), 
         ID, out_sufix
     )
     z <- ssh.utils::run.remote(cmd, remote, verbose = TRUE)

@@ -46,7 +46,7 @@ jar_squeue <- function(tbl=TRUE, remote='jarun@cb-head2.gurdon.private.cam.ac.uk
     }
 }
 
-#' Title
+#' jar_log
 #'
 #' @param p - pattern to match
 #' @param n - number of linest to print
@@ -59,4 +59,19 @@ jar_log <- function(p='.chip', n=3, db='jadb', remote='jarun@cb-head2.gurdon.pri
     cmd <- sprintf('cd /mnt/%s/DBfile/DBfiles/_log && tail -n %i *%s*', db, n, p)
     z <- ssh.utils::run.remote(cmd, remote, verbose = F)
     cat(z$cmd.out, sep='\n')
+}
+
+#' jar_nlog
+#'
+#' @param p - pattern to match
+#' @param n - number of linest to print
+#' @param db - database to search
+#'
+#' @return NULL
+#' @export
+#'
+jar_nlog <- function(p='.chip', n=3, db='jadb', remote='jarun@cb-head2.gurdon.private.cam.ac.uk') {
+    cmd <- sprintf('cd /mnt/%s/DBfile/DBfiles/_log && ls *%s*', db, p)
+    z <- ssh.utils::run.remote(cmd, remote, verbose = F)
+    gsub(p, '', z$cmd.out)
 }
