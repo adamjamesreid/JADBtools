@@ -20,19 +20,30 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11', 'legacy_only'), legacy_ce1
     if(length(cherry_pick)) dat <- dat[dat$ContactExpID %in% cherry_pick,]
     lst <- apply(dat, 1, as.list)
     
+    id_prefix <- unique(gsub('[0-9]', '', dat$SampleID))
+    if(grepl('^[A-Z]{2}$', id_prefix)) {
+        pipeline <- 'jadb_ChIPseq'
+        EXTABLE <- 'labexperiment'
+    } else {
+        pipeline <- 'jadb_RNAseq'
+        EXTABLE <- 'labrnaseq'
+    }
+    
+    
     #if(nchar(select_id)) {
     #    dat <-  dat[dat$ContactExpID==select_id,]
     #}
     
     if(genome != 'legacy_only') {
-        addExtractIDs(gurl)
-        out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE)#, ignore.exist = ignore.exist)
+        if(pipeline=='jadb_ChIPseq') addExtractIDs(gurl)
+        
+        out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE) #, ignore.exist = ignore.exist)
         if(any(lengths(out)==1)) stop('Validation finished with error!')
         
         ids <- sapply(lapply(out, '[[', 'insert'), '[[', 'ContactExpID')
         message("ContactExpID: ", paste(ids, collapse =', '), ' valideted, sending to cluseter')
         
-        sapply(ids, jacl_send_to_cluster, genome=genome, basespace_addr=gurl, remote = 'jarun@cb-head2.gurdon.private.cam.ac.uk', wipeout = wipeout)
+        sapply(ids, jacl_send_to_cluster, pipeline=pipeline, genome=genome, basespace_addr=gurl, remote = 'jarun@cb-head2.gurdon.private.cam.ac.uk', wipeout = wipeout)
         
         message('Processing done for ', genome)
     }

@@ -135,7 +135,7 @@ jadb_RNAseq <- function( ids, steps=c('trim', 'aln', 'tracks', 'rpm', 'fastqc'),
         jadb_trimm_fq(ids)
     }
     
-    jadb_trimm_fq
+    #jadb_trimm_fq
     if('aln' %in% steps) {
         message('\t => \t Performing alignment')
         jadb_align_rnaseq(ids)
