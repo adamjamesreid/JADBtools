@@ -4,9 +4,9 @@
 \alias{jacl_send_to_cluster}
 \title{jacl_send_to_cluster}
 \usage{
-jacl_send_to_cluster(ID, genome = "ce11", ops = "", out_sufix = "chip",
-  pipeline = "jadb_ChIPseq", basespace_addr = "", remote = "",
-  wipeout = FALSE)
+jacl_send_to_cluster(ID, EXTABLE, genome = "ce11", ops = "",
+  out_sufix = NULL, pipeline = "jadb_ChIPseq", basespace_addr = "",
+  remote = "", wipeout = FALSE)
 }
 \arguments{
 \item{ID}{}
@@ -30,8 +30,7 @@ jacl_send_to_cluster
 # jacl_send_to_cluster("AA691", basespace_addr="https://docs.google.com/spreadsheets/d/1QpWQxl3WDL1hRHfJLOlql5qsGWPyFTosCBmJQWTQiQU/edit?usp=sharing")
 }
 \seealso{
-Other cluster: \code{\link{jacl_mass_parallel}},
-  \code{\link{jacl_send_to_cluster_ce10}}
+Other cluster: \code{\link{jacl_mass_parallel}}
 }
 \author{
 Przemyslaw Stempor

@@ -4,8 +4,9 @@
 \alias{jadb_dc}
 \title{jadb_dc - direct submission to JADB}
 \usage{
-jadb_dc(gurl, genome = c("ce11", "cb3ce11"), legacy_ce10 = TRUE,
-  wipeout = FALSE, EXTABLE = "labexperiment")
+jadb_dc(gurl, genome = c("ce11", "cb3ce11", "legacy_only"),
+  legacy_ce10 = TRUE, wipeout = FALSE, EXTABLE = "labexperiment",
+  cherry_pick = NULL)
 }
 \arguments{
 \item{gurl}{- Google Docs URL}

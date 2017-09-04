@@ -16,8 +16,7 @@ eset
 jacl_mass_parallel
 }
 \seealso{
-Other cluster: \code{\link{jacl_send_to_cluster_ce10}},
-  \code{\link{jacl_send_to_cluster}}
+Other cluster: \code{\link{jacl_send_to_cluster}}
 }
 \author{
 Przemyslaw Stempor
