@@ -106,7 +106,7 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11', 'legacy_only'), legacy_ce1
 jacl_send_to_cluster <- function(ID, EXTABLE, genome='ce11', ops='', out_sufix=NULL, pipeline='jadb_ChIPseq', basespace_addr='', remote='', wipeout=FALSE) {
     message(ID)
     
-    if(os.null(out_sufix)) {
+    if(is.null(out_sufix)) {
         out_sufix <- pipeline
     }
     
