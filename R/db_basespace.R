@@ -254,7 +254,7 @@ insert_entry_to_jadb <- function(data, finalFilePath) {
     
     id <- insert['ContactExpID']
     TABLE <- 'labfiles'
-    if( EXTABLE ==  'mydb.labexperiment' ) {
+    if( grepl('labexperiment', EXTABLE) ) {
         
         EXPERIMENT <- 	dbGetQuery(con, paste("SELECT Factor, Antibody, ExtractID, Crosslinker, Strain, Stage FROM mydb.labexperimentview WHERE ContactExpID = '", id, "'", collapse="", sep=""))
         dirPath <- file.path(EXPERIMENT[['Factor']], EXPERIMENT[['Strain']], paste(id, EXPERIMENT[['ExtractID']], EXPERIMENT[['Antibody']], sep='_'))
@@ -268,7 +268,7 @@ insert_entry_to_jadb <- function(data, finalFilePath) {
         }
         fileName <- sprintf('%s^%s.%s', fileName, fileUID, 'txt.gz')
         
-        message('dirPath: ', dirPath)
+        message('ChIP dirPath: ', dirPath)
         dir.success <- dir.create(dirPath, recursive = TRUE)
         if ( !file.exists(finalFilePath) ) {dbDisconnect(con); stop(paste('Temp file do not exists', insert['OryginalFileName']))}
         file.copy( finalFilePath, file.path(dirPath, fileName) )
@@ -319,7 +319,7 @@ insert_entry_to_jadb <- function(data, finalFilePath) {
             EXPERIMENT[['CellFraction']], EXPERIMENT[['LibraryType']], id
         )
         
-        message('dirPath: ', dirPath)
+        message('RNA-seq dirPath: ', dirPath)
         dir.success <- dir.create(dirPath, recursive = TRUE)
         if ( !file.exists(finalFilePath) ) {dbDisconnect(con); stop(paste('Temp file do not exists', insert['OryginalFileName']))}
         file.copy( finalFilePath, file.path(dirPath, fileName) )
