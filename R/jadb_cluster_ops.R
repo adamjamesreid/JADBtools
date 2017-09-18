@@ -40,7 +40,7 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11', 'legacy_only'), legacy_ce1
         if(pipeline=='jadb_ChIPseq') addExtractIDs(gurl)
         
         out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE) #, ignore.exist = ignore.exist)
-        if(any(lengths(out)==1)) stop('Validation finished with error!')
+        if(any(lengths(out)==1)) if(!wipeout) stop('Validation finished with error!')
         
         ids <- sapply(lapply(out, '[[', 'insert'), '[[', 'ContactExpID')
         message("ContactExpID: ", paste(ids, collapse =', '), ' valideted, sending to cluseter')
