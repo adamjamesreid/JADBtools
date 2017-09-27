@@ -39,8 +39,8 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11', 'legacy_only'), legacy_ce1
     if(genome != 'legacy_only') {
         if(pipeline=='jadb_ChIPseq') addExtractIDs(gurl)
         
-        out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE, basespace=basespace) #, ignore.exist = ignore.exist)
-        if(any(lengths(out)==1)) if(!wipeout) stop('Validation finished with error!')
+        out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE, basespace=basespace, ignore.exist = wipeout) #, ignore.exist = ignore.exist)
+        if(any(lengths(out)==1)) stop('Validation finished with error!')
         
         ids <- sapply(lapply(out, '[[', 'insert'), '[[', 'ContactExpID')
         message("ContactExpID: ", paste(ids, collapse =', '), ' valideted, sending to cluseter')
@@ -62,7 +62,7 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11', 'legacy_only'), legacy_ce1
         
         addExtractIDs(gurl)
         
-        out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE, basespace=basespace)#, ignore.exist = ignore.exist)
+        out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE, basespace=basespace, ignore.exist = wipeout)#, ignore.exist = ignore.exist)
         if(any(lengths(out)==1)) stop('Validation finished with error!')
         
         ids <- sapply(lapply(out, '[[', 'insert'), '[[', 'ContactExpID')
@@ -124,9 +124,9 @@ jacl_send_to_cluster <- function(ID, EXTABLE, genome='ce11', ops='', out_sufix=N
         'library(JADBtools);',
         'logdir <- file.path(MOUNT, \\"_log\\");',
         
-        if(wipeout) sprintf('JADBtools:::jadb_renove_exp(\\"%s\\");', ID) else '',
+        if(wipeout) sprintf('jadb_renove_exp(\\"%s\\");', ID) else '',
         if(nchar(basespace_addr)) sprintf('jadb_basespace(\\"%s\\", select_id=\\"%s\\", EXTABLE=\\"%s\\");', basespace_addr, ID, EXTABLE) else '',
-        if(nchar(local_addr)) sprintf('fs_add_internal(\\"%s\\", select_id=\\"%s\\", EXTABLE=\\"%s\\");', basespace_addr, ID, EXTABLE) else '',
+        if(nchar(local_addr)) sprintf('fs_add_internal(\\"%s\\", select_id=\\"%s\\", EXTABLE=\\"%s\\");', local_addr, ID, EXTABLE) else '',
         sprintf('%s(\\"%s\\", genome=\\"%s\\"%s);', pipeline, ID, genome, ops),
         
         'setwd(logdir);',

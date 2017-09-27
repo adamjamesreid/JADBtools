@@ -43,6 +43,13 @@ jadb_purge_exp <- function(ids) {
 }
 
 
+#' remove experiment completly
+#'
+#' @param ids 
+#'
+#' @return NULL
+#' @export
+#'
 jadb_renove_exp <- function(ids) {
     
     sapply(ids, getFilePath, processing = 'raw', scale = "NA", url = FALSE)  -> fls
@@ -66,7 +73,7 @@ jadb_renove_exp <- function(ids) {
     )
     dbDisconnect(con)
     
-    message(ids, ' obliterated!')
+    message('===>> ', ids, ' obliterated!', ' <<===')
     
 }
 
