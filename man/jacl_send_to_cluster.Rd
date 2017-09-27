@@ -6,7 +6,7 @@
 \usage{
 jacl_send_to_cluster(ID, EXTABLE, genome = "ce11", ops = "",
   out_sufix = NULL, pipeline = "jadb_ChIPseq", basespace_addr = "",
-  remote = "", wipeout = FALSE)
+  local_addr = "", remote = "", wipeout = FALSE)
 }
 \arguments{
 \item{ID}{}

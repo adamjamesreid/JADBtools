@@ -5,7 +5,7 @@
 \title{validate_jadb_submission_entry}
 \usage{
 validate_jadb_submission_entry(entry, EXTABLE = "mydb.labexperiment",
-  ignore.exist = FALSE)
+  ignore.exist = FALSE, basespace = TRUE)
 }
 \arguments{
 \item{entry}{}

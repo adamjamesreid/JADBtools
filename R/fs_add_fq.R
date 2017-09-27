@@ -1,3 +1,12 @@
+#' Add fastq to existing experiment
+#'
+#' @param id 
+#' @param finalFilePath 
+#' @param EXTABLE 
+#'
+#' @return NULL
+#' @export
+#'
 fs_insert_fastq_to_jadb <- function(id, finalFilePath, EXTABLE='labrnaseq') {
     
 
@@ -108,6 +117,16 @@ fs_insert_fastq_to_jadb <- function(id, finalFilePath, EXTABLE='labrnaseq') {
 }
 
 
+#' Add files from internal FS
+#'
+#' @param addr 
+#' @param select_id 
+#' @param EXTABLE 
+#' @param ignore.exist 
+#'
+#' @return res object
+#' @export 
+#'
 fs_add_internal <- function(addr, select_id='', EXTABLE='labexperiment', ignore.exist=FALSE) {
     # JADBtools:::jadb_renove_exp("AA690")
     
