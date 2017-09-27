@@ -108,7 +108,7 @@ fs_insert_fastq_to_jadb <- function(id, finalFilePath, EXTABLE='labrnaseq') {
 }
 
 
-fs_add_internal <- function() {
+fs_add_internal <- function(addr, select_id='', EXTABLE='labexperiment', ignore.exist=FALSE) {
     # JADBtools:::jadb_renove_exp("AA690")
     
     owd <- getwd()
@@ -128,12 +128,6 @@ fs_add_internal <- function() {
     
     if(any(lengths(out)==1)) stop('Validation finished with error!')
     
-    res <- lapply(out, function(x) {
-        temp_file <- download_fastq_from_basespace(x)
-        insert_entry_to_jadb(x,temp_file)
-    })
-    
-    
     catFQandOutput <- function(data) {
         
         insert <- data$insert
@@ -146,12 +140,20 @@ fs_add_internal <- function() {
         
         
         #File joining, takes time
-        system( sprintf('cat %s %s > %s',  R1, R2, out), intern=TRUE)
-        finalFilePath <- gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])
+        system( sprintf('cat "%s" "%s" > %s',  R1, R2, finalFilePath), intern=TRUE)
         if( !file.exists(finalFilePath) ) stop('Joined file does not exist!')
         
         return(finalFilePath)
     }
+    
+    addExtractIDs(addr)
+    res <- lapply(out, function(x) {
+        temp_file <- catFQandOutput(x)
+        insert_entry_to_jadb(x,temp_file)
+    })
+    
+    
+    
     
     return(res)
 }
