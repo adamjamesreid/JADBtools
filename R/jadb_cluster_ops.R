@@ -7,7 +7,7 @@
 #' @return NULL
 #' @export
 #'
-jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11', 'legacy_only'), legacy_ce10=TRUE, wipeout = FALSE, EXTABLE='labexperiment', cherry_pick=NULL) {
+jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11', 'legacy_only'), legacy_ce10=TRUE, wipeout = FALSE, EXTABLE='labexperiment', cherry_pick=NULL, basespace=TRUE) {
     
     genome <- match.arg(genome)
     message('Processing experiments: ', genome, ' reference version', if(legacy_ce10) ' with legacy ce10 database processing')
@@ -39,14 +39,16 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11', 'legacy_only'), legacy_ce1
     if(genome != 'legacy_only') {
         if(pipeline=='jadb_ChIPseq') addExtractIDs(gurl)
         
-        out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE) #, ignore.exist = ignore.exist)
+        out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE, basespace=basespace) #, ignore.exist = ignore.exist)
         if(any(lengths(out)==1)) if(!wipeout) stop('Validation finished with error!')
         
         ids <- sapply(lapply(out, '[[', 'insert'), '[[', 'ContactExpID')
         message("ContactExpID: ", paste(ids, collapse =', '), ' valideted, sending to cluseter')
-        
-        sapply(ids, jacl_send_to_cluster, EXTABLE=EXTABLE, pipeline=pipeline, genome=genome, basespace_addr=gurl, remote = 'jarun@cb-head2.gurdon.private.cam.ac.uk', wipeout = wipeout)
-        
+        if(basespace) {
+            sapply(ids, jacl_send_to_cluster, EXTABLE=EXTABLE, pipeline=pipeline, genome=genome, basespace_addr=gurl, remote = 'jarun@cb-head2.gurdon.private.cam.ac.uk', wipeout = wipeout)
+        } else {
+            sapply(ids, jacl_send_to_cluster, EXTABLE=EXTABLE, pipeline=pipeline, genome=genome, local_addr=gurl, remote = 'jarun@cb-head2.gurdon.private.cam.ac.uk', wipeout = wipeout)
+        }
         message('Processing done for ', genome)
     }
     
@@ -60,14 +62,18 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11', 'legacy_only'), legacy_ce1
         
         addExtractIDs(gurl)
         
-        out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE)#, ignore.exist = ignore.exist)
+        out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE, basespace=basespace)#, ignore.exist = ignore.exist)
         if(any(lengths(out)==1)) stop('Validation finished with error!')
         
         ids <- sapply(lapply(out, '[[', 'insert'), '[[', 'ContactExpID')
         message("ContactExpID: ", paste(ids, collapse =', '), ' valideted, sending to cluseter')
         
-        sapply(ids, jacl_send_to_cluster, EXTABLE=EXTABLE, pipeline=pipeline, genome='ce10', basespace_addr=gurl, remote = 'jarun@cb-head2.gurdon.private.cam.ac.uk', wipeout = wipeout)
-        
+        if(basespace) {
+            sapply(ids, jacl_send_to_cluster, EXTABLE=EXTABLE, pipeline=pipeline, genome='ce10', basespace_addr=gurl, remote = 'jarun@cb-head2.gurdon.private.cam.ac.uk', wipeout = wipeout)
+        } else {
+            sapply(ids, jacl_send_to_cluster, EXTABLE=EXTABLE, pipeline=pipeline, genome='ce10', local_addr=gurl, remote = 'jarun@cb-head2.gurdon.private.cam.ac.uk', wipeout = wipeout)
+            
+        }
         
         message('Processing done for ce10')
         
@@ -103,7 +109,7 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11', 'legacy_only'), legacy_ce1
 #' 
 #' # jadb_renove_exp("AA691")
 #' # jacl_send_to_cluster("AA691", basespace_addr="https://docs.google.com/spreadsheets/d/1QpWQxl3WDL1hRHfJLOlql5qsGWPyFTosCBmJQWTQiQU/edit?usp=sharing")
-jacl_send_to_cluster <- function(ID, EXTABLE, genome='ce11', ops='', out_sufix=NULL, pipeline='jadb_ChIPseq', basespace_addr='', remote='', wipeout=FALSE) {
+jacl_send_to_cluster <- function(ID, EXTABLE, genome='ce11', ops='', out_sufix=NULL, pipeline='jadb_ChIPseq', basespace_addr='', local_addr='', remote='', wipeout=FALSE) {
     message(ID)
     
     if(is.null(out_sufix)) {
@@ -120,6 +126,7 @@ jacl_send_to_cluster <- function(ID, EXTABLE, genome='ce11', ops='', out_sufix=N
         
         if(wipeout) sprintf('JADBtools:::jadb_renove_exp(\\"%s\\");', ID) else '',
         if(nchar(basespace_addr)) sprintf('jadb_basespace(\\"%s\\", select_id=\\"%s\\", EXTABLE=\\"%s\\");', basespace_addr, ID, EXTABLE) else '',
+        if(nchar(local_addr)) sprintf('fs_add_internal(\\"%s\\", select_id=\\"%s\\", EXTABLE=\\"%s\\");', basespace_addr, ID, EXTABLE) else '',
         sprintf('%s(\\"%s\\", genome=\\"%s\\"%s);', pipeline, ID, genome, ops),
         
         'setwd(logdir);',
