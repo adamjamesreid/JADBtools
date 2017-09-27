@@ -73,14 +73,18 @@ get_tab_from_google <- function(addr) {
 validate_jadb_submission_entry <- function(
     entry, 
     EXTABLE = "mydb.labexperiment", 
-    ignore.exist=FALSE
+    ignore.exist=FALSE,
+    basespace=TRUE
 ) {
     
-    library(BaseSpaceR)
-    app_access_token <- "f58a0ccf1599418d8b4b09034a56bdd5"
-    aAuth <- AppAuth(access_token = app_access_token, scope = "browse Sample")
-    myProj <- listProjects(aAuth, Limit = 1000)
-    PrAno <- data.frame(Name = Name(myProj), Id = Id(myProj))
+    if(basespace) {
+        library(BaseSpaceR)
+        app_access_token <- "f58a0ccf1599418d8b4b09034a56bdd5"
+        aAuth <- AppAuth(access_token = app_access_token, scope = "browse Sample")
+        myProj <- listProjects(aAuth, Limit = 1000)
+        PrAno <- data.frame(Name = Name(myProj), Id = Id(myProj))
+    }
+    
     
     ALL <- jagui_get_table(EXTABLE)
     extract <- jagui_get_table("labextract")
@@ -93,12 +97,14 @@ validate_jadb_submission_entry <- function(
     message("Processing: ", entry$ContactExpID, ': ', entry$SampleID, ', ', entry$Factor, ' - ')
     
     
-    if (!any(PrAno$Name == entry$ProjectID)) {
-        message("[ERROR] Unable to mach BaseSpace project ID: ", 
-                entry$ProjectID, ". Projects on BaseSpace:\n", paste(PrAno$Name, 
-                                                                     collapse = ", "))
-        return(FALSE)
-    } 
+    if(basespace) { 
+        if (!any(PrAno$Name == entry$ProjectID)) {
+            message("[ERROR] Unable to mach BaseSpace project ID: ", 
+                    entry$ProjectID, ". Projects on BaseSpace:\n", paste(PrAno$Name, 
+                                                                         collapse = ", "))
+            return(FALSE)
+        } 
+    }
     
     # Deffine ids
     DBinsert <- entry[names(entry) %in% colnames(ALL)]
@@ -115,29 +121,32 @@ validate_jadb_submission_entry <- function(
         return(FALSE)
     }
     
-    mySmpl <- listSamples(
-        aAuth, 
-        projectId = subset(PrAno, Name == prID, Id, drop = TRUE), 
-        Limit = 1000
-    )
-    SmAno <- data.frame(Name = Name(mySmpl), Id = Id(mySmpl))
-    files <- listFiles(
-        aAuth, 
-        sampleId = subset(SmAno, Name == smplID, Id, drop = TRUE)[[1]]
-    )
+    if(basespace) { 
+        mySmpl <- listSamples(
+            aAuth, 
+            projectId = subset(PrAno, Name == prID, Id, drop = TRUE), 
+            Limit = 1000
+        )
+        SmAno <- data.frame(Name = Name(mySmpl), Id = Id(mySmpl))
+        files <- listFiles(
+            aAuth, 
+            sampleId = subset(SmAno, Name == smplID, Id, drop = TRUE)[[1]]
+        )
+        
+        if (!any(SmAno$Name == smplID)) {
+            warning("Experiment ID [", smplID, "] does not match one(s) in BaseSpace, allowed values are:\n", 
+                    paste(SmAno$Name, collapse = ", "))
+        }
     
-    if (!any(SmAno$Name == smplID)) {
-        warning("Experiment ID [", smplID, "] does not match one(s) in BaseSpace, allowed values are:\n", 
-                paste(SmAno$Name, collapse = ", "))
-    }
-    
-    if (length(files) == 2) 
-        message("SE experiemt - ")
-    if (length(files) == 4) 
-        message("PE experiemt - ")
-    if (length(files) == 0) {
-        message("[ERROR] No files in BaseSpace")
-        return(FALSE)
+        if (length(files) == 2) 
+            message("SE experiemt - ")
+        if (length(files) == 4) 
+            message("PE experiemt - ")
+        if (length(files) == 0) {
+            message("[ERROR] No files in BaseSpace")
+            return(FALSE)
+        }
+        
     }
     
     id <- entry["ContactExpID"]
@@ -162,10 +171,10 @@ validate_jadb_submission_entry <- function(
     
     message("[OK] \n")
     return(list(
-        files=files,
+        if(basespace) { files=files } else NULL,
         insert=entry,
         DBinsert=DBinsert,
-        aAuth=aAuth,
+        if(basespace) { aAuth=aAuth } else NULL,
         EXTABLE=EXTABLE
     ))
 }
