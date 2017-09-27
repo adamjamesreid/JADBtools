@@ -124,7 +124,8 @@ jacl_send_to_cluster <- function(ID, EXTABLE, genome='ce11', ops='', out_sufix=N
         'library(JADBtools);',
         'logdir <- file.path(MOUNT, \\"_log\\");',
         
-        if(wipeout) sprintf('jadb_renove_exp(\\"%s\\");', ID) else '',
+        if(wipeout) sprintf('jadb_renove_exp(\\"%s\\");', ID) else 'message(\\"===> New experimet! <<===\\");',
+        
         if(nchar(basespace_addr)) sprintf('jadb_basespace(\\"%s\\", select_id=\\"%s\\", EXTABLE=\\"%s\\");', basespace_addr, ID, EXTABLE) else '',
         if(nchar(local_addr)) sprintf('fs_add_internal(\\"%s\\", select_id=\\"%s\\", EXTABLE=\\"%s\\");', local_addr, ID, EXTABLE) else '',
         sprintf('%s(\\"%s\\", genome=\\"%s\\"%s);', pipeline, ID, genome, ops),

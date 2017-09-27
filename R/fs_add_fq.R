@@ -156,7 +156,8 @@ fs_add_internal <- function(addr, select_id='', EXTABLE='labexperiment', ignore.
         td <- tempdir()
         finalFilePath <- file.path(td, gsub('L002', 'L001andL002', basename(R2)))
         
-        
+        if( !file.exists(R1)  ) stop('File R1 does not exist! ', R1)
+        if( !file.exists(R2)  ) stop('File R2 does not exist! ', R2)
         
         #File joining, takes time
         system( sprintf('cat "%s" "%s" > %s',  R1, R2, finalFilePath), intern=TRUE)
