@@ -79,6 +79,7 @@ validate_jadb_submission_entry <- function(
     
     if(basespace) {
         library(BaseSpaceR)
+        message('Using BaseSpace')
         app_access_token <- "f58a0ccf1599418d8b4b09034a56bdd5"
         aAuth <- AppAuth(access_token = app_access_token, scope = "browse Sample")
         myProj <- listProjects(aAuth, Limit = 1000)
@@ -170,13 +171,24 @@ validate_jadb_submission_entry <- function(
     }
     
     message("[OK] \n")
-    return(list(
-        if(basespace) { files=files } else NULL,
-        insert=entry,
-        DBinsert=DBinsert,
-        if(basespace) { aAuth=aAuth } else NULL,
-        EXTABLE=EXTABLE
-    ))
+    if(basespace) { 
+        return(list(
+            files=files,
+            insert=entry,
+            DBinsert=DBinsert,
+            aAuth=aAuth,
+            EXTABLE=EXTABLE
+        ))
+    } else {
+        return(list(
+            insert=entry,
+            DBinsert=DBinsert,
+            EXTABLE=EXTABLE
+        ))
+    }
+    
+    
+ 
 }
 
 
