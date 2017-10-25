@@ -150,19 +150,23 @@ fs_add_internal <- function(addr, select_id='', EXTABLE='labexperiment', ignore.
     catFQandOutput <- function(data) {
         
         insert <- data$insert
+        if( !is.null(insert$OryginalFileName_R1) ) {
+            R1 <- insert$OryginalFileName_R1
+            R2 <- insert$OryginalFileName_R2
+            td <- tempdir()
+            finalFilePath <- file.path(td, gsub('L002', 'L001andL002', basename(R2)))
+            
+            if( !file.exists(R1)  ) stop('File R1 does not exist! ', R1)
+            if( !file.exists(R2)  ) stop('File R2 does not exist! ', R2)
+            
+            #File joining, takes time
+            system( sprintf('cat "%s" "%s" > %s',  R1, R2, finalFilePath), intern=TRUE)
+            
+        } else {
+            finalFilePath <- insert$OryginalFileName
+        }
         
-        R1 <- insert$OryginalFileName_R1
-        R2 <- insert$OryginalFileName_R2
-        td <- tempdir()
-        finalFilePath <- file.path(td, gsub('L002', 'L001andL002', basename(R2)))
-        
-        if( !file.exists(R1)  ) stop('File R1 does not exist! ', R1)
-        if( !file.exists(R2)  ) stop('File R2 does not exist! ', R2)
-        
-        #File joining, takes time
-        system( sprintf('cat "%s" "%s" > %s',  R1, R2, finalFilePath), intern=TRUE)
         if( !file.exists(finalFilePath) ) stop('Joined file does not exist!')
-        
         return(finalFilePath)
     }
     
