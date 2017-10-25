@@ -14,6 +14,14 @@ mergeLanesFQ <- function() {
     sapply(cmds, function(x) { message('Joining: ', x); system(x)  })
 }
 
+#' Purge an experiment from all processed files
+#'
+#' @param ids 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 jadb_purge_exp <- function(ids) {
     
     sapply(ids, getFilePath, processing = 'raw', scale = "NA", url = FALSE)  -> fls
