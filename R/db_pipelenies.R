@@ -13,8 +13,8 @@
 #' #
 jadb_ChIPseq <- function( 
     ids, 
-    steps=c('aln', 'tracks', 'norm', 'log2_norm', 'map0_norm', 'log2_map0_norm', 'fastqc', 'fastqscreen', 'macs', 'meme'), 
-    genome='ce11', purge=TRUE 
+    steps=c('aln', 'tracks', 'norm', 'log2_norm', 'map0_norm', 'log2_map0_norm', 'map10_uniq', 'fastqc', 'fastqscreen', 'macs', 'meme'), 
+    genome='ce11', purge=TRUE, backup=FALSE 
 ) {
     
     owd <- getwd()
@@ -23,11 +23,27 @@ jadb_ChIPseq <- function(
     setwd(MOUNT)
     library('rbeads')
     
+    backupFiles <- function(id) {
+        pth <- getFilePath(id, url = FALSE)
+        dirname <- gsub('files', MOUNT, unique(dirname(pth)))
+        if(length(dirname) != 1) stop('mltp dir')
+        
+        bck <- gsub('DBfiles', 'DBfiles_legacy', dirname)
+        dir.create(bck, recursive = TRUE)
+        file.copy(file.path(dirname, '/'), bck, recursive = TRUE)
+    }
+    if(backup==TRUE) {
+        message("backing up files")
+        backupFiles(ids)
+    }
+    
     if(purge) jadb_purge_exp(ids)
     
     if (getAnno(ids, anno = 'Factor', EXTABLE='labexperiment') == 'Input') {
         steps <- c('aln', 'tracks', 'fastqc', 'fastqscreen')
     }
+    
+    
     
     ### ALN ###
     
@@ -89,6 +105,21 @@ jadb_ChIPseq <- function(
     if('log2_map0_norm' %in% steps) {
         message('\t => \t Adding log2 track MAPQ0')
         jadb_addScaledTrack(ids, genome=genome, input = 'BEADSNQNU', scale = 'log2')
+    }
+    
+    ### NORM UNIQ ###
+    
+    if('map10_uniq' %in% steps) {
+        
+        message('\t => \t Normalising UNIQ MAPQ10')
+        addUniqueQ10Beads(ids, genome=genome)
+        
+        message('\t => \t Adding zscored track UNIQ MAPQ10')
+        jadb_addScaledTrack(ids, genome=genome, input = 'BEADSQ10UNIQ')
+        
+        message('\t => \t Adding log2 track UNIQ MAPQ10')
+        jadb_addScaledTrack(ids, genome=genome, input = 'BEADSQ10UNIQ', scale = 'log2')
+        
     }
     
     
