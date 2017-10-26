@@ -64,12 +64,21 @@ extarct_vector <- function(track, size, which = as(seqinfo(track), "GenomicRange
 #' @examples
 #' #combineReps(IDs)
 
-combineReps <- function(IDs, processing='aligned', res=100L, scale='linear', outdir=tempdir()) {
+combineReps <- function(r1=NULL, r2=NULL, IDs=NULL, processing='aligned', res=100L, scale='linear', outdir=tempdir()) {
     
-    message('Getting files')
-    paths <- sapply(IDs, getFilePath, format = 'bw', processing=processing, scale=scale) 
-    if(length(IDs) != length(paths)) stop('Many/missing tracks per ID, cannot combine.')
+    if( !is.null(IDs) ) {
+        message('Getting files')
+        paths <- sapply(IDs, getFilePath, format = 'bw', processing=processing, scale=scale, url = FALSE) 
+        paths <- gsub('files', MOUNT, paths)
+        if(length(IDs) != length(paths)) stop('Many/missing tracks per ID, cannot combine.')
+    } else {
+        message('Using replicate with r1=', r1, ' and r2=', r2)
+        paths <- c(r1, r2)
+    }
+    
+    
     anno <- as.data.frame(t(sapply(basename(paths), rbeads:::ParseName)))
+    names(paths) <- anno$ContactExpID
     
     validRep <- sapply(c('Factor', 'Strain', 'Stage', 'Processing', 'Scale', 'Resolution'), function(x) length(unique(anno[x]))==1)
     if(!all(validRep)) stop('Not a valid replicate')
@@ -122,28 +131,35 @@ combineReps <- function(IDs, processing='aligned', res=100L, scale='linear', out
 addRepToJADB <- function(IDs, res=100L) {
     
     
+    allbw <- lapply(IDs, getFilePath, format='bw', url=FALSE, mount=TRUE) %>% lapply(sort)
+    if(length(allbw[[1]]) != length(allbw[[2]])) stop('err_diff_proc_on_bw')
+    outputbw <- mcMap(combineReps, allbw[[1]], allbw[[2]], mc.cores=11)
+    
+    
     ## get metatdata
     con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
-    T <- dbReadTable(con, "labchipseqrep")
-    CXID <- sprintf('REP%03.0f', max(as.numeric(gsub('REP', '', T$ContactExpID)))+1)
+    REP <- dbReadTable(con, "labchipseqrep")
+    CXID <- sprintf('REP%03.0f', max(as.numeric(gsub('REP', '', REP$ContactExpID)))+1)
     
+    setwd(MOUNT);
     outdir <- file.path('REPLICATES', JADBtools:::getAnno(IDs[[1]], EXTABLE = 'labexperiment'), CXID)
     dir.create(outdir, recursive = TRUE)
     
     BAM <- sapply(IDs, getFilePath, format='bam', url=FALSE)
     anno <- as.data.frame(t(sapply(basename(BAM), rbeads:::ParseName)))
     
-    out <- combineReps(IDs, processing = 'aligned', outdir = outdir, res = res)
-    outNorm <- combineReps(IDs, processing = 'NORM', outdir = outdir, res = res)
+    
+    #out <- combineReps(IDs, processing = 'alnNQNU', outdir = outdir, res = res)
+    #outNorm <- combineReps(IDs, processing = 'BEADSNQNU', outdir = outdir, res = res)
     
     ## Add experiment to db
     INSERT <- out$anno[1,-c(3,7,8,9,10,11,12)]
     INSERT[['ContactExpID']]<- CXID
     INSERT[['Created']] <- paste(Sys.Date())
     INSERT[['Updated']] <- paste(Sys.Date())
-    INSERT[['Comments']] <- paste0('corA=', round(out$cor, 3), '; corN=', round(outNorm$cor, 3))
-    INSERT[['ExtractID']] <- paste0(unlist(out$anno$ExtractID), collapse='|')
-    INSERT[['Experiments']] <- paste0(unlist(out$anno$ContactExpID), collapse='|')
+    INSERT[['Comments']] <- paste0('corA=', round(outputbw[[2]]$cor, 3), '; corN=', round(outputbw[[6]]$cor, 3))
+    INSERT[['ExtractID']] <- paste0(unlist(outputbw[[1]]$anno$ExtractID), collapse='|')
+    INSERT[['Experiments']] <- paste0(unlist(outputbw[[1]]$anno$ContactExpID), collapse='|')
     
     TABLE <- 'labchipseqrep'
     fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", TABLE))
@@ -156,62 +172,69 @@ addRepToJADB <- function(IDs, res=100L) {
     
     dbDisconnect(con)
     
-    outMapq0 <- combineReps(IDs, processing = 'mapq0', outdir = outdir, res = res)
-    outNormLog2 <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2$', res = res)
-    outNormLog2zsc <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2zsc', res = res)
-    outNormZscore <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'zscore', res = res)
+    #outMapq0 <- combineReps(IDs, processing = 'mapq0', outdir = outdir, res = res)
+    #outNormLog2 <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2$', res = res)
+    #outNormLog2zsc <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2zsc', res = res)
+    #outNormZscore <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'zscore', res = res)
     
     oldwd <- getwd(); setwd(outdir)
     peaksU <- file.path(outdir, combinePeaksToBed(IDs, mode = 'union'))
     peaksI <- file.path(outdir, combinePeaksToBed(IDs, mode = 'intersection'))
-    enreg <- file.path(outdir, enrichedRegionsCall(
-        basename(outNorm$out),
-        basename(gsub('PeakCalls_MACS_q01(.+)_union', 'EnrichedRegions_a75_b9\\1', peaksU))
-    ))
-    
-    setwd(oldwd)
-    
-
-    
-    addGenericFile(CXID, path = file.path('files', out$out), Processing = 'aligned',  Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
-    addGenericFile(CXID, path = file.path('files', outNorm$out), Processing = 'NORM', Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
-    addGenericFile(CXID, path = file.path('files', outMapq0$out), Processing = 'outMapq0', Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
-    
-    
-    addGenericFile(CXID, path = file.path('files', outNormLog2$out), Processing = 'NORM', Resolution = '1bp', Scale = 'log2', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
-    addGenericFile(CXID, path = file.path('files', outNormLog2zsc$out), Processing = 'NORM', Resolution = '1bp', Scale = 'log2zsc', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
-    addGenericFile(CXID, path = file.path('files', outNormZscore$out), Processing = 'NORM', Resolution = '1bp', Scale = 'zscore', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
-    
+    peaksIDR <- file.path(outdir, combinePeaksIDR(IDs))
+    #enreg <- file.path(outdir, enrichedRegionsCall(
+    #    basename(outNorm$out),
+    #    basename(gsub('PeakCalls_MACS_q01(.+)_union', 'EnrichedRegions_a75_b9\\1', peaksU))
+    #))
     addGenericFile(CXID, path = file.path('files', peaksU), Processing = 'PeakUnion',     Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
     addGenericFile(CXID, path = file.path('files', peaksI), Processing = 'PeakIntersect', Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
-    addGenericFile(CXID, path = file.path('files', enreg), Processing = 'EnrichedRegions', Resolution = 'a75', Scale = 'q9', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
+    addGenericFile(CXID, path = file.path('files', peaksIDR), Processing = 'IDR2', Resolution = 'q01', Scale = 'MACS', filetype_format = 'narrowPeak', prefix = 'R', repPath = TRUE)
     
+    #addGenericFile(CXID, path = file.path('files', enreg), Processing = 'EnrichedRegions', Resolution = 'a75', Scale = 'q9', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
+    setwd(oldwd)
+    
+    
+    lapply(outputbw, function(x) {
+        message(basename(x$out))
+        fp <- file.path(MOUNT, outdir, basename(x$out))
+        file.copy(x$out, fp)
+        
+        addGenericFile(
+            CXID, path = file.path('MOUNT', 'files', fp), 
+            Processing = unlist(unique(x$anno$Processing)),  
+            Resolution = unlist(unique(x$anno$Resolution)), 
+            Scale = unlist(unique(x$anno$Scale)), 
+            filetype_format = 'bw', 
+            prefix = 'R', 
+            repPath = TRUE
+        )
+    })
+   
     oldwd <- getwd(); setwd(outdir)
-    dir.create('IDR', recursive = TRUE)
+    #dir.create('IDR', recursive = TRUE)
     
 
     
     cmd <- sprintf(
-        'export PATH=/home/ps562/software/bin:$PATH; /home/ps562/anaconda/bin/ipython ~/TEST/macs2_idr.ipy -- %s %s -c %s -p ./IDR/idr',
+        'export PATH=/mnt/home1/ahringer/ps562/software/bin:$PATH; /mnt/home1/ahringer/jarun/miniconda2/bin/ipython ~/TEST/macs2_idr.ipy -- %s %s -c %s -p ./IDR/idr',
         gsub('^files', MOUNT, BAM[1]), 
         gsub('^files', MOUNT, BAM[2]), 
         if( grepl('^E', anno$Crosslinker[[1]]) ) {
-            file.path(MOUNT, 'Input/SummedInputs/EGS_HiSeq_input.bam')
+            file.path(MOUNT, 'Input/SummedInputs/ce11/ce11_EGS_HiSeq_input.bam')
         } else {
-            file.path(MOUNT, 'Input/SummedInputs/FRM_HiSeq_input.bam')
+            file.path(MOUNT, 'Input/SummedInputs/ce11/ce11_FRM_HiSeq_input.bam')
         }
     )
     message('--> ', cmd)
-    system(cmd)
+    #system(cmd)
     
     
-    same <- anno[1,c('Factor', 'Antibody', 'Strain', 'Stage', 'Processing', 'Scale', 'Resolution')]
-    same$Processing <- 'PeakCalls'; same$Scale <- 'MACS'; same$Resolution <- 'q01'
-    outname <- paste0(paste0(unlist(same), collapse='_'), '_', paste(anno$ContactExpID, collapse = '^'), '_', 'IDR', '.bed')
+    #same <- anno[1,c('Factor', 'Antibody', 'Strain', 'Stage', 'Processing', 'Scale', 'Resolution')]
+    #same$Processing <- 'PeakCalls'; same$Scale <- 'MACS'; same$Resolution <- 'q01'
+    #outname <- paste0(paste0(unlist(same), collapse='_'), '_', paste(anno$ContactExpID, collapse = '^'), '_', 'IDR', '.bed')
     
     
-    file.copy('IDR/idr_final_peaks_0.05.narrowPeak', outname)
-    addGenericFile(CXID, path = file.path('files', outdir, outname), Processing = 'IDR', Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
+    #ile.copy('IDR/idr_final_peaks_0.05.narrowPeak', outname)
+    #addGenericFile(CXID, path = file.path('files', outdir, outname), Processing = 'IDR', Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
     setwd(oldwd)
     
     #UPDATE `mydb`.`labfiles` SET `filetype_format`='bwz' WHERE `UID`='R3e31188';
@@ -286,6 +309,8 @@ addIDRtoJADB <- function(IDs, res=100L) {
     
     setwd(oldwd)
     
+    
+   
     
     
     addGenericFile(CXID, path = file.path('files', out$out), Processing = 'aligned',  Resolution = '1bp', Scale = 'linear', filetype_format = 'bw', prefix = 'R', repPath = TRUE)
