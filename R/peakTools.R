@@ -236,6 +236,35 @@ combinePeaksToBed <- function(ids, mode='union') {
     return(outname)
 }
 
+
+#' Combines peak in replicates and exports to bed file
+#' 
+#' @param IDs Vector of JADB ContactExpIDs
+#' @param mode union or intersection
+#' @return bed file path 
+#' 
+#' @author Przemyslaw Stempor
+#' 
+#' @family Peaks
+#' @export
+#' 
+#' @examples
+#' #combinePeaksToBed(IDs)
+combinePeaksIDR <- function(ids, mode='union') {
+    files <- sapply(ids, getFilePath, format = 'narrowPeak', processing = 'peakCalls', mount=TRUE)
+    anno <- as.data.frame(t(sapply(basename(files), rbeads:::ParseName)))
+    same <- anno[1,c('Factor', 'Strain', 'Stage', 'Processing', 'Scale', 'Resolution')]
+    outname <- paste0(paste0(unlist(same), collapse='_'), '_', paste(anno$ContactExpID, collapse = '^'), '_', 'IDR2', '.narrowPeak')
+    cmd <- paste(
+        '~/miniconda2/envs/py3/bin/idr --samples', files[1], files[2], 
+        '--output-file', outname, '--output-file-type narrowPeak'
+    )
+    message(cmd)
+    system(cmd)
+    
+    return(outname)
+}
+
 #' Calls enriched regions from BigWig file
 #' 
 #' @param file path/url to BW
