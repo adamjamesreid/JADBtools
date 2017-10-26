@@ -16,11 +16,12 @@
 #' @family dbtools
 #' @export
 #' 
-getFilePath <- function(ID, format='.', processing='.', scale='.', url=TRUE, eq=FALSE) {
+getFilePath <- function(ID, format='.', processing='.', scale='.', url=TRUE, eq=FALSE, mount=FALSE) {
     
     if (eq) { R <- '=' } else { R <- 'REGEXP' } 
     con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
   
+    query function())
     exp_file <- unlist( dbGetQuery(
         con, paste(
             "SELECT path FROM labfiles WHERE ContactExpID = '", ID, 
@@ -28,10 +29,16 @@ getFilePath <- function(ID, format='.', processing='.', scale='.', url=TRUE, eq=
             "'", "AND Scale ",R," '", scale, "'", collapse="", sep=""
         ) 
     ), use.names = FALSE)
+    
     names(exp_file) <- NULL
-    addr <- file.path("http://jadb.gurdon.private.cam.ac.uk/db4",  exp_file )
     dbDisconnect(con)
-    if(url) return(addr) else return(exp_file) 
+    
+    if(mount) 
+        return( gsub('files', MOUNT,  exp_file) )
+    else if(url)
+        return( file.path("http://jadb.gurdon.private.cam.ac.uk/db4",  exp_file ) )
+    else
+        return(exp_file) 
 }
 
 #' Get file UID
