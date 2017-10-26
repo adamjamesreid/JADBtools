@@ -25,7 +25,9 @@ jadb_ChIPseq <- function(
     
     backupFiles <- function(id) {
         pth <- getFilePath(id, url = FALSE)
+        pth <- gsub('/meme_chip', '', pth)
         dirname <- gsub('files', MOUNT, unique(dirname(pth)))
+        message(paste(dirname, collapse='\n'))
         if(length(dirname) != 1) stop('mltp dir')
         
         bck <- gsub('DBfiles', 'DBfiles_legacy', dirname)
