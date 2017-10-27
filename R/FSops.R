@@ -58,7 +58,7 @@ jadb_purge_exp <- function(ids) {
 #' @return NULL
 #' @export
 #'
-jadb_renove_exp <- function(ids) {
+jadb_renove_exp <- function(ids, EXTABLE='labexperiment') {
     
     sapply(ids, getFilePath, processing = 'raw', scale = "NA", url = FALSE)  -> fls
     fls <- fls[!fls %in% sapply(ids, getFilePath, format='Rdata', url = FALSE)]
@@ -76,7 +76,7 @@ jadb_renove_exp <- function(ids) {
     )
     dbGetQuery(
         con, paste0(
-            "DELETE FROM labexperiment WHERE ContactExpID = '", ids, "'"
+            "DELETE FROM ", EXTABLE," WHERE ContactExpID = '", ids, "'"
         ) 
     )
     dbDisconnect(con)

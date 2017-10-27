@@ -58,12 +58,14 @@ scl <- function(ID, genome='ce10', ops=', purge=TRUE, backup=TRUE', out_sufix=NU
     
 }
 
-sc2l <- function(ID, genome='ce11', ops=', steps = \'map10_uniq\', purge = FALSE, backup = FALSE', out_sufix='uniq_beads', pipeline='jadb_ChIPseq') {
+sc2l <- function(ID, genome='ce11', ops=', steps = \"map10_uniq\", purge = FALSE, backup = FALSE', out_sufix='uniq_beads', pipeline='jadb_ChIPseq') {
     message(ID)
     
     if(is.null(out_sufix)) {
         out_sufix <- pipeline
     }
+    
+    
     
     cmd_lst <- c(
         "echo '#!/usr/bin/Rscript",
@@ -123,6 +125,7 @@ ja_switch <- function() {
         MOUNT <<- "/mnt/jadb/DBfile/DBfiles"
     }
     message('Switched to: [', GROUP, '] mouned on [', MOUNT, ']')
+    testConnection()
 }
 
 

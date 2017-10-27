@@ -150,7 +150,7 @@ fs_add_internal <- function(addr, select_id='', EXTABLE='labexperiment', ignore.
     catFQandOutput <- function(data) {
         
         insert <- data$insert
-        if( !is.null(insert$OryginalFileName_R1) ) {
+        if( length(insert$OryginalFileName_R1) ) {
             R1 <- insert$OryginalFileName_R1
             R2 <- insert$OryginalFileName_R2
             td <- tempdir()
