@@ -21,7 +21,7 @@ getFilePath <- function(ID, format='.', processing='.', scale='.', url=TRUE, eq=
     if (eq) { R <- '=' } else { R <- 'REGEXP' } 
     con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
   
-    query function())
+    
     exp_file <- unlist( dbGetQuery(
         con, paste(
             "SELECT path FROM labfiles WHERE ContactExpID = '", ID, 

@@ -130,7 +130,7 @@ combineReps <- function(r1=NULL, r2=NULL, IDs=NULL, processing='aligned', res=10
 #' #combineReps(IDs)
 addRepToJADB <- function(IDs, res=100L) {
     
-    
+    message('Sumarizing BW tracks')
     allbw <- lapply(IDs, getFilePath, format='bw', url=FALSE, mount=TRUE) %>% lapply(sort)
     if(length(allbw[[1]]) != length(allbw[[2]])) stop('err_diff_proc_on_bw')
     outputbw <- mcMap(combineReps, allbw[[1]], allbw[[2]], mc.cores=11)
@@ -176,6 +176,8 @@ addRepToJADB <- function(IDs, res=100L) {
     #outNormLog2 <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2$', res = res)
     #outNormLog2zsc <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2zsc', res = res)
     #outNormZscore <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'zscore', res = res)
+    
+    message('Sumarizing BW peak calls')
     
     oldwd <- getwd(); setwd(outdir)
     peaksU <- file.path(outdir, combinePeaksToBed(IDs, mode = 'union'))
