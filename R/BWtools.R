@@ -201,7 +201,7 @@ addRepToJADB <- function(IDs, res=100L) {
         file.copy(x$out, fp)
         
         addGenericFile(
-            CXID, path = file.path('MOUNT', 'files', fp), 
+            CXID, path = gsub(MOUNT, 'files', fp), 
             Processing = unlist(unique(x$anno$Processing)),  
             Resolution = unlist(unique(x$anno$Resolution)), 
             Scale = unlist(unique(x$anno$Scale)), 
