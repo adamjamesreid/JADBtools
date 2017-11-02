@@ -32,6 +32,10 @@ jadb_get_file_paths <- function(
 jadb_download_files <- function(ids, processing='raw') {
     
     pth <- jadb_get_file_paths(ids, root_prefix = '', processing=processing)
+    
+    message('Will download ([y]es/[n]o):\n- ', paste(pth, collapse = '\n- '))
+    if(scan(nmax = 1, what = 'character', quiet = TRUE)!='y') return()
+    
     sapply(pth, function(x) download.file(x, basename(x)))
 }
 
