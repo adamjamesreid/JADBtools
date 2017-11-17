@@ -81,6 +81,11 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11', 'legacy_only'), legacy_ce1
         Sys.setenv(JADB_GROUP="")
         Sys.setenv(JADB_MOUNT="")
         require(JADBtools)
+        
+        message('Adding submission entry')
+        jagui_add_submission_csv(gurl)
+        
+        message('Done')
     }
 }
 
