@@ -170,7 +170,7 @@ fs_add_internal <- function(addr, select_id='', EXTABLE='labexperiment', ignore.
         return(finalFilePath)
     }
     
-    addExtractIDs(addr)
+    ##addExtractIDs(addr)
     res <- lapply(out, function(x) {
         temp_file <- catFQandOutput(x)
         insert_entry_to_jadb(x,temp_file)
