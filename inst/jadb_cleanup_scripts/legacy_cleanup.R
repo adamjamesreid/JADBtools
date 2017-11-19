@@ -58,6 +58,33 @@ scl <- function(ID, genome='ce10', ops=', purge=TRUE, backup=TRUE', out_sufix=NU
     
 }
 
+
+con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
+message(paste0('    ', names(dbGetInfo(con))[1:3], ': ', dbGetInfo(con)[1:3], collapse = '\n'))
+dbListTables(con)
+
+dbReadTable(con, "labfiles") %>% as_tibble() -> files
+
+dbReadTable(con, "labexperiment") %>% as_tibble() -> chip
+dbDisconnect(con)
+
+efiles <- left_join(chip, files, by = 'ContactExpID')
+
+efiles$ContactExpID %>% table -> zz
+zz %>% table
+
+zz2 <- zz[zz==15]
+
+getFilePath('AA654', mount = TRUE) %>% file.exists() %>% '!'(.) %>%  getFilePath('AA654', mount = TRUE)[.]
+
+getDup <- function(x) {
+    getFilePath(x, mount = TRUE) %>% sub('\\^.[A-Za-z0-9.]+bw$', '', .) %>% duplicated() %>% getFilePath(x, mount = TRUE)[.]
+}
+
+
+getDup('AA659') %>% gsub('.+\\^|.bw', '', .) %>% sapply(jadb_rm_file)
+
+
 sc2l <- function(ID, genome='ce11', ops=', steps = \"map10_uniq\", purge = FALSE, backup = FALSE', out_sufix='uniq_beads', pipeline='jadb_ChIPseq') {
     message(ID)
     
@@ -81,7 +108,7 @@ sc2l <- function(ID, genome='ce11', ops=', steps = \"map10_uniq\", purge = FALSE
     )
     
     cmd <- sprintf(
-        "%s | sbatch --job-name=%s --output=%s/%s.%s --ntasks-per-node=8 --nice=10", #--exclude=node9
+        "%s | sbatch --job-name=%s --output=%s/%s.%s --ntasks-per-node=8", # --nice=10", #--exclude=node9
         paste0(cmd_lst, collapse = '\n'), ID, 
         file.path(MOUNT, '_log'), 
         ID, out_sufix
@@ -95,7 +122,7 @@ sc2l <- function(ID, genome='ce11', ops=', steps = \"map10_uniq\", purge = FALSE
     
 }
 
-
+sapply(names(zz2), sc2l, genome='cb3ce11')
 
 
 log <- jar_nlog()
