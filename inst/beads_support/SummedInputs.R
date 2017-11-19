@@ -170,3 +170,34 @@ sumBAMinputs(
 )
 file.rename('ce11_EGS_HiSeq_UNIQ_MAPQ10_200bp_SummedInput_linear_25bp.bw', 'ce11_EGS_HiSeq_UNIQ_MAPQ10_200bp_SummedInput_bin25bp.bw')
 
+
+
+
+### UNIQ cb3ce11
+
+sumBAMinputs(
+    bam.controls = "cb3ce11_FRM_HiSeq_input.bam", 
+    bw.mappability = '../../../_mappability_files_/cb3ce11_gem-mappability_36bp.bw', 
+    genome = '../../../_ref_genomes_/cb3ce11/cb3ce11.fa',
+    out_name = "cb3ce11_FRM_HiSeq_UNIQ_MAPQ10_200bp",
+    uniq = TRUE, 
+    insert = 200L, 
+    mapq_cutoff = 10L, 
+    quickMap = TRUE,
+    bin = 25L
+)
+file.rename('cb3ce11_FRM_HiSeq_UNIQ_MAPQ10_200bp_SummedInput_linear_25bp.bw', 'cb3ce11_FRM_HiSeq_UNIQ_MAPQ10_200bp_SummedInput_bin25bp.bw')
+
+
+sumBAMinputs(
+    bam.controls = "cb3ce11_EGS_HiSeq_input.bam", 
+    bw.mappability = '../../../_mappability_files_/cb3ce11_gem-mappability_36bp.bw', 
+    genome = '../../../_ref_genomes_/cb3ce11/cb3ce11.fa',
+    out_name = "cb3ce11_EGS_HiSeq_UNIQ_MAPQ10_200bp",
+    uniq = TRUE, 
+    mapq_cutoff = 10L, 
+    insert = 200L, 
+    quickMap = TRUE,
+    bin = 25L
+)
+file.rename('cb3ce11_EGS_HiSeq_UNIQ_MAPQ10_200bp_SummedInput_linear_25bp.bw', 'cb3ce11_EGS_HiSeq_UNIQ_MAPQ10_200bp_SummedInput_bin25bp.bw')
