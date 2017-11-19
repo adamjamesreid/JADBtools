@@ -65,6 +65,8 @@ jadb_addAlignedBAM <- function(ids, processing='raw', format="txt.gz", genome='c
     
 }
 
+
+
 run_bwa <- function(file, genome, ncore=8, interperor='bash') {
     
     output <- gsub('\\..+$', '', basename(file))
@@ -117,6 +119,23 @@ run_fastq_screen <- function(file, interperor='bash') {
     message(cmd2)
     system(cmd2)
     return(paste0(output, '_screen.html'))
+}
+
+run_star <- function(file, interperor='bash') {
+    
+    output <- gsub('_.{8}.txt.gz', '_', file)
+    gndir <- '/mnt/jadb/DBfile/DBfiles/_ref_genomes_/ce11_star'
+    
+    cmd <- sprintf(
+        'STAR --outSAMtype BAM SortedByCoordinate --readFilesCommand zcat --runThreadN 8 --genomeDir %s --readFilesIn %s --outFileNamePrefix ./%s',
+        gndir, file, output
+    )
+    
+    cmd2 <- sprintf('echo "%s" | %s', cmd, interperor)
+    message(cmd2)
+    system(cmd2)
+    return(paste0(output, '_Aligned.sortedByCoord.out.bam'))
+    
 }
 
 
