@@ -60,7 +60,7 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11', 'legacy_only'), legacy_ce1
         Sys.setenv(JADB_MOUNT="/mnt/jadb2/DBfile/DBfiles")
         require(JADBtools)
         
-        addExtractIDs(gurl)
+        if(pipeline=='jadb_ChIPseq')  addExtractIDs(gurl)
         
         out <- lapply(lst, validate_jadb_submission_entry, EXTABLE = EXTABLE, basespace=basespace, ignore.exist = wipeout)#, ignore.exist = ignore.exist)
         if(any(lengths(out)==1)) stop('Validation finished with error!')
@@ -81,6 +81,11 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11', 'legacy_only'), legacy_ce1
         Sys.setenv(JADB_GROUP="")
         Sys.setenv(JADB_MOUNT="")
         require(JADBtools)
+        
+        message('Adding submission entry')
+        jagui_add_submission_csv(gurl)
+        
+        message('Done')
     }
 }
 

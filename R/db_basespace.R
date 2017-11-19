@@ -1,3 +1,54 @@
+#' jagui_add_submission_csv
+#'
+#' @param gurl url
+#' @param verbose hots
+#' @param host show commands
+#'
+#' @return
+#' @export
+#'
+#' @examples
+jagui_add_submission_csv <- function(gurl, verbose=FALSE, host=NULL) {
+    
+    
+    labsubmissions <- jagui_get_table('labsubmissions')
+    dat <- get_tab_from_google(gurl)
+    
+    record <- as.list(labsubmissions[1,])
+    record$SubmissionID <- sprintf('SUB%03i',  max(as.numeric(gsub('SUB', '', labsubmissions$SubmissionID)))+1)
+    record$Created <- as.character(Sys.Date())
+    record$userID <- unique(dat$userID)
+    record$RunID <- unique(dat$ProjectID)
+    record$ExpIDs <- paste0(dat$ContactExpID, collapse = '|')
+    record$URL <- gurl
+    record$CSV <-  paste(capture.output(write.csv(dat)), collapse = '\n')
+    
+    
+    nms <- names(record)
+    values <- unlist(lapply(nms, function(x) {
+        record[[x]]
+    }))
+    
+    sql_string <- paste0(
+        "INSERT INTO ", 'labsubmissions', " (", 
+        paste0(nms, collapse = ", "), 
+        ") VALUES ('", 
+        paste0(values, collapse = "', '"),
+        "');"
+    ) 
+    
+    if(verbose) message(sql_string)
+    
+    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf', host=host)
+    res <- dbSendStatement(con, sql_string)
+    out_res <- dbGetInfo(res)
+    dbClearResult(res)
+    dbDisconnect(con)
+    
+    return(out_res)
+}
+
+
 #' jagui_get_table
 #'
 #' @param tab name of MySQL table, e.g. 'labexperiment'
