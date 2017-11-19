@@ -14,6 +14,35 @@ mergeLanesFQ <- function() {
     sapply(cmds, function(x) { message('Joining: ', x); system(x)  })
 }
 
+#' Removes single file from JADB
+#'
+#' @param ids 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+jadb_rm_file <- function(ids) {
+    
+    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    
+    pth <- dbGetQuery(con, sprintf(
+        "SELECT path FROM `labfiles` WHERE `UID` = '%s';"
+    , ids))
+    pth <- gsub('^files', MOUNT, pth)
+    file.remove(pth)
+    
+    dbExecute(con, sprintf(
+        "DELETE FROM `labfiles` WHERE `UID` = '%s';"
+    , ids))
+    
+    dbDisconnect(con)
+    
+    message(ids, ' removed [', pth, ']')
+    
+}
+
+
 #' Purge an experiment from all processed files
 #'
 #' @param ids 
