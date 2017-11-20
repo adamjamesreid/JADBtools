@@ -123,18 +123,18 @@ run_fastq_screen <- function(file, interperor='bash') {
 
 run_star <- function(file, interperor='bash') {
     
-    output <- gsub('_.{8}.txt.gz', '_', file)
+    output <- gsub('_.{8}.txt.gz', '_', basename(file))
     gndir <- '/mnt/jadb/DBfile/DBfiles/_ref_genomes_/ce11_star'
     
     cmd <- sprintf(
-        'STAR --outSAMtype BAM SortedByCoordinate --readFilesCommand zcat --runThreadN 8 --genomeDir %s --readFilesIn %s --outFileNamePrefix ./%s',
+        'STAR --outSAMtype BAM SortedByCoordinate --readFilesCommand zcat --runThreadN 32 --genomeDir %s --readFilesIn %s --outFileNamePrefix ./%s',
         gndir, file, output
     )
     
     cmd2 <- sprintf('echo "%s" | %s', cmd, interperor)
     message(cmd2)
     system(cmd2)
-    return(paste0(output, '_Aligned.sortedByCoord.out.bam'))
+    return(paste0(output, 'Aligned.sortedByCoord.out.bam'))
     
 }
 
