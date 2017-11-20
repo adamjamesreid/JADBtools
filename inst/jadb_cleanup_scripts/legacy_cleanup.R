@@ -140,6 +140,51 @@ mySVD(SE2, sf=FALSE, type='rlog')
 SEall <- cbind(SE, SE2)
 colData(SEall)$source <- factor(gsub('[0-9]', '', rownames(colData(SEall))))
 
+
+
+
+
+SEwt <- SEall[,colData(SEall)$strain =='N2']
+dds3 <- DESeqDataSet(SEwt, ~source)
+dds3 <- DESeq(dds3)
+
+rl3 <- rlog(dds3)
+z <- plotPCA(rl3, intgroup='strain', ntop = 200000)
+z +  ggtitle('PCA: rlog transformed counts on BWA aligend data', subtitle = sub) + geom_label_repel(aes(label=name)) + theme_classic(base_size = 12)
+
+
+
+
+ddsA <- DESeqDataSet(SEall, ~strain)
+ddsA <- DESeq(ddsA)
+fp <- fpkm(ddsA)
+ann <- cbind(as.data.frame(mcols(gnmodel)), wb=names(gnmodel)) %>% tbl_df()
+
+rownames(fp) <- mcols(gnmodel[rownames(fp)])$seqID
+
+time.data <- read_delim('embryo_unified_dcpm.140308a', delim = ' ')
+SEall
+
+
+############
+
+pp <- getFilePath(c("AA758","AA759","AA760"), processing = 'ali', mount = TRUE)
+require(Biostrings)
+
+p1 <- scanBam(pp[[1]], param = ScanBamParam(what="seq"))
+
+cc <- vcountPattern(DNAString('TTCGCGCGTAACGACGTACCGT'), p1[[1]]$seq)
+
+cc <- vcountPattern(reverseComplement(DNAString('TTCGCGCGTAACGACGTACCGT')), p1[[1]]$seq)
+
+index <- read_delim('SNAPchip.txt', delim = ' ')
+
+cc <- vcountPDict(PDict(index$sequence),  p1[[1]]$seq)
+
+cc2 <- vcountPDict(reverseComplement(DNAStringSet(index$sequence)),  p1[[1]]$seq)
+
+Rsamt
+reads <- readLines(pp[[1]])
 ############
 
 #' # jacl_send_to_cluster("AA691", basespace_addr="https://docs.google.com/spreadsheets/d/1QpWQxl3WDL1hRHfJLOlql5qsGWPyFTosCBmJQWTQiQU/edit?usp=sharing")
