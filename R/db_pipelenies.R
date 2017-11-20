@@ -192,6 +192,15 @@ jadb_RNAseq <- function( ids, steps=c('trim', 'aln', 'tracks', 'rpm', 'fastqc'),
         )
     }
     
+    if('star' %in% steps) {
+        message('\t => \t Ruinning STAR')
+        jadb_processs_sceleton(
+            ids, FUN = run_star, 
+            Processing = 'STAR', Scale = 'NA', Resolution = 'ce11', filetype_format = 'bam',
+            format = "txt.gz", processing = "raw", scale = "NA", resolution='NA', prefix_output = 'S'
+        )
+    }
+    
  
     
     #fastq Screen 
