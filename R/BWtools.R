@@ -130,6 +130,9 @@ combineReps <- function(r1=NULL, r2=NULL, IDs=NULL, processing='aligned', res=10
 #' #combineReps(IDs)
 addRepToJADB <- function(IDs, res=100L) {
     
+    require(magrittr)
+    require(parallel)
+    
     message('Sumarizing BW tracks')
     allbw <- lapply(IDs, getFilePath, format='bw', url=FALSE, mount=TRUE) %>% lapply(sort)
     if(length(allbw[[1]]) != length(allbw[[2]])) stop('err_diff_proc_on_bw')
