@@ -158,7 +158,7 @@ jadb_ChIPseq <- function(
 #' 
 #' @examples
 #' #
-jadb_RNAseq <- function( ids, steps=c('trim', 'aln', 'tracks', 'rpm', 'fastqc'), ... ) {
+jadb_RNAseq <- function( ids, steps=c('trim', 'aln', 'tracks', 'rpm', 'fastqc', 'star'), ... ) {
     
     require(magrittr)
     setwd(MOUNT)
@@ -196,7 +196,7 @@ jadb_RNAseq <- function( ids, steps=c('trim', 'aln', 'tracks', 'rpm', 'fastqc'),
         message('\t => \t Ruinning STAR')
         jadb_processs_sceleton(
             ids, FUN = run_star, 
-            Processing = 'STAR', Scale = 'NA', Resolution = 'ce11', filetype_format = 'bam',
+            Processing = 'STAR', Scale = 'NA', genome = 'ce11', filetype_format = 'bam',
             format = "txt.gz", processing = "raw", scale = "NA", resolution='NA', prefix_output = 'S'
         )
     }
