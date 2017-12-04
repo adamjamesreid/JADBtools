@@ -180,11 +180,12 @@ jadb_processs_sceleton <- function(
     message(getwd())
     
     final.path <- file.path('files', exp_dir, gsub(
-        sprintf('%s\\^%s\\^%s', processing, scale, resolution), 
-        sprintf('%s^%s^%s', Processing, Scale, Resolution), 
+        sprintf('%s.%s.%s.+', processing, scale, resolution), 
+        sprintf('%s^%s^%s', Processing, Scale, genome), 
         prefix
     ))
-    
+    message('Output file path prefix: ', final.path)
+
     OUT <- FUN(basename(fls))
     message('Processing done!')
 
@@ -206,7 +207,7 @@ jadb_processs_sceleton <- function(
         out <- file.rename(OUT, file.path(dirname(OUT), basename(Entry$path)))
     }
     
-    
+    message('Result saved as ', basename(Entry$path))
     message("Done!")
     
 }
