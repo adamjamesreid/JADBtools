@@ -143,9 +143,8 @@ jacl_send_to_cluster <- function(ID, EXTABLE, genome='ce11', ops='', out_sufix=N
     
 
     
-    
     cmd <- sprintf(
-        "%s | sbatch --job-name=%s --output=%s/%s.%s --ntasks-per-node=8", #--exclude=node9
+        "%s | sbatch --job-name=%s --output=%s/%s.%s --ntasks-per-node=8", #--exclude=node9 --exclude=node[2-5,9-20]
         paste0(cmd_lst, collapse = '\n'), ID, 
         file.path(MOUNT, '_log'), 
         ID, out_sufix
