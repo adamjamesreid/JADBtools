@@ -153,7 +153,7 @@ addRepToJADB <- function(IDs, res=100L) {
     #outNorm <- combineReps(IDs, processing = 'BEADSNQNU', outdir = outdir, res = res)
     
     ## Add experiment to db
-    INSERT <- out$anno[1,-c(3,7,8,9,10,11,12)]
+    INSERT <- anno[1,-c(3,7,8,9,10,11,12)]
     INSERT[['ContactExpID']]<- CXID
     INSERT[['Created']] <- paste(Sys.Date())
     INSERT[['Updated']] <- paste(Sys.Date())
