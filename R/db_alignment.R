@@ -121,19 +121,22 @@ run_fastq_screen <- function(file, interperor='bash') {
     return(paste0(output, '_screen.html'))
 }
 
+#sapply(ids, jadb_RNAseq, steps = 'star')
 run_star <- function(file, interperor='bash') {
     
     output <- gsub('_.{8}.txt.gz', '_', basename(file))
     gndir <- '/mnt/jadb/DBfile/DBfiles/_ref_genomes_/ce11_star'
     
+    message('=> STAR with twopassMode <=')
     cmd <- sprintf(
-        'STAR --outSAMtype BAM SortedByCoordinate --readFilesCommand zcat --runThreadN 32 --genomeDir %s --readFilesIn %s --outFileNamePrefix ./%s',
+        'STAR --twopassMode Basic --outSAMstrandField intronMotif --outSAMtype BAM SortedByCoordinate --readFilesCommand zcat --runThreadN 32 --genomeDir %s --readFilesIn %s --outFileNamePrefix ./%s',
         gndir, file, output
     )
     
     cmd2 <- sprintf('echo "%s" | %s', cmd, interperor)
     message(cmd2)
     system(cmd2)
+    
     return(paste0(output, 'Aligned.sortedByCoord.out.bam'))
     
 }
