@@ -16,7 +16,7 @@ getAnno <- function( ContactExpID, anno='Factor', EXTABLE='labrnaseq'){
     
     strain <- lapply(ContactExpID, function(x) {
         res <- dbGetQuery(con, sprintf('SELECT %s FROM %s WHERE %s = "%s"', anno, EXTABLE, PK, x))
-        names(res) <- x
+        #names(res) <- x
         return(res)
     })
     
