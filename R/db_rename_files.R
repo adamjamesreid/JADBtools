@@ -62,7 +62,6 @@ jadb_rename_chip <- function(ID) {
     path <- unique(dirname(regFLS))
     
     rbeads:::ParseName(regFLS[[2]])
-    rbeads:::
     
     rbeads:::ParseName()
     regFLS <- JADBtools::getFilePath(ID, mount = TRUE)
