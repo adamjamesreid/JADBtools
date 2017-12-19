@@ -224,5 +224,201 @@ idr_concave_two_pass_with_oracle <- function(r1, r2, processing='BEADSQ10NU', cu
         'p1.bed', 'p2.bed', 'pR.bed', 
         out
     ))
+    file.remove(c("p1.bed", "p2.bed", "pR.bed"))
 } 
+
+
+#' Overlap intersect of two peak calls
+#'
+#' @param r1 ID of first experiment in replicate
+#' @param r2 ID of second experiment in replicate
+#' @param processing Which tracks to use (default: BEADSQ10NU)
+#' @param dc Create new directory
+#'
+#' @return NULL
+#' @export
+#'
+overlap_intersect <- function(r1, r2, processing='BEADSQ10NU', dc=TRUE) {
+    
+    require(JADBtools)
+    require(GenomicRanges)
+    require(rtracklayer)
+    require(magrittr)
+    require(dplyr)
+    require(readr)
+    
+    
+    # IDR on MACS
+    p1 <- getFilePath(r1, processing = 'peakCalls')
+    p2 <- getFilePath(r2, processing = 'peakCalls')
+    
+    ll <- strsplit(c(basename(p1), basename(p2)), '_|\\^|\\.')
+    repp <- !ll[[1]] == ll[[2]]
+    construct <- ll[[1]]
+    construct[repp] <- gsub(' ', '|', paste(ll[[1]][repp], ll[[2]][repp]))
+    #out <- paste0(paste0(construct[-length(construct)], collapse='_'), '.', construct[length(construct)])
+    out <- paste0(paste0(construct[-length(construct)], collapse='_'), '.', 'bed')
+    
+    
+    if(dc) {
+        dirn <- gsub('_(F|E)_.+', '', gsub('\\|', '_', out))
+        dir.create(dirn)
+        setwd(dirn)
+    }
+    
+    if( !file.exists(basename(p1)) ) download.file(p1, basename(p1))
+    if( !file.exists(basename(p2)) ) download.file(p2, basename(p2))
+    
+    # Get BW for browsing
+    bw1 <- getFilePath(r1, processing = processing, scale = 'lin')
+    bw2 <- getFilePath(r2, processing = processing, scale = 'lin')
+    if( !file.exists(basename(bw1)) ) download.file(bw1, basename(bw1))
+    if( !file.exists(basename(bw2)) ) download.file(bw2, basename(bw2))
+    
+    extraCols_narrowPeak <- c(
+        signalValue = "numeric", pValue = "numeric", qValue = "numeric", peak = "integer"
+    )
+    g1 <- import.bed(basename(p1), extraCols=extraCols_narrowPeak)
+    g2 <- import.bed(basename(p2), extraCols=extraCols_narrowPeak)
+    
+    int <- IRanges::intersect(g1, g2)
+    
+    #int2 <- as(int, 'GRangesList')
+    #g22 <- as(g1, 'GRangesList')
+    #g12 <- as(g2, 'GRangesList')
+    
+    #cbind(subsetByOverlaps(g12, int2), subsetByOverlaps(g22, int2))
+    
+    blacklist <- import.bed('https://gist.githubusercontent.com/Przemol/ef62ac7ed41d3a84ad6c478132417770/raw/56e98b99e6188c8fb3dfb806ff6f382fe91c27fb/CombinedBlacklists.bed')
+    nonmappable <- import.bed('https://gist.githubusercontent.com/Przemol/ef62ac7ed41d3a84ad6c478132417770/raw/56e98b99e6188c8fb3dfb806ff6f382fe91c27fb/non_mappable.bed')
+    filter <- reduce(c(blacklist, nonmappable))
+    
+    
+    chain <- import.chain('/Users/przemol/Downloads/ce10ToCe11.over.chain')
+    filter_ce11 <- liftOver(filter, chain) %>% reduce(min.gapwidth=50) %>%  unlist
+
+
+    int2 <- int[!int %over% filter_ce11]
+    
+    message(sprintf(
+        'P1=%s; P2=%s; I=%s; SF=%s', 
+        length(g1), length(g2), length(int), length(int2)
+    ))
+    export.bed(int2,out)
+    
+    makeTT(bw1,bw2,p1,p2,out)
+    
+    if(dc) {
+        setwd('..')
+    }
+} 
+
+
+makeTT <- function(bw1,bw2,p1,p2,out) {
+ 
+    bigwigs <- c(
+        file.path(getwd(),basename(bw1)),
+        file.path(getwd(),basename(bw2))
+    )
+    intervals <- c(
+        file.path(getwd(),basename(p1)),
+        file.path(getwd(),basename(p2)),
+        file.path(getwd(),out)
+    )
+    
+    bigWigMat <- cbind(
+        gsub("\\^[^\\^]+\\^[^\\^]+\\^[^\\^]+_[^_]+_[^_]+$","",basename(bigwigs)),
+        bigwigs
+    )
+    intervalsMat <- cbind(
+        gsub("\\^[^\\^]+\\^[^\\^]+\\^[^\\^]+_[^_]+_[^_]+$","",basename(intervals)),
+        intervals
+    )
+    
+    FileSheet <- merge(bigWigMat,intervalsMat,all=TRUE)
+    FileSheet <- as.matrix(cbind(FileSheet,NA))
+    colnames(FileSheet) <- c("SampleName","bigwig","interval","bam")
+    
+    SampleSheet <- cbind(
+        as.vector(FileSheet[,"SampleName"]),
+        c("R1","R2","RC")
+    )
+    colnames(SampleSheet) <- c("SampleName","Rep")
+    
+    MakeIGVSampleMetadata(SampleSheet, FileSheet, getwd())
+    sessionxml <- MakeIGVSessionXML(
+        FileSheet, getwd(), out, "ce11", locusName = "All", 
+        colourBy = apply(col2rgb(c('darkred', 'darkgreen', 'black')), 2, function(x) paste0(x, collapse = ",")), 
+        igvParams = igvParam(
+            bigwig.color = 'black', bigwig.altColor = 'red',
+            interval.color = 'black', interval.altColor = 'red',
+            bigwig.autoScale = "false", bigwig.minimum = 0, bigwig.maximum = 10
+        )
+    )
+
+    httr::GET(sprintf('http://localhost:60151/load?file=%s', sessionxml))
+    
+    #browseURL(sprintf('http://localhost:60151/load?file=%s', sessionxml))
+    
+    # HTMLreport <- maketracktable(
+    #     fileSheet=FileSheet,
+    #     SampleSheet=SampleSheet,
+    #     filename="IGVExample_ce11.html",
+    #     basedirectory=getwd(),
+    #     genome="ce11"
+    # )
+    
+    
+}
+
+
+makeTTall <- function(bw1,bw2,p1,p2,out) {
+    
+    bigwig <- dir(patt='\\^(F|E)\\^.+bw')
+    
+    interval <- dir(patt='\\^(F|E)\\^.+narrowPeak$')
+    rr <- dir(patt='_(F|E)_.+bed$')
+    
+    FileSheet <- cbind(
+        SampleName=gsub("_[^_]+_[^_]+_[^_]+$","",basename(bigwigs)),
+        bigwig=bigwig,
+        interval=interval,
+        bam=NA
+    ) %>% tbl_df
+    
+    SampleSheet <- cbind(
+        SampleName=as.vector(FileSheet[,"SampleName"]),
+        Rep=c("R1","R2")
+    )
+    
+    MakeIGVSampleMetadata(SampleSheet, FileSheet, getwd())
+    sessionxml <- MakeIGVSessionXML(
+        FileSheet, getwd(), 'ALL', "ce11", locusName = "All", 
+        colourBy = apply(col2rgb( rep(c('darkred', 'darkgreen'), length(bigwigs)/2)), 2, function(x) paste0(x, collapse = ",")), 
+        igvParams = igvParam(
+            bigwig.color = 'black', bigwig.altColor = 'red',
+            interval.color = 'black', interval.altColor = 'red',
+            bigwig.autoScale = "false", bigwig.minimum = 0, bigwig.maximum = 10
+        )
+    )
+    
+    httr::GET(sprintf('http://localhost:60151/load?file=%s', sessionxml))
+    
+    #browseURL(sprintf('http://localhost:60151/load?file=%s', sessionxml))
+    
+    # HTMLreport <- maketracktable(
+    #     fileSheet=FileSheet,
+    #     SampleSheet=SampleSheet,
+    #     filename="IGVExample_ce11.html",
+    #     basedirectory=getwd(),
+    #     genome="ce11"
+    # )
+    
+    
+}
+
+
+# overlap_intersect('RC009', 'RC010')
+# overlap_intersect('AA761', 'AA762')
+# overlap_intersect('AA764', 'AA765')
 
