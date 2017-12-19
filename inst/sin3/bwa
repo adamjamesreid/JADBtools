@@ -1,0 +1,9 @@
+bwa samse /mnt/jadb/DBfile/DBfiles/_ref_genomes_/ce11/ce11.fa <(bwa aln -t 16 /mnt/jadb/DBfile/DBfiles/_ref_genomes_/ce11/ce11.fa -b %s) %s | samtools view -@ 16 -bSu - | samtools sort -@ 16 -m 44294967296 -
+
+
+
+bwa samse /mnt/jadb/DBfile/DBfiles/_ref_genomes_/ce11/ce11.fa <(bwa aln -t 16 /mnt/jadb/DBfile/DBfiles/_ref_genomes_/ce11/ce11.fa -b EGS_HiSeq_input.bam) EGS_HiSeq_input.bam | samtools view -@ 16 -bSu - | samtools sort -@ 16 -m 44294967296 - ce11_EGS_HiSeq_input
+
+
+
+
