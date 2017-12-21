@@ -76,6 +76,7 @@ de_getSTAR_dds <- function(id) {
 }
 
 dds_ja_ce11 <- de_getSTAR_dds(c("rYD077","rYD076","rYD101", "rYD078","rYD079","rYD102"))
+dds_ja_set2_ce11 <- de_getSTAR_dds(c("rYD077","rYD076","rYD101", "rYD078","rYD079","rYD102", 'rYD103', 'rYD104'))
 dds_fp_ce11 <- de_getSTAR_dds(make_jadb_ids(1:12, 'rFP'))
 
 de_get_res <- function(x, contrast) {
@@ -84,10 +85,23 @@ de_get_res <- function(x, contrast) {
     return(RES)
 }
 
+export_dds <- function(dds, name='test1') {
+    
+    fpkm(dds) %>% as.data.frame %>% rownames_to_column('wb') %>% tbl_df %>% 
+        write_xlsx(path = paste0('fpkm_', name, '_roboust.xlsx'))
+    assay(dds) %>% as.data.frame %>% rownames_to_column('wb') %>% tbl_df %>% 
+        write_xlsx(path = paste0('counts_', name, '.xlsx'))
+    colData(dds) %>% as.data.frame %>% rownames_to_column('ID') %>% tbl_df %>% 
+        write_xlsx(path = paste0('coldata_', name, '.xlsx'))
+    save(dds, file=paste0('dds_', name, '.Rdata'))
+    
+}
+export_dds(dds_ja_set2_ce11, 'ja_set2_cfp1_ce11')
+
+
 #dds_fp_ce11 %>% colData %>% .$strain %>%  levels
-fpkm(dds_ja_ce11) %>% as.data.frame %>% rownames_to_column('wb') %>% tbl_df %>% write_xlsx(path = 'fpkm_cfp1_ja_ce11_roboust.xlsx')
-assay(dds_ja_ce11) %>% as.data.frame %>% rownames_to_column('wb') %>% tbl_df %>% write_xlsx(path = 'counts_cfp1_ja_ce11_roboust.xlsx')
-colData(dds_ja_ce11) %>% as.data.frame %>% rownames_to_column('ID') %>% tbl_df %>% write_xlsx(path = 'coldata_cfp1_ja_ce11_roboust.xlsx')
+
+
 
 fpkm(dds_fp_ce11) %>% as.data.frame %>% rownames_to_column('wb') %>% tbl_df %>% write_xlsx(path = 'fpkm_sin3_set2_cfp1_fp_ce11_roboust.xlsx')
 assay(dds_fp_ce11) %>% as.data.frame %>% rownames_to_column('wb') %>% tbl_df %>% write_xlsx(path = 'counts_sin3_set2_cfp1_pf_ce11_roboust.xlsx')
