@@ -4,10 +4,9 @@
 #' @param verbose hots
 #' @param host show commands
 #'
-#' @return
+#' @return SQL DBinfo
 #' @export
 #'
-#' @examples
 jagui_add_submission_csv <- function(gurl, verbose=FALSE, host=NULL) {
     
     

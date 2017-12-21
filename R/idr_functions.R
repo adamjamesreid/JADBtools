@@ -246,6 +246,7 @@ overlap_intersect <- function(r1, r2, processing='BEADSQ10NU', dc=TRUE) {
     require(magrittr)
     require(dplyr)
     require(readr)
+    require(tracktables)
     
     
     # IDR on MACS

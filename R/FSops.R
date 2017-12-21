@@ -18,10 +18,9 @@ mergeLanesFQ <- function() {
 #'
 #' @param ids 
 #'
-#' @return
+#' @return NULL
 #' @export
 #'
-#' @examples
 jadb_rm_file <- function(ids) {
     
     con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
@@ -47,10 +46,9 @@ jadb_rm_file <- function(ids) {
 #'
 #' @param ids 
 #'
-#' @return
+#' @return NULL
 #' @export
 #'
-#' @examples
 jadb_purge_exp <- function(ids) {
     
     sapply(ids, getFilePath, processing = 'raw', scale = "NA", url = FALSE)  -> fls

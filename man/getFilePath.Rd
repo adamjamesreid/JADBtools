@@ -5,7 +5,7 @@
 \title{Get file URL}
 \usage{
 getFilePath(ID, format = ".", processing = ".", scale = ".", url = TRUE,
-  eq = FALSE)
+  eq = FALSE, mount = FALSE)
 }
 \arguments{
 \item{ID}{ContactExperimetID}

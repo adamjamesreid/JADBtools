@@ -5,8 +5,8 @@
 \title{jadb_ChIPseq}
 \usage{
 jadb_ChIPseq(ids, steps = c("aln", "tracks", "norm", "log2_norm", "map0_norm",
-  "log2_map0_norm", "fastqc", "fastqscreen", "macs", "meme"), genome = "ce11",
-  purge = TRUE)
+  "log2_map0_norm", "map10_uniq", "fastqc", "fastqscreen", "macs", "meme"),
+  genome = "ce11", purge = TRUE, backup = FALSE)
 }
 \arguments{
 \item{IDs}{Vector of JADB ContactExpIDs}

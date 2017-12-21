@@ -4,7 +4,7 @@
 \alias{jadb_renove_exp}
 \title{remove experiment completly}
 \usage{
-jadb_renove_exp(ids)
+jadb_renove_exp(ids, EXTABLE = "labexperiment")
 }
 \arguments{
 \item{ids}{}

@@ -4,8 +4,8 @@
 \alias{combineReps}
 \title{Combine big wiggle files in the database into replicate track}
 \usage{
-combineReps(IDs, processing = "aligned", res = 100L, scale = "linear",
-  outdir = tempdir())
+combineReps(r1 = NULL, r2 = NULL, IDs = NULL, processing = "aligned",
+  res = 100L, scale = "linear", outdir = tempdir())
 }
 \arguments{
 \item{IDs}{Vector of JADB ContactExpIDs}
