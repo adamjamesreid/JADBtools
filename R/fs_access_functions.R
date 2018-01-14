@@ -29,14 +29,23 @@ jadb_get_file_paths <- function(
 #' @return TRUE if downloaded
 #' @export
 #'
-jadb_download_files <- function(ids, processing='raw') {
+jadb_download_files <- function(ids, processing='raw', auto=FALSE) {
     
     pth <- jadb_get_file_paths(ids, root_prefix = '', processing=processing)
     
-    message('Will download ([y]es/[n]o):\n- ', paste(pth, collapse = '\n- '))
-    if(scan(nmax = 1, what = 'character', quiet = TRUE)!='y') return()
-    
-    sapply(pth, function(x) download.file(x, basename(x)))
+    if(!auto) {
+        message('Will download ([y]es/[n]o):\n- ', paste(pth, collapse = '\n- '))
+        if(scan(nmax = 1, what = 'character', quiet = TRUE)!='y') return()
+    }
+
+    sapply(pth, function(x) {
+        if(file.exists(basename(x))) {
+            message('Skupping ', basename(x), ' - file exist.')
+        } else {
+            download.file(x, basename(x))
+        }
+        
+    })
 }
 
 
