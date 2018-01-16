@@ -231,7 +231,9 @@ combinePeaksToBed <- function(ids, mode='union') {
     }
     anno <- as.data.frame(t(sapply(basename(files), rbeads:::ParseName)))
     same <- anno[1,c('Factor', 'Strain', 'Stage', 'Processing', 'Scale', 'Resolution')]
-    outname <- paste0(paste0(unlist(same), collapse='_'), '_', paste(anno$ContactExpID, collapse = '^'), '_', mode, '.bed')
+    #outname <- paste0(paste0(unlist(same), collapse='_'), '_', paste(anno$ContactExpID, collapse = '^'), '_', mode, '.bed')
+    outname <- paste0(paste0(unlist(same), collapse='_'), '_', paste(anno$ExtractID, collapse = '|'), '_', paste(anno$ContactExpID, collapse = '|'), '_', mode, '.bed')
+    
     export.bed(out, outname)
     return(outname)
 }

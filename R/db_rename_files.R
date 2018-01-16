@@ -1,3 +1,10 @@
+#' Rename ChIP experiments
+#'
+#' @param ID - ContactExpID of an experiment
+#'
+#' @return NULL
+#' @export
+#'
 jadb_rename_chip <- function(ID) {
     
     con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file = "~/.my.cnf")
@@ -59,12 +66,12 @@ jadb_rename_chip <- function(ID) {
     sapply(SQL, function(x) dbGetQuery(con, x))
     dbDisconnect(con)
     
-    path <- unique(dirname(regFLS))
+    #path <- unique(dirname(regFLS))
     
-    rbeads:::ParseName(regFLS[[2]])
+    #rbeads:::ParseName(regFLS[[2]])
     
-    rbeads:::ParseName()
-    regFLS <- JADBtools::getFilePath(ID, mount = TRUE)
+    #rbeads:::ParseName()
+    #regFLS <- JADBtools::getFilePath(ID, mount = TRUE)
     
 }
     

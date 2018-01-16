@@ -2,7 +2,7 @@
 % Please edit documentation in R/BWtools.R
 \name{addIDRtoJADB}
 \alias{addIDRtoJADB}
-\title{Adds replicates to database}
+\title{OLD IDR reps}
 \usage{
 addIDRtoJADB(IDs, res = 100L)
 }
@@ -14,14 +14,14 @@ addIDRtoJADB(IDs, res = 100L)
 \item{outdir}{Directory to output BW file}
 }
 \description{
-Adds replicates to database
+OLD IDR reps
 }
 \examples{
 #combineReps(IDs)
 }
 \seealso{
-Other BW: \code{\link{addRepToJADB}},
-  \code{\link{combineReps}}
+Other BW: \code{\link{combineReps}},
+  \code{\link{jadb_replicates_chip}}
 }
 \author{
 Przemyslaw Stempor

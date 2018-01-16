@@ -104,7 +104,7 @@ combineReps <- function(r1=NULL, r2=NULL, IDs=NULL, processing='aligned', res=10
     bw <- bw / length(bwfl)
     
     same <- anno[1,c('Factor', 'Strain', 'Stage', 'Processing', 'Scale', 'Resolution')]
-    outname <- paste0(paste0(unlist(same), collapse='_'), '_', paste(anno$ContactExpID, collapse = '^'), '_', paste(anno$UID, collapse = '^'), '.bw')
+    outname <- paste0(paste0(unlist(same), collapse='_'), '_', paste(anno$ExtractID, collapse = '|'), '_', paste(anno$ContactExpID, collapse = '|'), '.bw')
     outname <- file.path(outdir, outname)
     message('Exporting: ', outname)
     export.bw(bw, outname)
@@ -112,142 +112,9 @@ combineReps <- function(r1=NULL, r2=NULL, IDs=NULL, processing='aligned', res=10
     return( list(out=outname, cor=C, anno=anno) )
     
 }
-
-#' Adds replicates to database
-#' 
-#' @param IDs Vector of JADB ContactExpIDs
-#' @param res Resolution of tracks
-#' @param outdir Directory to output BW file
-#'   
-#' @return NULL 
-#' 
-#' @author Przemyslaw Stempor
-#' 
-#' @family BW
-#' @export
-#' 
-#' @examples
-#' #combineReps(IDs)
-addRepToJADB <- function(IDs, res=100L) {
-    
-    require(magrittr)
-    require(parallel)
-    
-    message('Sumarizing BW tracks')
-    allbw <- lapply(IDs, getFilePath, format='bw', url=FALSE, mount=TRUE) %>% lapply(sort)
-    if(length(allbw[[1]]) != length(allbw[[2]])) stop('err_diff_proc_on_bw')
-    outputbw <- mcMap(combineReps, allbw[[1]], allbw[[2]], mc.cores=11)
-    
-    
-    ## get metatdata
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
-    REP <- dbReadTable(con, "labchipseqrep")
-    CXID <- sprintf('REP%03.0f', max(as.numeric(gsub('REP', '', REP$ContactExpID)))+1)
-    
-    setwd(MOUNT);
-    outdir <- file.path('REPLICATES', JADBtools:::getAnno(IDs[[1]], EXTABLE = 'labexperiment'), CXID)
-    dir.create(outdir, recursive = TRUE)
-    
-    BAM <- sapply(IDs, getFilePath, format='bam', url=FALSE)
-    anno <- as.data.frame(t(sapply(basename(BAM), rbeads:::ParseName)))
-    
-    
-    #out <- combineReps(IDs, processing = 'alnNQNU', outdir = outdir, res = res)
-    #outNorm <- combineReps(IDs, processing = 'BEADSNQNU', outdir = outdir, res = res)
-    
-    ## Add experiment to db
-    INSERT <- anno[1,-c(3,7,8,9,10,11,12)]
-    INSERT[['ContactExpID']]<- CXID
-    INSERT[['Created']] <- paste(Sys.Date())
-    INSERT[['Updated']] <- paste(Sys.Date())
-    INSERT[['Comments']] <- paste0('corA=', round(outputbw[[2]]$cor, 3), '; corN=', round(outputbw[[6]]$cor, 3))
-    INSERT[['ExtractID']] <- paste0(unlist(outputbw[[1]]$anno$ExtractID), collapse='|')
-    INSERT[['Experiments']] <- paste0(unlist(outputbw[[1]]$anno$ContactExpID), collapse='|')
-    
-    TABLE <- 'labchipseqrep'
-    fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", TABLE))
-    PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', TABLE) ))[['Column_name']]
-    
-    sql <- paste("INSERT INTO ", TABLE,"(", paste(colnames(INSERT), collapse=", "),") VALUES('", paste(as.character(unlist(INSERT)), collapse="', '"), "')", collapse=", ", sep="")
-    
-    rs <- dbSendQuery(con, sql )
-    info <- dbGetInfo(rs)
-    
-    dbDisconnect(con)
-    
-    #outMapq0 <- combineReps(IDs, processing = 'mapq0', outdir = outdir, res = res)
-    #outNormLog2 <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2$', res = res)
-    #outNormLog2zsc <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2zsc', res = res)
-    #outNormZscore <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'zscore', res = res)
-    
-    message('Sumarizing BW peak calls')
-    
-    oldwd <- getwd(); setwd(outdir)
-    peaksU <- file.path(outdir, combinePeaksToBed(IDs, mode = 'union'))
-    peaksI <- file.path(outdir, combinePeaksToBed(IDs, mode = 'intersection'))
-    peaksIDR <- file.path(outdir, combinePeaksIDR(IDs))
-    #enreg <- file.path(outdir, enrichedRegionsCall(
-    #    basename(outNorm$out),
-    #    basename(gsub('PeakCalls_MACS_q01(.+)_union', 'EnrichedRegions_a75_b9\\1', peaksU))
-    #))
-    addGenericFile(CXID, path = file.path('files', peaksU), Processing = 'PeakUnion',     Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
-    addGenericFile(CXID, path = file.path('files', peaksI), Processing = 'PeakIntersect', Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
-    addGenericFile(CXID, path = file.path('files', peaksIDR), Processing = 'IDR2', Resolution = 'q01', Scale = 'MACS', filetype_format = 'narrowPeak', prefix = 'R', repPath = TRUE)
-    
-    #addGenericFile(CXID, path = file.path('files', enreg), Processing = 'EnrichedRegions', Resolution = 'a75', Scale = 'q9', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
-    setwd(oldwd)
-    
-    
-    lapply(outputbw, function(x) {
-        message(basename(x$out))
-        fp <- file.path(MOUNT, outdir, basename(x$out))
-        file.copy(x$out, fp)
-        
-        addGenericFile(
-            CXID, path = gsub(MOUNT, 'files', fp), 
-            Processing = unlist(unique(x$anno$Processing)),  
-            Resolution = unlist(unique(x$anno$Resolution)), 
-            Scale = unlist(unique(x$anno$Scale)), 
-            filetype_format = 'bw', 
-            prefix = 'R', 
-            repPath = TRUE
-        )
-    })
-   
-    oldwd <- getwd(); setwd(outdir)
-    #dir.create('IDR', recursive = TRUE)
     
 
-    
-    cmd <- sprintf(
-        'export PATH=/mnt/home1/ahringer/ps562/software/bin:$PATH; /mnt/home1/ahringer/jarun/miniconda2/bin/ipython ~/TEST/macs2_idr.ipy -- %s %s -c %s -p ./IDR/idr',
-        gsub('^files', MOUNT, BAM[1]), 
-        gsub('^files', MOUNT, BAM[2]), 
-        if( grepl('^E', anno$Crosslinker[[1]]) ) {
-            file.path(MOUNT, 'Input/SummedInputs/ce11/ce11_EGS_HiSeq_input.bam')
-        } else {
-            file.path(MOUNT, 'Input/SummedInputs/ce11/ce11_FRM_HiSeq_input.bam')
-        }
-    )
-    message('--> ', cmd)
-    #system(cmd)
-    
-    
-    #same <- anno[1,c('Factor', 'Antibody', 'Strain', 'Stage', 'Processing', 'Scale', 'Resolution')]
-    #same$Processing <- 'PeakCalls'; same$Scale <- 'MACS'; same$Resolution <- 'q01'
-    #outname <- paste0(paste0(unlist(same), collapse='_'), '_', paste(anno$ContactExpID, collapse = '^'), '_', 'IDR', '.bed')
-    
-    
-    #ile.copy('IDR/idr_final_peaks_0.05.narrowPeak', outname)
-    #addGenericFile(CXID, path = file.path('files', outdir, outname), Processing = 'IDR', Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
-    setwd(oldwd)
-    
-    #UPDATE `mydb`.`labfiles` SET `filetype_format`='bwz' WHERE `UID`='R3e31188';
-    
-}
-    
-
-#' Adds replicates to database
+#' OLD IDR reps
 #' 
 #' @param IDs Vector of JADB ContactExpIDs
 #' @param res Resolution of tracks

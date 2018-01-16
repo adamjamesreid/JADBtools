@@ -27,7 +27,7 @@ Combine big wiggle files in the database into replicate track
 }
 \seealso{
 Other BW: \code{\link{addIDRtoJADB}},
-  \code{\link{addRepToJADB}}
+  \code{\link{jadb_replicates_chip}}
 }
 \author{
 Przemyslaw Stempor
