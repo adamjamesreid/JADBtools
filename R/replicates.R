@@ -17,6 +17,7 @@ jadb_replicates_chip <- function(IDs, res=100L, prefix='REP', extra_stats=NULL) 
     
     require(magrittr)
     require(parallel)
+    require(rtracklayer)
     
     message('Sumarizing BW tracks')
     allbw <- lapply(IDs, getFilePath, format='bw', url=FALSE, mount=TRUE) %>% lapply(sort)
@@ -27,7 +28,9 @@ jadb_replicates_chip <- function(IDs, res=100L, prefix='REP', extra_stats=NULL) 
     ## get metatdata
     con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
     REP <- dbReadTable(con, "labchipseqrep")
-    CXID <- sprintf('REP%03.0f', max(as.numeric(gsub(prefix, '', REP$ContactExpID)))+1)
+    nid <- max(as.numeric(gsub(prefix, '', REP$ContactExpID)))
+    if(is.na(nid)) nid <- 1
+    CXID <- sprintf('%s%03.0f', prefix, nid)
     
     setwd(MOUNT);
     outdir <- file.path('REPLICATES', JADBtools:::getAnno(IDs[[1]], EXTABLE = 'labexperiment'), CXID)
@@ -56,16 +59,16 @@ jadb_replicates_chip <- function(IDs, res=100L, prefix='REP', extra_stats=NULL) 
     
     dbDisconnect(con)
     
-    #outMapq0 <- combineReps(IDs, processing = 'mapq0', outdir = outdir, res = res)
-    #outNormLog2 <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2$', res = res)
-    #outNormLog2zsc <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'log2zsc', res = res)
-    #outNormZscore <- combineReps(IDs, processing = 'NORM', outdir = outdir, scale = 'zscore', res = res)
-    
-    message('Sumarizing BW peak calls')
+    message('Sumarizing peak calls')
     
     oldwd <- getwd(); setwd(outdir)
-    peaksU <- file.path(outdir, combinePeaksToBed(IDs, mode = 'union'))
-    peaksI <- file.path(outdir, combinePeaksToBed(IDs, mode = 'intersection'))
+    #peaksU <- file.path(outdir, combinePeaksToBed(IDs, mode = 'union'))
+    #peaksI <- file.path(outdir, combinePeaksToBed(IDs, mode = 'intersection'))
+    
+    peaksU <- file.path(outdir, overlap_intersect_nd(IDs[[1]], IDs[[2]], mode = 'union', filter_map = FALSE))
+    peaksI <- file.path(outdir, overlap_intersect_nd(IDs[[1]], IDs[[2]], mode = 'intersection', filter_map = FALSE))
+    
+    message('Running IDR2')
     peaksIDR <- file.path(outdir, combinePeaksIDR(IDs))
     #enreg <- file.path(outdir, enrichedRegionsCall(
     #    basename(outNorm$out),
@@ -78,6 +81,10 @@ jadb_replicates_chip <- function(IDs, res=100L, prefix='REP', extra_stats=NULL) 
     addGenericFile(CXID, path = file.path('files', peaksU), comments = comment1, Processing = 'PeakUnion',     Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
     addGenericFile(CXID, path = file.path('files', peaksI), comments = comment2, Processing = 'PeakIntersect', Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
     addGenericFile(CXID, path = file.path('files', peaksIDR), comments = comment3, Processing = 'IDR2', Resolution = 'q01', Scale = 'MACS', filetype_format = 'narrowPeak', prefix = 'R', repPath = TRUE)
+    
+    addGenericFile(CXID, path = file.path('files', paste0(peaksU, '.xml')), comments = comment1, Processing = 'PeakUnion',     Resolution = 'q01', Scale = 'MACS', filetype_format = 'xml', prefix = 'R', repPath = TRUE)
+    addGenericFile(CXID, path = file.path('files', paste0(peaksI, '.xml')), comments = comment2, Processing = 'PeakIntersect', Resolution = 'q01', Scale = 'MACS', filetype_format = 'xml', prefix = 'R', repPath = TRUE)
+    
     
     #addGenericFile(CXID, path = file.path('files', enreg), Processing = 'EnrichedRegions', Resolution = 'a75', Scale = 'q9', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
     setwd(oldwd)
@@ -97,7 +104,7 @@ jadb_replicates_chip <- function(IDs, res=100L, prefix='REP', extra_stats=NULL) 
             prefix = 'R', 
             repPath = TRUE,
             parent1_uid = x$anno$UID[[1]],
-            parent1_uid = x$anno$UID[[2]]
+            parent2_uid = x$anno$UID[[2]]
         )
     })
     
