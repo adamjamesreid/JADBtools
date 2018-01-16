@@ -71,9 +71,9 @@ jadb_replicates_chip <- function(IDs, res=100L, prefix='REP', extra_stats=NULL) 
     #    basename(outNorm$out),
     #    basename(gsub('PeakCalls_MACS_q01(.+)_union', 'EnrichedRegions_a75_b9\\1', peaksU))
     #))
-    comment1 <- paste0('n_peaks=', length( readLines(peaksU) ) ) 
-    comment2 <- paste0('n_peaks=', length( readLines(peaksI) ) ) 
-    comment3 <- paste0('n_peaks=', length( readLines(peaksIDR) ) ) 
+    comment1 <- paste0('n_peaks=', length( readLines(file.path(MOUNT, peaksU)) ) ) 
+    comment2 <- paste0('n_peaks=', length( readLines(file.path(MOUNT,peaksI)) ) ) 
+    comment3 <- paste0('n_peaks=', length( readLines(file.path(MOUNT,peaksIDR)) ) ) 
     
     addGenericFile(CXID, path = file.path('files', peaksU), comments = comment1, Processing = 'PeakUnion',     Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
     addGenericFile(CXID, path = file.path('files', peaksI), comments = comment2, Processing = 'PeakIntersect', Resolution = 'q01', Scale = 'MACS', filetype_format = 'bed', prefix = 'R', repPath = TRUE)
