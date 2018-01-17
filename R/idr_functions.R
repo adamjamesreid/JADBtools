@@ -391,11 +391,11 @@ overlap_intersect_nd <- function(
         filter <- blacklist
     }
     
-    download.file(
-        'https://gist.githubusercontent.com/Przemol/e9f1a3a5053619e69fafbd46759a17e4/raw/c69209270843e2724dc8c6ea9715ddd52930f41c/ce10ToCe11.over.chain', 
-        (tempfile() -> chainf), quiet = TRUE
-    )
-    chain_ce10ToCe11 <- import.chain(chainf)
+    # download.file(
+    #     'https://gist.githubusercontent.com/Przemol/e9f1a3a5053619e69fafbd46759a17e4/raw/c69209270843e2724dc8c6ea9715ddd52930f41c/ce10ToCe11.over.chain', 
+    #     (tempfile() -> chainf), quiet = TRUE
+    # )
+    chain_ce10ToCe11 <- import.chain('/mnt/jadb/DBfile/DBfiles/temp/ce10ToCe11.over.chain')
     filter_ce11 <- liftOver(filter, chain_ce10ToCe11) %>% reduce(min.gapwidth=50) %>%  unlist
     
     
