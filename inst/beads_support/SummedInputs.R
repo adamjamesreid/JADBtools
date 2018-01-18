@@ -35,6 +35,8 @@ sumBAMinputs(
     quickMap = TRUE,
     bin = 25L
 )
+file.rename('ce11_FRM_HiSeq_nonUNIQ_nonMAPQ_noMAPPABILITY_200bp_SummedInput_linear_25bp.bw', 'ce11_FRM_HiSeq_nonUNIQ_nonMAPQ_noMAPPABILITY_200bp_SummedInput_bin25bp.bw')
+
 
 sumBAMinputs(
     bam.controls = "ce11_EGS_HiSeq_input.bam", 
@@ -47,6 +49,8 @@ sumBAMinputs(
     quickMap = TRUE,
     bin = 25L
 )
+file.rename('ce11_EGS_HiSeq_nonUNIQ_nonMAPQ_noMAPPABILITY_200bp_SummedInput_linear_25bp.bw', 'ce11_EGS_HiSeq_nonUNIQ_nonMAPQ_noMAPPABILITY_200bp_SummedInput_bin25bp.bw')
+
 
 
 
