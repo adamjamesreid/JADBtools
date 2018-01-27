@@ -1,3 +1,19 @@
+#' get annotations
+#'
+#' @param ID contact exp id
+#'
+#' @return
+#' @export
+#'
+anno_get <- function(ID) {
+    if(length(ID)>1) {
+        out <- GRangesList(lapply(ID, anno_get))
+        names(out) <- ID
+        return(out)
+    }
+    import.bed(url(getFilePath(ID, processing = 'source')))
+}
+
 #' Add annotation to JADB
 #'
 #' @param file - path to file or GR
@@ -13,6 +29,8 @@
 #'
 anno_add <- function(file, Type='Genes', Version='ensembl90', Description='tets add', Source='', Genome='ce11', user='ps562') {
     
+    library(ssh.utils)
+    
     if (class(file)=="GRanges") {
         tmp <- tempfile()
         rtracklayer::export.bed(file, tmp)
@@ -22,14 +40,13 @@ anno_add <- function(file, Type='Genes', Version='ensembl90', Description='tets 
     #con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
     #labanno <- con %>% tbl('labanno')
     maxid <- jagui_get_table('labanno')$ContactExpID %>% sort %>% tail(1)
-    newid <- sprintf('ANN%03i', as.numeric(gsub('ANN', '', maxid))+1)
+    newid <- if(length(maxid)) sprintf('ANN%03i', as.numeric(gsub('ANN', '', maxid))+1) else 'ANN001'
     
     GR <- import.bed(file)
     n <- length(GR)
     gc <- round(sum(width(reduce(GR, ignore.strand=TRUE)))/sum(width(GRangesForBSGenome('ce11'))), 3)
     rd <- round( sum(sum(coverage(GR)>1))/sum(sum(coverage(GR)>0)), 3)
     
-    anno_add_file(newid, file, ref.genome.version=Genome) 
     record <- c(
         ContactEXpID=newid,
         Type=Type,
@@ -41,13 +58,15 @@ anno_add <- function(file, Type='Genes', Version='ensembl90', Description='tets 
         userID=user
     )
     res <- jagui_add_recoerd(record, TABLE = 'labanno')
+    anno_add_file(newid, file, ref.genome.version=Genome) 
+   
     
 }
 
 
 anno_add_file <- function(ID, file, ref.genome.version='ce11') {
     dir <- file.path(MOUNT, 'ANNO', ID)
-    file_base <- formGenericPath('ANN001', 'labanno', Processing = 'source', Resolution = ref.genome.version, Scale = 'ranges')
+    file_base <- formGenericPath(ID, 'labanno', Processing = 'source', Resolution = ref.genome.version, Scale = 'ranges')
     db_path <- sub(MOUNT, 'files', file.path(dir, file_base))
     
     db_entry <- addGenericFile(
@@ -72,6 +91,7 @@ anno_add_file <- function(ID, file, ref.genome.version='ce11') {
         temp <- file
     }
     
+    message('Adding ', final_path)
     ssh.utils::mkdir.remote(
         dirname(final_path), 
         remote = "jarun@cb-head2.gurdon.private.cam.ac.uk"
