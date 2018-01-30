@@ -1,4 +1,8 @@
 ##### coding genes from Ensembl #####
+require(rtracklayer)
+require(magrittr)
+require(dplyr)
+require(ssh.utils)
 txdb_fls <- 'ftp://ftp.ensembl.org/pub/release-90/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.90.gtf.gz'
 txdb_gtf <- import.gff(txdb_fls, format='gtf')
 txdb <- GenomicFeatures::makeTxDbFromGRanges(txdb_gtf[txdb_gtf$gene_biotype == 'protein_coding'])
