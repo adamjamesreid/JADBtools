@@ -279,7 +279,7 @@ download_fastq_from_basespace <- function(data) {
     }
     
     #File joining, takes time
-    system( sprintf('cat %s > %s', paste(file.path(temp_dir, files$Path), collapse=' '), gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])), intern=TRUE)
+    system( sprintf('cat %s > %s', paste(file.path(temp_dir, files$Path), collapse=' '), gsub('L002', 'L001andL002', file.path(temp_dir, sort(files$Path))[2])), intern=TRUE)
     finalFilePath <- gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])
     if( !file.exists(finalFilePath) ) stop('Joined file does not exist!')
     
