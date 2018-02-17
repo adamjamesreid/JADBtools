@@ -1,11 +1,22 @@
+#' annotations info
+#'
+#'
+#' @return tbl
+#' @export
+#'
+anno_info<- function() {
+    jagui_get_table('labanno')
+}
+
 #' get annotations
 #'
 #' @param ID contact exp id
 #'
-#' @return
+#' @return GRanges
 #' @export
 #'
 anno_get <- function(ID) {
+    require(rtracklayer)
     if(length(ID)>1) {
         out <- GRangesList(lapply(ID, anno_get))
         names(out) <- ID
