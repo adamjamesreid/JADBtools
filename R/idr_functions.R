@@ -315,17 +315,131 @@ overlap_intersect <- function(r1, r2, processing='BEADSQ10NU', dc=TRUE) {
 } 
 
 
-makeTT <- function(bw1,bw2,p1,p2,out) {
+overlap_intersect_nd <- function(
+    r1, r2, processing='BEADSQ10NU', dc=FALSE, filter_map=TRUE, dbname=TRUE, 
+    mode='intersection', loadIGV=FALSE
+) {
+    
+    require(JADBtools)
+    require(GenomicRanges)
+    require(rtracklayer)
+    require(magrittr)
+    require(dplyr)
+    require(readr)
+    require(tracktables)
+    
+    
+    # IDR on MACS
+    p1 <- getFilePath(r1, processing = 'peakCalls')
+    p2 <- getFilePath(r2, processing = 'peakCalls')
+    
+    
+    if(dbname) {
+        anno <- as.data.frame(t(sapply(c(basename(p1), basename(p2)), rbeads:::ParseName)))
+        same <- anno[1,c('Factor', 'Strain', 'Stage', 'Processing', 'Scale', 'Resolution')]
+        out <- paste0(paste0(unlist(same), collapse='_'), '_', paste(anno$ExtractID, collapse = '|'), '_', paste(anno$ContactExpID, collapse = '|'), '_', mode, '.bed')
+        
+    } else {
+        ll <- strsplit(c(basename(p1), basename(p2)), '_|\\^|\\.')
+        repp <- !ll[[1]] == ll[[2]]
+        construct <- ll[[1]]
+        construct[repp] <- gsub(' ', '|', paste(ll[[1]][repp], ll[[2]][repp]))
+        out <- paste0(paste0(construct[-length(construct)], collapse='_'), '.', 'bed')
+        
+    }
+    
+    
+    if(dc) {
+        dirn <- gsub('_(F|E)_.+', '', gsub('\\|', '_', out))
+        dir.create(dirn)
+        setwd(dirn)
+    }
+    
+    #if( !file.exists(basename(p1)) ) download.file(p1, basename(p1))
+    #if( !file.exists(basename(p2)) ) download.file(p2, basename(p2))
+    
+    # Get BW for browsing
+    bw1 <- getFilePath(r1, processing = processing, scale = 'lin')
+    bw2 <- getFilePath(r2, processing = processing, scale = 'lin')
+    #if( !file.exists(basename(bw1)) ) download.file(bw1, basename(bw1))
+    #if( !file.exists(basename(bw2)) ) download.file(bw2, basename(bw2))
+    
+    extraCols_narrowPeak <- c(
+        signalValue = "numeric", pValue = "numeric", qValue = "numeric", peak = "integer"
+    )
+    g1 <- import.bed(url(p1), extraCols=extraCols_narrowPeak)
+    g2 <- import.bed(url(p2), extraCols=extraCols_narrowPeak)
+    
+    if(mode=='intersection') {
+        int <- IRanges::intersect(g1, g2)
+    } else if(mode=='union') {
+        int <- IRanges::union(g1, g2)
+    }
+    
+    #int2 <- as(int, 'GRangesList')
+    #g22 <- as(g1, 'GRangesList')
+    #g12 <- as(g2, 'GRangesList')
+    
+    #cbind(subsetByOverlaps(g12, int2), subsetByOverlaps(g22, int2))
+    
+    blacklist <- import.bed('https://gist.githubusercontent.com/Przemol/ef62ac7ed41d3a84ad6c478132417770/raw/56e98b99e6188c8fb3dfb806ff6f382fe91c27fb/CombinedBlacklists.bed')
+    nonmappable <- import.bed('https://gist.githubusercontent.com/Przemol/ef62ac7ed41d3a84ad6c478132417770/raw/56e98b99e6188c8fb3dfb806ff6f382fe91c27fb/non_mappable.bed')
+    
+    if(filter_map) {
+        filter <- reduce(c(blacklist, nonmappable))
+    } else {
+        filter <- blacklist
+    }
+    
+    # download.file(
+    #     'https://gist.githubusercontent.com/Przemol/e9f1a3a5053619e69fafbd46759a17e4/raw/c69209270843e2724dc8c6ea9715ddd52930f41c/ce10ToCe11.over.chain', 
+    #     (tempfile() -> chainf), quiet = TRUE
+    # )
+    chain_ce10ToCe11 <- import.chain('/mnt/jadb/DBfile/DBfiles/temp/ce10ToCe11.over.chain')
+    filter_ce11 <- liftOver(filter, chain_ce10ToCe11) %>% reduce(min.gapwidth=50) %>%  unlist
+    
+    
+    int2 <- int[!int %over% filter_ce11]
+    
+    message(sprintf(
+        'P1=%s; P2=%s; I=%s; SF=%s', 
+        length(g1), length(g2), length(int), length(int2)
+    ))
+    export.bed(int2,out)
+    
+    makeTT(bw1,bw2,p1,p2,out, local = FALSE, loadIGV=loadIGV)
+    
+    if(dc) {
+        setwd('..')
+    }
+    return(out)
+} 
+
+
+makeTT <- function(bw1,bw2,p1,p2,out, local=TRUE, loadIGV=FALSE) {
  
-    bigwigs <- c(
-        file.path(getwd(),basename(bw1)),
-        file.path(getwd(),basename(bw2))
-    )
-    intervals <- c(
-        file.path(getwd(),basename(p1)),
-        file.path(getwd(),basename(p2)),
-        file.path(getwd(),out)
-    )
+    if(!local) {
+        bigwigs <- c(
+            bw1,
+            bw2
+        )
+        intervals <- c(
+            p1,
+            p2,
+            out
+        )
+    } else {
+        bigwigs <- c(
+            file.path(getwd(),basename(bw1)),
+            file.path(getwd(),basename(bw2))
+        )
+        intervals <- c(
+            file.path(getwd(),basename(p1)),
+            file.path(getwd(),basename(p2)),
+            file.path(getwd(),out)
+        )
+    }
+    
     
     bigWigMat <- cbind(
         gsub("\\^[^\\^]+\\^[^\\^]+\\^[^\\^]+_[^_]+_[^_]+$","",basename(bigwigs)),
@@ -357,7 +471,7 @@ makeTT <- function(bw1,bw2,p1,p2,out) {
         )
     )
 
-    httr::GET(sprintf('http://localhost:60151/load?file=%s', sessionxml))
+    if(loadIGV) httr::GET(sprintf('http://localhost:60151/load?file=%s', sessionxml))
     
     #browseURL(sprintf('http://localhost:60151/load?file=%s', sessionxml))
     

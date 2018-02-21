@@ -4,7 +4,7 @@
 \alias{jadb_download_files}
 \title{jadb_download_files}
 \usage{
-jadb_download_files(ids, processing = "raw")
+jadb_download_files(ids, processing = "raw", auto = FALSE)
 }
 \arguments{
 \item{ids}{ContactExpIDs}

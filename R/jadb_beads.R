@@ -106,14 +106,14 @@ addNonUniqueNQBeads <- function(ids, genome='ce11') {
     setwd(exp_dir)
     
     crosslink <- JADBtools::getAnno(ids, anno = 'Crosslinker', EXTABLE = 'labexperimentview')
-    input_suffix <- '_HiSeq_nonUNIQ_nonMAPQ_200bp_SummedInput_bin25bp.bw'
+    input_suffix <- '_HiSeq_nonUNIQ_nonMAPQ_noMAPPABILITY_200bp_SummedInput_bin25bp.bw'
     if(grepl('^e', crosslink, ignore.case = TRUE)) {
         input <- file.path(base_dir, 'Input/SummedInputs', genome, paste0(genome, '_EGS', input_suffix))
     }  else {
         input <- file.path(base_dir, 'Input/SummedInputs', genome, paste0(genome, '_FRM', input_suffix))
     }
     
-    mappability <- file.path(base_dir, paste0("_mappability_files_/", genome, "_gem-mappability_36bp.bw"))
+    #mappability <- file.path(base_dir, paste0("_mappability_files_/", genome, "_gem-mappability_36bp.bw"))
     
     message('File: ', basename(fls), '\n vs. ', basename(input))
     
@@ -121,7 +121,7 @@ addNonUniqueNQBeads <- function(ids, genome='ce11') {
     NRM0 <- beads(
         basename(fls), 
         input, 
-        mappability,
+        NULL,
         if(genome == 'cb3ce11') file.path(base_dir, '_ref_genomes_/cb3ce11/cb3ce11.fa') else genome, 
         uniq = FALSE, insert = 200L, mapq_cutoff = 0, export = "BEADS", 
         rdata = FALSE, export_er = TRUE, quickMap = TRUE

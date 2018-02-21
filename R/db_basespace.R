@@ -133,7 +133,7 @@ validate_jadb_submission_entry <- function(
         app_access_token <- "f58a0ccf1599418d8b4b09034a56bdd5"
         aAuth <- AppAuth(access_token = app_access_token, scope = "browse Sample")
         myProj <- listProjects(aAuth, Limit = 1000)
-        PrAno <- data.frame(Name = Name(myProj), Id = Id(myProj))
+        PrAno <- data.frame(Name = BaseSpaceR::Name(myProj), Id = BaseSpaceR::Id(myProj))
     }
     
     
@@ -178,11 +178,12 @@ validate_jadb_submission_entry <- function(
             projectId = subset(PrAno, Name == prID, Id, drop = TRUE), 
             Limit = 1000
         )
-        SmAno <- data.frame(Name = Name(mySmpl), Id = Id(mySmpl))
+        SmAno <- data.frame(Name = BaseSpaceR::Name(mySmpl), Id = BaseSpaceR::Id(mySmpl))
         files <- listFiles(
             aAuth, 
             sampleId = subset(SmAno, Name == smplID, Id, drop = TRUE)[[1]]
         )
+        files <- files[order(BaseSpaceR::Name(files))]
         
         if (!any(SmAno$Name == smplID)) {
             warning("Experiment ID [", smplID, "] does not match one(s) in BaseSpace, allowed values are:\n", 
@@ -279,7 +280,7 @@ download_fastq_from_basespace <- function(data) {
     }
     
     #File joining, takes time
-    system( sprintf('cat %s > %s', paste(file.path(temp_dir, files$Path), collapse=' '), gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])), intern=TRUE)
+    system( sprintf('cat %s > %s', paste(file.path(temp_dir, files$Path), collapse=' '), gsub('L002', 'L001andL002', file.path(temp_dir, sort(files$Path))[2])), intern=TRUE)
     finalFilePath <- gsub('L002', 'L001andL002', file.path(temp_dir, files$Path)[2])
     if( !file.exists(finalFilePath) ) stop('Joined file does not exist!')
     
