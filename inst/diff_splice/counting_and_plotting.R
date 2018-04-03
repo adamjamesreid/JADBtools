@@ -75,39 +75,45 @@ getDS <- function(IDS) {
     ddse <- DESeqDataSet(se_lst$SEexons, ~1)
     ddsi <- DESeqDataSet(se_lst$SEintron, ~1)
     
+    
+    
     fi <- fpkm(ddsi, robust = TRUE)
-    colnames(fi) <- paste0('intron_', colnames(fi))
-    fi %<>% as.data.frame %>% rownames_to_column('wb') %>% tbl_df
-    fi %<>% dplyr::mutate( intron_hpl2 = (intron_rAM051+intron_rAM052)/2 ) %>% dplyr::mutate(intron_wt=(intron_rAM047+intron_rAM048)/2)
+    mi <- cbind(
+        int_mut=rowMeans(fi[,colData(ddsi)$strain!='N2']),
+        int_wt=rowMeans(fi[,colData(ddsi)$strain=='N2'])
+    ) %>% as.data.frame %>% rownames_to_column('wb') %>% tbl_df
+    
+    fe <- fpkm(ddse, robust = TRUE)
+    me <- cbind(
+        exn_mut=rowMeans(fe[,colData(ddsi)$strain!='N2']),
+        exn_wt=rowMeans(fe[,colData(ddsi)$strain=='N2'])
+    ) %>% as.data.frame %>% rownames_to_column('wb') %>% tbl_df
+    
+    # Filter missing val
+    plot_data <- me %>% left_join(mi)
+    plot_data <- plot_data[rowSums(is.na(plot_data[,-1]))==0,]
+    plot_data <- plot_data[rowSums(plot_data[,-1]==0)==0,]
+    
+    # Calculate stats
+    plot_data %<>% mutate(exon_ratio = exn_mut / exn_wt)
+    plot_data %<>% mutate(intron_ratio= int_mut / int_wt)
+    
+    plot_data %<>% mutate(FC = abs(log2(exon_ratio/intron_ratio)) )
+    plot_data %<>% mutate(Significant=FC > 2.5)
+    plot_data <- left_join(plot_data, ANNO)
+    
+    #colnames(fe) <- paste0('exon_', colnames(fe))
+    #fe %<>% as.data.frame %>% rownames_to_column('wb') %>% tbl_df
+    #fe %<>% dplyr::mutate( exon_hpl2 = (exon_rAM051+exon_rAM052)/2 ) %>% dplyr::mutate(exon_wt=(exon_rAM047+exon_rAM048)/2)
+    
+    
+    #colnames(fi) <- paste0('intron_', colnames(fi))
+    #fi %<>% as.data.frame %>% rownames_to_column('wb') %>% tbl_df
+    #fi %<>% dplyr::mutate( intron_hpl2 = (intron_rAM051+intron_rAM052)/2 ) %>% dplyr::mutate(intron_wt=(intron_rAM047+intron_rAM048)/2)
     
     
     
 }
-
-#attach(se_lst)
-
-
-
-
-
-fe <- fpkm(ddse, robust = TRUE)
-colnames(fe) <- paste0('exon_', colnames(fe))
-fe %<>% as.data.frame %>% rownames_to_column('wb') %>% tbl_df
-fe %<>% dplyr::mutate( exon_hpl2 = (exon_rAM051+exon_rAM052)/2 ) %>% dplyr::mutate(exon_wt=(exon_rAM047+exon_rAM048)/2)
-
-fi %<>% select(-intron_rAM051, -intron_rAM052, -intron_rAM047, -intron_rAM048)
-fe %<>% select(-exon_rAM051, -exon_rAM052, -exon_rAM047, -exon_rAM048)
-
-plot_data <- fe %>% left_join(fi)
-plot_data <- plot_data[rowSums(is.na(plot_data[,-1]))==0,]
-plot_data <- plot_data[rowSums(plot_data[,-1]==0)==0,]
-
-
-
-plot_data %<>% mutate(exon_ratio=exon_hpl2/exon_wt, intron_ratio=intron_hpl2/intron_wt)
-plot_data %<>% mutate(FC=abs(log2(exon_ratio/intron_ratio)))
-plot_data %<>% mutate(Significant=FC > 2.5)
-plot_data <- left_join(plot_data, ANNO)
 
 
 gg0 <- plot_data %>% 
@@ -119,9 +125,31 @@ gg0 <- plot_data %>%
     ggrepel::geom_label_repel(
         data = . %>% arrange(desc(FC)) %>% head(10), color='black'
     ) + theme_bw(base_size = 14) +
-    ggtitle('hpl-2/WT ratios of exonin to intronic reads')
+    ggtitle('set25met2 /WT ratios of exonin to intronic reads ->NEW<- ')
 
-ggsave('hpl2WT_ratios_of_exonin_to_intronic_reads.pdf')
+ggsave('hpl2WT_ratios_of_exonin_to_intronic_reads_v2validation.pdf')
+
+
+#attach(se_lst)
+
+
+
+
+
+
+fi %<>% select(-intron_rAM051, -intron_rAM052, -intron_rAM047, -intron_rAM048)
+fe %<>% select(-exon_rAM051, -exon_rAM052, -exon_rAM047, -exon_rAM048)
+
+plot_data <- fe %>% left_join(fi)
+plot_data <- plot_data[rowSums(is.na(plot_data[,-1]))==0,]
+plot_data <- plot_data[rowSums(plot_data[,-1]==0)==0,]
+
+plot_data %<>% mutate(exon_ratio=exon_hpl2/exon_wt, intron_ratio=intron_hpl2/intron_wt)
+plot_data %<>% mutate(FC=abs(log2(exon_ratio/intron_ratio)))
+plot_data %<>% mutate(Significant=FC > 2.5)
+plot_data <- left_join(plot_data, ANNO)
+
+
 
 require(ggrepel)
 data.frame(exon=rowMeans(fe[,1:2]), intron=rowMeans(fi[,1:2])) %>% 
