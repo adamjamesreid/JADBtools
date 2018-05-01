@@ -27,7 +27,7 @@ jadb_replicates_chip <- function(IDs, res=100L, prefix='REP', extra_stats=NULL) 
     
     
     ## get metatdata
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
     REP <- dbReadTable(con, "labchipseqrep")
     
     if(any(grepl(prefix, REP$ContactExpID))) {

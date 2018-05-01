@@ -9,7 +9,7 @@
 #' 
 #' @author Przemyslaw Stempor
 #' 
-#' @import XML DBI RMySQL digest IRanges GenomicRanges rtracklayer jsonlite 
+#' @import XML DBI RMariaDB digest IRanges GenomicRanges rtracklayer jsonlite 
 #' @import Rsamtools GenomicAlignments GenomicFeatures DESeq2
 NULL
 # @import  GOstats org.Ce.eg.db edgeR ShortRead

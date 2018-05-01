@@ -7,7 +7,7 @@
 #'
 jadb_rename_chip <- function(ID) {
     
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file = "~/.my.cnf")
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file = "~/.my.cnf")
     
     fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", 'labexperimentview'))
     
@@ -62,7 +62,7 @@ jadb_rename_chip <- function(ID) {
     
     
     SQL <- sprintf('UPDATE labfiles SET path = "%s" WHERE UID = "%s"', file.path(sub(MOUNT, 'files', fls$dirname), fls$pat2), fls$UID)
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file = "~/.my.cnf")
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file = "~/.my.cnf")
     sapply(SQL, function(x) dbGetQuery(con, x))
     dbDisconnect(con)
     

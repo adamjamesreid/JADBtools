@@ -23,7 +23,7 @@ mergeLanesFQ <- function() {
 #'
 jadb_rm_file <- function(ids) {
     
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
     
     pth <- dbGetQuery(con, sprintf(
         "SELECT path FROM `labfiles` WHERE `UID` = '%s';"
@@ -60,7 +60,7 @@ jadb_purge_exp <- function(ids) {
     rm_file <- rm_file[!basename(rm_file) %in% basename(fls)]
     unlink(rm_file, recursive=TRUE)
     
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
     dbGetQuery(
         con, paste0(
             "DELETE FROM labfiles WHERE ContactExpID = '", ids, "' AND  Processing != 'raw' "
@@ -95,7 +95,7 @@ jadb_renove_exp <- function(ids, EXTABLE='labexperiment') {
         unlink(rm_file, recursive=TRUE)
     }
     
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
     dbGetQuery(
         con, paste0(
             "DELETE FROM labfiles WHERE ContactExpID = '", ids, "'"
@@ -145,8 +145,8 @@ addFilesFromCsv <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment', gshee
     
  
     
-    mysql <- dbDriver("MySQL")
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    mysql <- dbDriver(DRIVER)
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
     ALL <- dbReadTable(con, EXTABLE)
     
     
@@ -322,8 +322,8 @@ addFilesFromBaseSpace <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment',
         myProj <- listProjects(aAuth, Limit = 1000)
         PrAno <- data.frame(Name = Name(myProj), Id = Id(myProj))
         
-        mysql <- dbDriver("MySQL")
-        con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+        mysql <- dbDriver(DRIVER)
+        con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
         
         ALL <- dbReadTable(con, EXTABLE)
         
@@ -592,8 +592,8 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
     
     if(!any(PrAno$Name == prID)) stop('FATAL: Unable to mach BaseSpace project ID: ', prID, '. Projects on BaseSpace:\n', paste(PrAno$Name, collapse=', '))
     
-    mysql <- dbDriver("MySQL")
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    mysql <- dbDriver(DRIVER)
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
     ALL <- dbReadTable(con, EXTABLE)
     extract <- dbReadTable(con, 'labextract')
     
@@ -690,8 +690,8 @@ addExtractIDs <- function(csv, gsheet=TRUE) {
     
     TABLE <- 'labextract'
 
-    mysql <- dbDriver("MySQL")
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    mysql <- dbDriver(DRIVER)
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
     ALL <- dbReadTable(con, TABLE)
      
     fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", TABLE))

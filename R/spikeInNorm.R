@@ -12,7 +12,7 @@
 #' @export
 #' 
 getRatio <- function(ID) {
-    mysql <- dbDriver("MySQL")
+    mysql <- dbDriver(DRIVER)
     con <- dbConnect(mysql, group = GROUP, default.file='~/.my.cnf')
     
     exp_file 	<- unlist( dbGetQuery(con, paste("SELECT path FROM labfiles WHERE ContactExpID = '", ID, "' AND Filetype_format='bam'; ", collapse="", sep="") ) )
@@ -47,7 +47,7 @@ getRatio <- function(ID) {
 #' @export
 #' 
 normTrack <- function(nc) {
-    mysql <- dbDriver("MySQL")
+    mysql <- dbDriver(DRIVER)
     con <- dbConnect(mysql, group = GROUP, default.file='~/.my.cnf')
     
     

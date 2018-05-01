@@ -14,7 +14,7 @@
 #' #callPeaksMACS(IDs)
 callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE, genome='ce11') {
     
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
     all_experiments <<- dbReadTable(con, "labexperimentview")
     dbDisconnect(con)
     
@@ -29,7 +29,7 @@ callPeaksMACS <- function(ids, local=TRUE, extsize=150, summedinput=TRUE, genome
         else {
             R <- "REGEXP"
         }
-        con <- dbConnect(dbDriver("MySQL"), group = GROUP)
+        con <- dbConnect(dbDriver(DRIVER), group = GROUP)
         exp_file <- unlist(dbGetQuery(con, paste("SELECT ", info, " FROM labfiles WHERE ContactExpID ",
                                                  '=', " '", ID, "' AND Filetype_format ", R, " '", format,
                                                  "' AND  Processing ", R, " '", processing, "'", "AND Scale ",

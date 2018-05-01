@@ -1,6 +1,6 @@
 getBWarray <- function(IDs, res=1000L, processing = 'aligned') {
     
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
     dbListTables(con)
     all <- dbReadTable(con, "labexperimentview")
     
@@ -133,7 +133,7 @@ addIDRtoJADB <- function(IDs, res=100L) {
     
     
     ## get metatdata
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
     T <- dbReadTable(con, "labchipseqrep")
     CXID <- sprintf('REP%03.0f', max(as.numeric(gsub('REP', '', T$ContactExpID)))+1)
     

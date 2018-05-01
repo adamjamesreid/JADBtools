@@ -25,7 +25,7 @@ macs2 <- function(ids, local=TRUE, extsize=150, qval=.99, summedinput=TRUE, geno
         else {
             R <- "REGEXP"
         }
-        con <- dbConnect(dbDriver("MySQL"), group = GROUP)
+        con <- dbConnect(dbDriver(DRIVER), group = GROUP)
         exp_file <- unlist(dbGetQuery(con, paste("SELECT ", info, " FROM labfiles WHERE ContactExpID ",
                                                  '=', " '", ID, "' AND Filetype_format ", R, " '", format,
                                                  "' AND  Processing ", R, " '", processing, "'", "AND Scale ",
@@ -57,7 +57,7 @@ macs2 <- function(ids, local=TRUE, extsize=150, qval=.99, summedinput=TRUE, geno
             
             extract <- JADBtools::getAnno(x, anno = 'ExtractID', EXTABLE = 'labexperiment')
             
-            con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+            con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
             all_experiments <- tbl(con, "labexperimentview")
             inputs <- all_experiments %>% filter(ExtractID=='mE20', Factor=='Input') %>% collect %>% pull(ContactExpID)
             dbDisconnect(con)

@@ -12,8 +12,8 @@ fs_insert_fastq_to_jadb <- function(id, finalFilePath, EXTABLE='labrnaseq') {
 
     library(digest)
     
-    mysql <- dbDriver("MySQL")
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    mysql <- dbDriver(DRIVER)
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
     
     
     #DATABASE: Add file entry

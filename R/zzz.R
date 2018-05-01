@@ -13,8 +13,12 @@
     } else {
         MOUNT <<- '/mnt/jadb/DBfile/DBfiles'
     }
+    
+    DRIVER <<- "MariaDB"
+    
     message('Mount point:\n    ', MOUNT)
     message('    Exists: ', file.exists(MOUNT))
+    
     testConnection()
     
     

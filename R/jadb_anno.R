@@ -48,7 +48,7 @@ anno_add <- function(file, Type='Genes', Version='ensembl90', Description='tets 
         file <- tmp
     }
     
-    #con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    #con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
     #labanno <- con %>% tbl('labanno')
     maxid <- jagui_get_table('labanno')$ContactExpID %>% sort %>% tail(1)
     newid <- if(length(maxid)) sprintf('ANN%03i', as.numeric(gsub('ANN', '', maxid))+1) else 'ANN001'
@@ -75,6 +75,15 @@ anno_add <- function(file, Type='Genes', Version='ensembl90', Description='tets 
 }
 
 
+#' Title
+#'
+#' @param ID ContactExpID
+#' @param file path to file
+#' @param ref.genome.version genome version
+#'
+#' @return NULL
+#' @export
+#'
 anno_add_file <- function(ID, file, ref.genome.version='ce11') {
     dir <- file.path(MOUNT, 'ANNO', ID)
     file_base <- formGenericPath(ID, 'labanno', Processing = 'source', Resolution = ref.genome.version, Scale = 'ranges')
@@ -102,18 +111,22 @@ anno_add_file <- function(ID, file, ref.genome.version='ce11') {
         temp <- file
     }
     
-    message('Adding ', final_path)
+    message('Making dir ', dirname(final_path))
     ssh.utils::mkdir.remote(
         dirname(final_path), 
         remote = "jarun@cb-head2.gurdon.private.cam.ac.uk"
     )
-    cp.remote(
+    message('Adding ', final_path)
+    ssh.utils::cp.remote(
         remote.src = "", 
         path.src = temp,
         remote.dest = "jarun@cb-head2.gurdon.private.cam.ac.uk", 
         path.dest = final_path, 
         verbose = TRUE
     )
+    message('Adding file entry')
+    res <- jagui_add_recoerd(db_entry, input = NULL, TABLE='labfiles', verbose = FALSE)
+    message("Rows affected: ", res$rows.affected, '. -Done-')
 }
 
 
@@ -139,7 +152,7 @@ jagui_add_recoerd <- function(RECORD, input=NULL, TABLE, verbose=FALSE, host=NUL
     
     if(verbose) message(sql_string)
     
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf', host=host)
+    con <- dbConnect(dbDriver(DRIVER), group = "jadb", default.file='~/.my.cnf', host=host)
     res <- dbSendStatement(con, sql_string)
     out_res <- dbGetInfo(res)
     dbClearResult(res)

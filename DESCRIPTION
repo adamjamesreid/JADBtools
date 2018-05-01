@@ -8,11 +8,11 @@ Maintainer: Przemyslaw Stempor <ps562@cam.ac.uk>
 Description: R tools for feaching and removeing files from JADB
 Depends:
     R (>= 3.1.0),
-    RMySQL
+    RMariaDB
 Imports:
     XML,
     DBI,
-    RMySQL,
+    RMariaDB,
     digest,
     IRanges,
     GenomicRanges,

@@ -8,7 +8,7 @@
 #' @export
 #' 
 testConnection <- function() {
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
     ok <- dbExistsTable(con, 'labfiles')
     message('Connection status:')
     message(paste0('    ', names(dbGetInfo(con)), ': ', dbGetInfo(con), collapse = '\n'))

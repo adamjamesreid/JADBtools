@@ -38,7 +38,7 @@ jagui_add_submission_csv <- function(gurl, verbose=FALSE, host=NULL) {
     
     if(verbose) message(sql_string)
     
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf', host=host)
+    con <- dbConnect(dbDriver(DRIVER), group = "jadb", default.file='~/.my.cnf', host=host)
     res <- dbSendStatement(con, sql_string)
     out_res <- dbGetInfo(res)
     dbClearResult(res)
@@ -62,7 +62,7 @@ jagui_get_table <- function(tab) {
     library(tibble)
     library(RMySQL)
     
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
     
     fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", tab))
     PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', tab) ))[['Column_name']]
@@ -316,8 +316,8 @@ insert_entry_to_jadb <- function(data, finalFilePath) {
     )
     
     
-    mysql <- dbDriver("MySQL")
-    con <- dbConnect(dbDriver("MySQL"), group = GROUP, default.file='~/.my.cnf')
+    mysql <- dbDriver(DRIVER)
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
     
     rs <- dbSendQuery(con,  sql)
     
