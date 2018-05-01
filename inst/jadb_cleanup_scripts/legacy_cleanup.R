@@ -61,7 +61,7 @@ scl <- function(ID, genome='ce10', ops=', purge=TRUE, backup=TRUE', out_sufix=NU
 }
 
 
-con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
+con <- dbConnect(dbDriver(DRIVER), group = "jadb", default.file='~/.my.cnf')
 message(paste0('    ', names(dbGetInfo(con))[1:3], ': ', dbGetInfo(con)[1:3], collapse = '\n'))
 dbListTables(con)
 

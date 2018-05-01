@@ -7,7 +7,7 @@ fls <- dir()
 ALLpaths <- function(format='.', processing='.', scale='.', url=TRUE, eq=FALSE) {
     
     if (eq) { R <- '=' } else { R <- 'REGEXP' } 
-    con <- dbConnect(dbDriver("MySQL"), group = "jadb", default.file='~/.my.cnf')
+    con <- dbConnect(dbDriver(DRIVER), group = "jadb", default.file='~/.my.cnf')
     
     exp_file <- unlist( dbGetQuery(
         con, paste(
