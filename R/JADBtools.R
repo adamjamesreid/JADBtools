@@ -133,9 +133,7 @@ addGenericFile <- function(
     repPath=FALSE
     ) {
     
-    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
-    
-    UID=makeFileUID(gsub('\\..+', '',  basename(path)), prefix)
+    UID <- makeFileUID(gsub('\\..+', '',  basename(path)), prefix)
     INSERT <- list(
         ContactExpID=ContactExpID,
         Processing=Processing,
@@ -162,7 +160,9 @@ addGenericFile <- function(
         uniq=uniq,
         genome=genome
     )
-    dbSendQuery(con, paste(
+    
+    con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
+    dbExecute(con, paste(
         "INSERT INTO mydb.labfiles(", 
         paste(names(INSERT), collapse=", "),
         ") VALUES('", paste(INSERT, collapse="', '"), "')",

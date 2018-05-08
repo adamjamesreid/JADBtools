@@ -316,17 +316,20 @@ insert_entry_to_jadb <- function(data, finalFilePath) {
     )
     
     
-    mysql <- dbDriver(DRIVER)
+
     con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
-    
     rs <- dbSendQuery(con,  sql)
-    
+    dbDisconnect(con)
     
     #DATABASE: Add file entry
     
     id <- insert['ContactExpID']
     TABLE <- 'labfiles'
     if( grepl('labexperiment', EXTABLE) ) {
+        
+        
+  
+        con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
         
         EXPERIMENT <- 	dbGetQuery(con, paste("SELECT Factor, Antibody, ExtractID, Crosslinker, Strain, Stage FROM mydb.labexperimentview WHERE ContactExpID = '", id, "'", collapse="", sep=""))
         dirPath <- file.path(EXPERIMENT[['Factor']], EXPERIMENT[['Strain']], paste(id, EXPERIMENT[['ExtractID']], EXPERIMENT[['Antibody']], sep='_'))
@@ -360,7 +363,13 @@ insert_entry_to_jadb <- function(data, finalFilePath) {
         INSERT[['uniq']]			<- NA
         sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
         
-        rs <- dbSendQuery(con, sql )
+        
+        
+        
+        rs <- dbExecute(con,  sql)
+        dbDisconnect(con)
+        
+
         
     } else {
         
@@ -408,11 +417,13 @@ insert_entry_to_jadb <- function(data, finalFilePath) {
         INSERT[['uniq']]			    <- NA
         sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
         
-        rs <- dbSendQuery(con, sql )
+        con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
+        rs <- dbSendQuery(con,  sql)
+        dbDisconnect(con)
         
     } 
     
-    dbDisconnect(con)
+
     message(' - OK')
 }
 
