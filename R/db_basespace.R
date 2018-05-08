@@ -203,7 +203,7 @@ validate_jadb_submission_entry <- function(
     
     id <- entry["ContactExpID"]
     
-    if (!grepl("^r*[A-Z]{2}[0-9]{3}$", id)) {
+    if(!basespace) if (!grepl("^r*[A-Z]{2}[0-9]{3}$", id)) {
         message("[ERROR] Missformated experiemt ID")
         return(FALSE)
     }
