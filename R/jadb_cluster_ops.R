@@ -26,7 +26,7 @@ jadb_dc <- function(gurl, genome=c('ce11', 'cb3ce11', 'legacy_only'), legacy_ce1
         pipeline <- 'jadb_ChIPseq'
         EXTABLE <- 'labexperiment'
     } else if(grepl('GSM', id_prefix)) {
-        message( '=> ChIP-seq <=')
+        message( '=> GEO ChIP-seq <=')
         pipeline <- 'jadb_ChIPseq'
         EXTABLE <- 'labexperiment'
     } else {
