@@ -318,7 +318,7 @@ insert_entry_to_jadb <- function(data, finalFilePath) {
     
 
     con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
-    rs <- dbSendQuery(con,  sql)
+    rs <- dbExecute(con,  sql)
     dbDisconnect(con)
     
     #DATABASE: Add file entry
