@@ -320,7 +320,7 @@ addFilesFromBaseSpace <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment',
         app_access_token <- "f58a0ccf1599418d8b4b09034a56bdd5"
         aAuth <- AppAuth(access_token = app_access_token, scope = "browse Sample")
         myProj <- listProjects(aAuth, Limit = 1000)
-        PrAno <- data.frame(Name = Name(myProj), Id = Id(myProj))
+        PrAno <- data.frame(Name = BaseSpaceR::Name(myProj), Id = BaseSpaceR::Id(myProj))
         
         mysql <- dbDriver(DRIVER)
         con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
@@ -370,7 +370,7 @@ addFilesFromBaseSpace <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment',
             
             
             mySmpl <- listSamples(aAuth, projectId=subset(PrAno, Name == prID, Id, drop = TRUE), Limit=1000)
-            SmAno <- data.frame(Name = Name(mySmpl), Id = Id(mySmpl))
+            SmAno <- data.frame(Name = BaseSpaceR::Name(mySmpl), Id = BaseSpaceR::Id(mySmpl))
             files <- listFiles(aAuth, sampleId = subset(SmAno, Name == smplID, Id, drop = TRUE))
             
             #if( insert[['SeqType']] == 'PE') {
@@ -384,7 +384,7 @@ addFilesFromBaseSpace <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment',
 
             message('Procesing: ', paste(insert, collapse = ' | '))
             #File download, takes time
-            getFiles(aAuth, id = Id(files), destDir = temp_dir, verbose = TRUE)
+            getFiles(aAuth, id = BaseSpaceR::Id(files), destDir = temp_dir, verbose = TRUE)
             
             #File size check
             if( !all(files$Size == file.info(file.path(temp_dir, files$Path))$size) ) {
@@ -587,7 +587,7 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
     app_access_token <- "f58a0ccf1599418d8b4b09034a56bdd5"
     aAuth <- AppAuth(access_token = app_access_token, scope = "browse Sample")
     myProj <- listProjects(aAuth, Limit = 1000)
-    PrAno <- data.frame(Name = Name(myProj), Id = Id(myProj))
+    PrAno <- data.frame(Name = BaseSpaceR::Name(myProj), Id = BaseSpaceR::Id(myProj))
     
     
     if(!any(PrAno$Name == prID)) stop('FATAL: Unable to mach BaseSpace project ID: ', prID, '. Projects on BaseSpace:\n', paste(PrAno$Name, collapse=', '))
@@ -624,7 +624,7 @@ validateFilesFromBaseSpace <- function(csv, EXTABLE='mydb.labexperiment', gsheet
         
         
         mySmpl <- listSamples(aAuth, projectId=subset(PrAno, Name == prID, Id, drop = TRUE), Limit=1000)
-        SmAno <- data.frame(Name = Name(mySmpl), Id = Id(mySmpl))
+        SmAno <- data.frame(Name = BaseSpaceR::Name(mySmpl), Id = BaseSpaceR::Id(mySmpl))
         files <- listFiles(aAuth, sampleId = subset(SmAno, Name == smplID, Id, drop = TRUE))
         
         if(!any(SmAno$Name == smplID)) warning('Experiment ID [', smplID, '] does not match one(s) in BaseSpace, allowed values are:\n', paste(SmAno$Name, collapse=', '))

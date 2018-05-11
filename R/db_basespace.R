@@ -272,7 +272,7 @@ download_fastq_from_basespace <- function(data) {
     
     message('Procesing: ', paste(insert, collapse = ' | '))
     #File download, takes time
-    getFiles(aAuth, id = Id(files), destDir = temp_dir, verbose = TRUE)
+    getFiles(aAuth, id = BaseSpaceR::Id(files), destDir = temp_dir, verbose = TRUE)
     
     #File size check
     if( !all(files$Size == file.info(file.path(temp_dir, files$Path))$size) ) {
