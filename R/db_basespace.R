@@ -417,9 +417,10 @@ insert_entry_to_jadb <- function(data, finalFilePath) {
         INSERT[['Created']] 	<- paste(Sys.Date())
         INSERT[['Updated']] 	<- paste(Sys.Date())
         INSERT[['uniq']]			    <- NA
-        sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
         
+        sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
         rs <- dbExecute(con,  sql)
+
         dbDisconnect(con)
         
     } 
