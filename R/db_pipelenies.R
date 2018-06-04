@@ -141,6 +141,8 @@ jadb_ChIPseq <- function(
             genome = genome, uniq='NA', rename_output=FALSE, prefix_output = 'M'
         )
     }
+    
+    message('Pipeline finished!')
 
 }
 
@@ -201,7 +203,7 @@ jadb_RNAseq <- function( ids, steps=c('trim', 'aln', 'tracks', 'rpm', 'fastqc', 
         )
     }
     
- 
+    message('Pipeline finished!') 
     
     #fastq Screen 
     
