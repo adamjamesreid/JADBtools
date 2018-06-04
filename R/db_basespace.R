@@ -373,6 +373,8 @@ insert_entry_to_jadb <- function(data, finalFilePath) {
         
     } else {
         
+        con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
+        
         PK <- dbGetQuery(con, sprintf("SHOW INDEX FROM %s WHERE Key_name = 'PRIMARY'", gsub('view$', '', EXTABLE) ))[['Column_name']]
         fileds.def <- dbGetQuery(con, sprintf("SHOW FIELDS FROM %s", EXTABLE))
         
@@ -417,7 +419,6 @@ insert_entry_to_jadb <- function(data, finalFilePath) {
         INSERT[['uniq']]			    <- NA
         sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
         
-        con <- dbConnect(dbDriver(DRIVER), group = GROUP, default.file='~/.my.cnf')
         rs <- dbSendQuery(con,  sql)
         dbDisconnect(con)
         
