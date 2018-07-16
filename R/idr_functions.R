@@ -151,6 +151,11 @@ idr_concave_two_pass_with_oracle <- function(r1, r2, processing='BEADSQ10NU', cu
     # Concave calls on combined BW
     
     out_rep <- combineReps(r1 = bw1, r2 = bw2, outdir = '.')
+    file.rename(
+        out_rep$out,
+        gsub('\\|', '_', out_rep$out )
+    )
+    out_rep$out <- gsub('\\|', '_', out_rep$out )
     system(sprintf(
         '/Users/przemol/miniconda2/bin/python /usr/local/bin/concave_regions %s > %s',
         basename(out_rep$out),
@@ -292,11 +297,11 @@ overlap_intersect <- function(r1, r2, processing='BEADSQ10NU', dc=TRUE) {
     
     blacklist <- import.bed('https://gist.githubusercontent.com/Przemol/ef62ac7ed41d3a84ad6c478132417770/raw/56e98b99e6188c8fb3dfb806ff6f382fe91c27fb/CombinedBlacklists.bed')
     nonmappable <- import.bed('https://gist.githubusercontent.com/Przemol/ef62ac7ed41d3a84ad6c478132417770/raw/56e98b99e6188c8fb3dfb806ff6f382fe91c27fb/non_mappable.bed')
-    filter <- reduce(c(blacklist, nonmappable))
+    filter <- GenomicRanges::reduce(c(blacklist, nonmappable))
     
     
     chain <- import.chain('/Users/przemol/Downloads/ce10ToCe11.over.chain')
-    filter_ce11 <- liftOver(filter, chain) %>% reduce(min.gapwidth=50) %>%  unlist
+    filter_ce11 <- rtracklayer::liftOver(filter, chain) %>% reduce(min.gapwidth=50) %>%  unlist
 
 
     int2 <- int[!int %over% filter_ce11]
@@ -386,7 +391,7 @@ overlap_intersect_nd <- function(
     nonmappable <- import.bed('https://gist.githubusercontent.com/Przemol/ef62ac7ed41d3a84ad6c478132417770/raw/56e98b99e6188c8fb3dfb806ff6f382fe91c27fb/non_mappable.bed')
     
     if(filter_map) {
-        filter <- reduce(c(blacklist, nonmappable))
+        filter <- GenomicRanges::reduce(c(blacklist, nonmappable))
     } else {
         filter <- blacklist
     }
