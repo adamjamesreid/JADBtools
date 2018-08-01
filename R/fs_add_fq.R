@@ -57,7 +57,7 @@ fs_insert_fastq_to_jadb <- function(id, finalFilePath, EXTABLE='labrnaseq') {
         INSERT[['uniq']]			<- NA
         sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
         
-        rs <- dbSendQuery(con, sql )
+        rs <- dbExecute(con, sql )
         
     } else {
         
@@ -108,7 +108,7 @@ fs_insert_fastq_to_jadb <- function(id, finalFilePath, EXTABLE='labrnaseq') {
         INSERT[['uniq']]			    <- NA
         sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
         
-        rs <- dbSendQuery(con, sql )
+        rs <- dbExecute(con, sql )
         
     } 
     

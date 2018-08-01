@@ -189,7 +189,7 @@ addFilesFromCsv <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment', gshee
             paste(DBinsert, collapse="', '"), "')", collapse=", ", sep=""
         )
         
-        rs <- dbSendQuery(con,  sql)
+        rs <- dbExecute(con,  sql)
         
         id <- insert['ContactExpID']
         TABLE <- 'labfiles'
@@ -227,7 +227,7 @@ addFilesFromCsv <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment', gshee
             INSERT[['uniq']]			<- NA
             sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
             
-            rs <- dbSendQuery(con, sql )
+            rs <- dbExecute(con, sql )
             
         } else {
             
@@ -274,7 +274,7 @@ addFilesFromCsv <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment', gshee
             INSERT[['uniq']]			    <- NA
             sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
             
-            rs <- dbSendQuery(con, sql )
+            rs <- dbExecute(con, sql )
             
         } 
         
@@ -410,7 +410,7 @@ addFilesFromBaseSpace <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment',
                 paste(DBinsert, collapse="', '"), "')", collapse=", ", sep=""
             )
             
-            rs <- dbSendQuery(con,  sql)
+            rs <- dbExecute(con,  sql)
             
             # }
             
@@ -451,7 +451,7 @@ addFilesFromBaseSpace <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment',
                 INSERT[['uniq']]			<- NA
                 sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
                 
-                rs <- dbSendQuery(con, sql )
+                rs <- dbExecute(con, sql )
                 
             } else {
                 
@@ -498,7 +498,7 @@ addFilesFromBaseSpace <- function(csv, root=MOUNT, EXTABLE='mydb.labexperiment',
                 INSERT[['uniq']]			    <- NA
                 sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
                 
-                rs <- dbSendQuery(con, sql )
+                rs <- dbExecute(con, sql )
                 
             } 
             
@@ -709,7 +709,7 @@ addExtractIDs <- function(csv, gsheet=TRUE) {
         
         sql <- paste("INSERT INTO ", TABLE,"(", paste(names(INSERT), collapse=", "),") VALUES('", paste(INSERT, collapse="', '"), "')", collapse=", ", sep="")
         
-        rs <- dbSendQuery(con, sql )
+        rs <- dbExecute(con, sql )
     }
     
     dbDisconnect(con)

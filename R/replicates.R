@@ -61,7 +61,7 @@ jadb_replicates_chip <- function(IDs, res=100L, prefix='REP', extra_stats=NULL) 
     
     sql <- paste("INSERT INTO ", TABLE,"(", paste(colnames(INSERT), collapse=", "),") VALUES('", paste(as.character(unlist(INSERT)), collapse="', '"), "')", collapse=", ", sep="")
     
-    rs <- dbSendQuery(con, sql )
+    rs <- dbExecute(con, sql )
     info <- dbGetInfo(rs)
     
     dbDisconnect(con)
